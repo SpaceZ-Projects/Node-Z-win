@@ -11,3 +11,8 @@ class ButtonStyle():
     local_button_style = Pack(
         padding_left = 45
     )
+    
+    social_button_style = Pack(
+        width = 25,
+        height = 25
+    )

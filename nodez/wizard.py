@@ -14,7 +14,8 @@ from toga.widgets.base import Widget
 from .styles.box import BoxStyle
 from .styles.label import LabelStyle
 from .styles.button import ButtonStyle
-from .styles.image import ImageStyle
+
+from .social import Social
 
 class MainWinzard(Box):
     def __init__(self, app:App, id: str | None = None, style=None, children: list[Widget] | None = None):
@@ -23,16 +24,11 @@ class MainWinzard(Box):
         self.app = app
         
         self.nodez_banner = ImageView(
-            "resources/nodez_banner.png",
-            style=ImageStyle.nodez_banner_style
+            "resources/nodez_banner.png"
         )
         self.version_txt = Label(
             f"version {self.app._version}",
             style=LabelStyle.version_text_style
-        )
-        self.loading_txt = Label(
-            "Loading...",
-            style=LabelStyle.loading_txt_style
         )
         self.nodez_banner_box = Box(
             style=BoxStyle.nodez_banner_box
@@ -61,7 +57,8 @@ class MainWinzard(Box):
         self.clomun_box_center.add(
             self.row_top_box,
             self.row_center_box,
-            self.row_bottom_box
+            self.row_bottom_box,
+            Social(self.app)
         )
         self.add(
             self.clomun_box_center
@@ -72,6 +69,10 @@ class MainWinzard(Box):
     
     async def loading_options(self, widget):
         await asyncio.sleep(1)
+        self.loading_txt = Label(
+            "Loading...",
+            style=LabelStyle.loading_txt_style
+        )
         self.row_center_box.add(
             self.loading_txt
         )

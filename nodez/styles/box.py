@@ -8,6 +8,10 @@ class BoxStyle():
         direction = COLUMN,
     )
     
+    social_buttons = Pack(
+        direction = ROW
+    )
+    
     clomun_box_center = Pack(
         direction = COLUMN,
         alignment = "center",

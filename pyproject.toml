@@ -1,0 +1,40 @@
+# This project was generated with 0.3.18 using template: https://github.com/beeware/briefcase-template@v0.3.18
+[tool.briefcase]
+project_name = "Node-Z"
+bundle = "com.nodez"
+version = "1.0.0"
+url = "https://www.getbtcz.com"
+license = "MIT license"
+author = "EzzyG"
+author_email = "dragkhai@gmail.com"
+
+[tool.briefcase.app.nodez]
+formal_name = "Node-Z"
+description = "Full NodeZ"
+long_description = """More details about the app should go here.
+"""
+sources = [
+    "nodez",
+]
+test_sources = [
+    "tests",
+]
+
+requires = [
+]
+test_requires = [
+    "pytest",
+]
+
+[tool.briefcase.app.nodez.windows]
+requires = [
+    "toga-winforms~=0.4.0",
+]
+
+# Web deployments
+[tool.briefcase.app.nodez.web]
+requires = [
+    "toga-web~=0.4.0",
+]
+style_framework = "Shoelace v2.3"
+

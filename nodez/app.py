@@ -57,7 +57,7 @@ class NodeZ(App):
         self.main_window = MainWindow(
             title=self.formal_name,
             position=(550, 250),
-            size=(500, 300),
+            size=(500, 350),
             resizeable=False
         )
         self.main_window.content = MainWinzard(self)

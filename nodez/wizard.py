@@ -7,12 +7,14 @@ from toga import (
     Box,
     Label,
     ImageView,
-    Button
+    Button,
+    Icon
 )
 from toga.widgets.base import Widget
 from .styles.box import BoxStyle
 from .styles.label import LabelStyle
 from .styles.button import ButtonStyle
+from .styles.image import ImageStyle
 
 class MainWinzard(Box):
     def __init__(self, app:App, id: str | None = None, style=None, children: list[Widget] | None = None):
@@ -21,7 +23,8 @@ class MainWinzard(Box):
         self.app = app
         
         self.nodez_banner = ImageView(
-            "resources/nodez_banner.png"
+            "resources/nodez_banner.png",
+            style=ImageStyle.nodez_banner_style
         )
         self.version_txt = Label(
             f"version {self.app._version}",
@@ -80,11 +83,11 @@ class MainWinzard(Box):
             self.loading_txt
         )
         self.rpc_button = Button(
-            "RPC connection",
+            icon=Icon("icones/rpc"),
             style=ButtonStyle.rpc_button_style
         )
         self.local_button = Button(
-            "Local host",
+            icon=Icon("icones/setup"),
             style=ButtonStyle.local_button_style
         )
         self.row_center_box.add(

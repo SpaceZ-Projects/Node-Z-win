@@ -155,7 +155,7 @@ class MainWinzard(Box):
         data_path = self.app.paths.data
         print(data_path)
         if not os.path.exists(data_path):
-            os.mkdir(data_path)
+            os.makedirs(data_path, exist_ok=True)
         await self.download_nodes_file()
         
     async def download_nodes_file(self):

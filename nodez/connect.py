@@ -1,3 +1,6 @@
+import asyncio
+import os
+import sqlite3
 from toga import (
     App,
     Window,
@@ -10,10 +13,12 @@ from toga import (
     Button,
     Icon
 )
-from toga.window import OnCloseHandler
+from .request import rpc_test
 from .styles.box import BoxStyle
 from .styles.label import LabelStyle
-from toga.colors import RED, BLACK
+from toga.colors import RED, BLACK, GREEN
+
+from .home import MainMenu
 
 
 class WindowRPC(Window):
@@ -22,7 +27,7 @@ class WindowRPC(Window):
             title="RPC Connect",
             size=(300, 200),
             position=(400, 300),
-            resizeable=False,
+            resizable=False,
             minimizable=False,
             on_close=self.close_window
         )
@@ -124,6 +129,97 @@ class WindowRPC(Window):
             )
             self.rpcport_txt.style.color = RED
             return
+        await self.try_to_connect(rpcuser, rpcpassword, rpchost, rpcport)
+    
+    
+    async def try_to_connect(self, rpcuser, rpcpassword, rpchost, rpcport):
+        self.status_txt = Label(
+            "connecting...",
+            style=LabelStyle.default_txt_bold_style
+        )
+        self.button_box.remove(
+            self.connect_button
+        )
+        self.button_box.add(
+            self.status_txt
+        )
+        result = rpc_test(
+            rpcuser,
+            rpcpassword,
+            rpchost,
+            rpcport
+        )
+        await asyncio.sleep(2)
+        if result is False:
+            self.status_txt.style.color = RED
+            self.status_txt.text = "failed"
+            await asyncio.sleep(2)
+            self.button_box.remove(
+                self.status_txt
+            )
+            self.button_box.add(
+                self.connect_button
+            )
+            return
+        if result is True:
+            self.status_txt.style.color = GREEN
+            self.status_txt.text = "connected"
+            await asyncio.sleep(2)
+            await self.save_temp_config(
+                rpcuser,
+                rpcpassword,
+                rpchost,
+                rpcport
+            )
+    
+    async def save_temp_config(
+        self,
+        rpcuser,
+        rpcpassword,
+        rpchost,
+        rpcport
+    ):
+        config_path = self.app.paths.config
+        if not os.path.exists(config_path):
+            os.makedirs(config_path)
+        db_path = os.path.join(config_path, 'config.db')
+        conn = sqlite3.connect(db_path)
+        cursor = conn.cursor()
+        cursor.execute(
+            '''
+            CREATE TABLE IF NOT EXISTS config (
+                rpcuser TEXT,
+                rpcpassword TEXT,
+                rpchost TEXT,
+                rpcport INTEGER
+            )
+            '''
+        )
+        cursor.execute(
+            '''
+            INSERT OR REPLACE INTO config (rpcuser, rpcpassword, rpchost, rpcport)
+            VALUES (?, ?, ?, ?)
+            ''', 
+            (rpcuser, rpcpassword, rpchost, int(rpcport))
+        )
+        conn.commit()
+        conn.close()
+        await self.start_the_gui()
+    
+    async def start_the_gui(self):
+        await asyncio.sleep(1)
+        self.status_txt.text = "start the gui..."
+        self.status_txt.style.color = BLACK
+        await asyncio.sleep(2)
+        self.close()
+        self.app.main_window.hide()
+        await asyncio.sleep(2)
+        self.app.main_window.content.clear()
+        self.app.main_window.content = MainMenu(self.app)
+        self.app.main_window.position = (0,0)
+        self.app.main_window.size = (600, 200)
+        self.app.main_window.title = "Node-Z (RPC)"
+        self.app.main_window.show()
     
     
     async def rpcuser_on_gain_focus(self, txt_input):

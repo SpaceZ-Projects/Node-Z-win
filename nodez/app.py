@@ -1,3 +1,4 @@
+import os
 from toga import (
     App,
     MainWindow
@@ -57,7 +58,7 @@ class NodeZ(App):
             title=self.formal_name,
             position=(550, 250),
             size=(500, 400),
-            resizeable=False
+            resizable=False
         )
         self.main_window.content = MainWinzard(self)
         self.main_window.show()
@@ -68,6 +69,7 @@ class NodeZ(App):
             if result is False:
                 return
             if result is True:
+                await self.clean_config_path()
                 self.exit()
 
         self.main_window.confirm_dialog(
@@ -75,6 +77,14 @@ class NodeZ(App):
             message="You are about to exit the app. Are you sure ?",
             on_result=on_confirm
         )
+    
+    async def clean_config_path(self):
+        config_path = self.app.paths.config
+        if not os.path.exists(config_path):
+            return
+        db_path = os.path.join(config_path, 'config.db')
+        if os.path.exists(db_path):
+            os.remove(db_path)
 
 
 def main():

@@ -4,7 +4,7 @@ from toga import (
     MainWindow
 )
 
-from .wizard import MainWinzard
+from .wizard import MainWizard
 
 
 class NodeZ(App):
@@ -60,7 +60,7 @@ class NodeZ(App):
             size=(500, 400),
             resizable=False
         )
-        self.main_window.content = MainWinzard(self)
+        self.main_window.content = MainWizard(self)
         self.main_window.show()
         self.on_exit = self.prevent_close
         

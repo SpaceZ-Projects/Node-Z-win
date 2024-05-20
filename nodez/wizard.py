@@ -19,7 +19,7 @@ from .styles.button import ButtonStyle
 from .connect import WindowRPC
 from .social import Social
 
-class MainWinzard(Box):
+class MainWizard(Box):
     def __init__(self, app:App, id: str | None = None, style=None, children: list[Widget] | None = None):
         style = BoxStyle.column
         super().__init__(id, style, children)

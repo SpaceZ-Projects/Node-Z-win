@@ -1,7 +1,6 @@
 from toga import (
     App,
-    MainWindow,
-    Box
+    MainWindow
 )
 
 from .wizard import MainWinzard
@@ -64,8 +63,8 @@ class NodeZ(App):
         self.main_window.show()
         self.on_exit = self.prevent_close
         
-    def prevent_close(self, window):
-        def on_confirm(window, result):
+    async def prevent_close(self, window):
+        async def on_confirm(window, result):
             if result is False:
                 return
             if result is True:

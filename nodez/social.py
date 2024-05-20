@@ -11,34 +11,34 @@ from .styles.button import ButtonStyle
 
 class Social(Box):
     def __init__(self, app:App, id: str | None = None, style=None, children: list[Widget] | None = None):
-        style = BoxStyle.social_buttons
+        style = BoxStyle.row
         super().__init__(id, style, children)
         self.app = app
         
         self.website_button = Button(
             icon=Icon("icones/website"),
             on_press=self.open_website,
-            style=ButtonStyle.social_button_style
+            style=ButtonStyle.social_button
         )
         self.github_button = Button(
             icon=Icon("icones/github"),
             on_press=self.open_github,
-            style=ButtonStyle.social_button_style
+            style=ButtonStyle.social_button
         )
         self.xcom_button = Button(
-            icon=Icon("icones/xcom"),
+            icon=Icon("icones/twitterx"),
             on_press=self.open_xcom,
-            style=ButtonStyle.social_button_style
+            style=ButtonStyle.social_button
         )
         self.facebook_button = Button(
             icon=("icones/facebook"),
             on_press=self.open_facebook,
-            style=ButtonStyle.social_button_style
+            style=ButtonStyle.social_button
         )
         self.discord_button = Button(
             icon=Icon("icones/discord"),
             on_press=self.open_discord,
-            style=ButtonStyle.social_button_style
+            style=ButtonStyle.social_button
         )
         
         self.add(

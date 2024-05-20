@@ -4,15 +4,14 @@ from toga.colors import rgb
 
 class ButtonStyle():
     
-    rpc_button_style = Pack(
+    rpc_button = Pack(
         padding_right = 45
     )
     
-    local_button_style = Pack(
+    local_button = Pack(
         padding_left = 45
     )
     
-    social_button_style = Pack(
-        width = 25,
-        height = 25
+    social_button = Pack(
+        background_color = rgb(0, 0, 0)
     )

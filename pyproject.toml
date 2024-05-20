@@ -4,7 +4,7 @@ bundle = "com.nodez"
 version = "1.0.0"
 url = "https://www.getbtcz.com"
 license = "MIT license"
-author = "EzzyG"
+author = "BTCZCommunity"
 author_email = "dragkhai@gmail.com"
 
 [tool.briefcase.app.nodez]

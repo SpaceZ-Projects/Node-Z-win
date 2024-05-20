@@ -83,7 +83,7 @@ def main():
     app.formal_name = "Node-Z"
     app.app_id = "com.nodez"
     app.home_page = "https://www.getbtcz.com"
-    app.author = "EzzyG"
+    app.author = "BTCZCommunity"
     app.version = "2024.5"
     return app
 

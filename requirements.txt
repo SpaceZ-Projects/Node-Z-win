@@ -1,0 +1,3 @@
+toga-winforms==0.4.4
+requests
+aiohttp

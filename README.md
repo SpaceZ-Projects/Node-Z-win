@@ -27,7 +27,7 @@ pip install briefcase
 ```
 Install Requirements Packages :
 ```
-pip install toga-winforms==0.4.4 requests
+pip install -U -r requirements.txt
 ```
 Clone the Repository:
 ```

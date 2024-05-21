@@ -28,7 +28,7 @@ test_requires = [
 
 [tool.briefcase.app.nodez.windows]
 requires = [
-    "toga-winforms~=0.4.4",
+    "toga-winforms==0.4.4",
     "requests"
 ]
 

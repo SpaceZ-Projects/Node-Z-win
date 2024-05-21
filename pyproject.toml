@@ -29,7 +29,8 @@ test_requires = [
 [tool.briefcase.app.nodez.windows]
 requires = [
     "toga-winforms==0.4.4",
-    "requests"
+    "requests",
+    "aiohttp"
 ]
 
 use_full_install_path = false

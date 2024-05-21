@@ -1,5 +1,6 @@
 import os
 import requests
+import aiohttp
 import json
 import sqlite3
 
@@ -26,6 +27,25 @@ def rpc_test(rpcuser, rpcpassword, rpchost, rpcport):
             return True
     except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError) as e:
         return False
+    
+
+async def get_btcz_price():
+    api_url = "https://api.coinpaprika.com/v1/tickers/btcz-bitcoinz"
+    try:
+        async with aiohttp.ClientSession() as session:
+            async with session.get(api_url) as response:
+                if response.status == 200:
+                    data = await response.json()
+                    quotes = data.get('quotes', None)
+                    btcz_usd = quotes.get('USD', None)
+                    price = btcz_usd.get('price', None)
+                    return price
+                else:
+                    print(f"Failed to fetch data. Status code: {response.status}")
+    except aiohttp.ClientError as e:
+        return None
+    except Exception as e:
+        return None
     
     
 class RPCRequest():
@@ -79,12 +99,12 @@ class RPCRequest():
             "getinfo",
             []
         )
-    def Z_getTotalBalance(self):
+    def z_getTotalBalance(self):
         return self.make_rpc_request(
             "z_gettotalbalance",
             []
         )
-    def Z_getBalance(self, address):
+    def z_getBalance(self, address):
         return self.make_rpc_request(
             "z_getbalance",
             [f"{address}"]
@@ -131,7 +151,7 @@ class RPCRequest():
             [address]
         )
         
-    def Z_validateAddress(self, address):
+    def z_validateAddress(self, address):
         return self.make_rpc_request(
             "z_validateaddress",
             [address]

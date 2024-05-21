@@ -24,6 +24,21 @@ class BoxStyle():
     
     home_buttons_box = Pack(
         direction = ROW,
+        alignment = "top"
+    )
+    
+    home_balances_box = Pack(
+        direction = ROW,
+        alignment = "center"
+    )
+    
+    home_total_balances_box = Pack(
+        direction = ROW,
+        alignment = "center"
+    )
+    
+    home_price_box = Pack(
+        direction = ROW,
         alignment = "bottom"
     )
     

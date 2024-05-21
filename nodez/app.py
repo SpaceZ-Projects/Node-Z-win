@@ -59,7 +59,7 @@ class NodeZ(App):
             size=(550 ,400),
             resizable=False
         )
-        self.main_window.content = MainWizard(self)
+        self.main_window.content = MainWizard(self.app)
         self.main_window.show()
         self.on_exit = self.prevent_close
         

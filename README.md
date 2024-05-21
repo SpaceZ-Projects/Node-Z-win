@@ -1,8 +1,12 @@
 Node-Z
 ======
 
+## About the Project
 
+Node-Z is a GUI interface designed to manage BitcoinZ nodes through RPC connections or local setup. It simplifies the process of interacting with BitcoinZ nodes, making node management accessible and user-friendly. Key features include:
 
-_`Briefcase`: https://briefcase.readthedocs.io/
-_`The BeeWare Project`: https://beeware.org/
-_`becoming a financial member of BeeWare`: https://beeware.org/contributing/membership
+- Easy setup and configuration of local BitcoinZ nodes.
+- Remote management of BitcoinZ nodes via RPC.
+- Real-time monitoring and status updates.
+- User-friendly interface for node operations.
+

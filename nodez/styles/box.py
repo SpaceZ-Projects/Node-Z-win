@@ -3,44 +3,57 @@ from toga.colors import rgb
 
 
 class BoxStyle():
-        
-    column = Pack(
-        direction = COLUMN
-    )
     
-    column_center = Pack(
-        direction= COLUMN,
-        alignment="center"
-    )
-    
-    column_center_padding_5 = Pack(
-        direction= COLUMN,
-        alignment="center",
+    connect_main_box = Pack(
+        direction = COLUMN,
+        alignment = "center",
         padding = 5
     )
     
-    clomun_center_flex = Pack(
-        direction = COLUMN,
-        alignment = "center",
-        flex = 1
+    connect_button_box = Pack(
+        direction = ROW,
+        padding_top = 5
     )
     
-    row = Pack(
+    home_main_box = Pack(
+        direction = COLUMN,
+        alignment ="center",
+        width = 305,
+        height = 200,
+    )
+    
+    home_buttons_box = Pack(
+        direction = ROW,
+        alignment = "bottom"
+    )
+    
+    social_main_box = Pack(
         direction = ROW
     )
     
-    row_top_flex = Pack(
+    wizard_main_box = Pack(
+        direction = COLUMN,
+        width = 405,
+        height = 400,
+        alignment = "center"
+    )
+    
+    wizard_nodez_banner = Pack(
+        direction= COLUMN
+    )
+    
+    wizard_row_top = Pack(
         direction = ROW,
         alignment = "top"
     )
     
-    row_center_flex = Pack(
+    wizard_row_center = Pack(
         direction = ROW,
         alignment = "center",
         flex = 1
     )
     
-    row_bottom_flex = Pack(
+    wizard_row_bottom = Pack(
         direction = ROW,
         alignment = "bottom",
         flex = 1

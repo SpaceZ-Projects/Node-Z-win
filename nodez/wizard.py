@@ -12,6 +12,7 @@ from toga import (
     Divider
 )
 from toga.widgets.base import Widget
+from toga.constants import Direction
 from .styles.box import BoxStyle
 from .styles.label import LabelStyle
 from .styles.button import ButtonStyle
@@ -21,7 +22,7 @@ from .social import Social
 
 class MainWizard(Box):
     def __init__(self, app:App, id: str | None = None, style=None, children: list[Widget] | None = None):
-        style = BoxStyle.column
+        style = BoxStyle.wizard_main_box
         super().__init__(id, style, children)
         self.app = app
         
@@ -32,44 +33,32 @@ class MainWizard(Box):
             f"version {self.app._version}",
             style=LabelStyle.version_text_style
         )
-        self.nodez_banner_box = Box(
-            style=BoxStyle.clomun_center_flex
-        )
-        self.nodez_banner_box.add(
-            self.nodez_banner
-        )
         self.row_top_box = Box(
-            style=BoxStyle.row_top_flex
+            style=BoxStyle.wizard_row_top
         )
         self.row_center_box = Box(
-            style=BoxStyle.row_center_flex
+            style=BoxStyle.wizard_row_center
         )
         self.row_bottom_box = Box(
-            style=BoxStyle.row_bottom_flex
+            style=BoxStyle.wizard_row_bottom
         )
-        self.clomun_box_center = Box(
-            style=BoxStyle.clomun_center_flex
+        self.divider_top = Divider(
+            direction=Direction.HORIZONTAL
         )
-        self.divider_top = Divider()
-        self.divider_bottom = Divider()
-        self.row_top_box.add(
-            self.nodez_banner_box
+        self.divider_bottom = Divider(
+            direction=Direction.HORIZONTAL
         )
         self.row_bottom_box.add(
             self.version_txt
         )
-        self.clomun_box_center.add(
-            self.row_top_box,
+        self.add(
+            self.nodez_banner,
             self.divider_top,
             self.row_center_box,
             self.row_bottom_box,
             self.divider_bottom,
             Social(self.app)
         )
-        self.add(
-            self.clomun_box_center
-        )
-        
         self.app.add_background_task(
             self.loading_options)
     

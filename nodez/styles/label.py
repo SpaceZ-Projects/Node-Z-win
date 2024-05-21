@@ -4,6 +4,14 @@ from toga.colors import rgb, RED
 
 class LabelStyle():
     
+    connect_txt = Pack(
+        font_family = "monospace",
+        font_weight = "bold",
+        font_size = 10,
+        padding_bottom = 5,
+        padding_top = 5
+    )
+    
     version_text_style = Pack(
         font_family = "monospace",
         font_size = 8,

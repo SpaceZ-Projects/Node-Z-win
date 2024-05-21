@@ -11,7 +11,7 @@ from .styles.button import ButtonStyle
 
 class Social(Box):
     def __init__(self, app:App, id: str | None = None, style=None, children: list[Widget] | None = None):
-        style = BoxStyle.row
+        style = BoxStyle.social_main_box
         super().__init__(id, style, children)
         self.app = app
         

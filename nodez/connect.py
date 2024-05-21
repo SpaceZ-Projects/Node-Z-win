@@ -16,6 +16,7 @@ from toga import (
 from .request import rpc_test
 from .styles.box import BoxStyle
 from .styles.label import LabelStyle
+from .styles.input import InputStyle
 from toga.colors import RED, BLACK, GREEN
 
 from .home import MainMenu
@@ -25,8 +26,8 @@ class WindowRPC(Window):
     def __init__(self, app:App, rpc_button, local_button):
         super().__init__(
             title="RPC Connect",
-            size=(300, 200),
-            position=(400, 300),
+            size=(280, 200),
+            position=(200, 200),
             resizable=False,
             minimizable=False,
             on_close=self.close_window
@@ -36,31 +37,35 @@ class WindowRPC(Window):
         
         self.rpcuser_txt = Label(
             "rpcuser :",
-            style=LabelStyle.default_txt_bold_style
+            style=LabelStyle.connect_txt
         )
         self.rpcuser_input = TextInput(
-            on_gain_focus=self.rpcuser_on_gain_focus
+            on_gain_focus=self.rpcuser_on_gain_focus,
+            style=InputStyle.connect_rpcuser_input
         )
         self.rpcpassword_txt = Label(
             "rpcpassword :",
-            style=LabelStyle.default_txt_bold_style
+            style=LabelStyle.connect_txt
         )
         self.rpcpassword_input = PasswordInput(
-            on_gain_focus=self.rpcpassword_on_gain_focus
+            on_gain_focus=self.rpcpassword_on_gain_focus,
+            style=InputStyle.connect_rpcpassword_input
         )
         self.rpchost_txt = Label(
             "rpchost :",
-            style=LabelStyle.default_txt_bold_style
+            style=LabelStyle.connect_txt
         )
         self.rpchost_input = TextInput(
-            on_gain_focus=self.rpchost_on_gain_focus
+            on_gain_focus=self.rpchost_on_gain_focus,
+            style=InputStyle.connect_rpchost_input
         )
         self.rpcport_txt = Label(
             "rpcport :",
-            style=LabelStyle.default_txt_bold_style
+            style=LabelStyle.connect_txt
         )
         self.rpcport_input = NumberInput(
-            on_change=self.rpcport_on_change
+            on_change=self.rpcport_on_change,
+            style=InputStyle.connect_rpcport_input
         )
         self.divider = Divider()
         self.connect_button = Button(
@@ -68,15 +73,15 @@ class WindowRPC(Window):
             on_press=self.check_inputs
         )
         self.button_box = Box(
-            style=BoxStyle.row
-        )
-        self.inputs_box = Box(
-            style=BoxStyle.column_center_padding_5
+            style=BoxStyle.connect_button_box
         )
         self.main_box = Box(
-            style=BoxStyle.column_center
+            style=BoxStyle.connect_main_box
         )
-        self.inputs_box.add(
+        self.button_box.add(
+            self.connect_button
+        )
+        self.main_box.add(
             self.rpcuser_txt,
             self.rpcuser_input,
             self.rpcpassword_txt,
@@ -84,13 +89,7 @@ class WindowRPC(Window):
             self.rpchost_txt,
             self.rpchost_input,
             self.rpcport_txt,
-            self.rpcport_input
-        )
-        self.button_box.add(
-            self.connect_button
-        )
-        self.main_box.add(
-            self.inputs_box,
+            self.rpcport_input,
             self.divider,
             self.button_box
         )
@@ -216,8 +215,8 @@ class WindowRPC(Window):
         await asyncio.sleep(2)
         self.app.main_window.content.clear()
         self.app.main_window.content = MainMenu(self.app)
+        self.app.main_window.size = (450, 200)
         self.app.main_window.position = (0,0)
-        self.app.main_window.size = (600, 200)
         self.app.main_window.title = "Node-Z (RPC)"
         self.app.main_window.show()
     

@@ -1,4 +1,4 @@
-Node-Z
+Node-Z (Windows)
 ======
 
 ## About the Project :
@@ -15,7 +15,7 @@ Node-Z is a GUI interface designed to manage BitcoinZ nodes through RPC connecti
 ### Requirements :
 Python 3.8 or higher
 
-### DEV Mode 
+### DEV Mode (Shell)
 Create and activate a virtual environment :
 ```
 python -m venv env

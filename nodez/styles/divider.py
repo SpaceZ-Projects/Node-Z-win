@@ -11,3 +11,7 @@ class DividerStyle():
         padding_top = 5,
         padding_bottom = 5
     )
+    
+    setup_divider_top = Pack(
+        padding_bottom = 5
+    )

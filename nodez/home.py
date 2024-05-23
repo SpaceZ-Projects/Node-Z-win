@@ -91,10 +91,43 @@ class MainMenu(Box):
             "resources/btcz_coin.gif"
         )
         self.price_txt = Label(
-            "BTCZ Price :"
+            "BTCZ Price :",
+            style=LabelStyle.home_price_txt
         )
         self.price_value = Label(
             "$ _._"
+        )
+        self.chain_txt = Label(
+            "Chain :",
+            style=LabelStyle.home_chain_txt
+        )
+        self.chain_value = Label(
+            "NaN",
+            style=LabelStyle.home_chain_value
+        )
+        self.blocks_txt = Label(
+            "Blocks :",
+            style=LabelStyle.home_blocks_txt
+        )
+        self.blocks_value = Label(
+            "NaN",
+            style=LabelStyle.home_blocks_value
+        )
+        self.sync_txt = Label(
+            "Sync :",
+            style=LabelStyle.home_sync_txt
+        )
+        self.sync_value = Label(
+            "NaN",
+            style=LabelStyle.home_sync_value
+        )
+        self.dep_text = Label(
+            "Dep :",
+            style=LabelStyle.home_dep_txt
+        )
+        self.dep_value = Label(
+            "NaN",
+            style=LabelStyle.home_dep_value
         )
         self.total_balances_box = Box(
             style=BoxStyle.home_total_balances_box
@@ -104,6 +137,9 @@ class MainMenu(Box):
         )
         self.price_box = Box(
             style=BoxStyle.home_price_box
+        )
+        self.blockchain_info_box = Box(
+            style=BoxStyle.home_blockchain_info_box
         )
         self.buttons_box.add(
             self.cash_button,
@@ -127,13 +163,24 @@ class MainMenu(Box):
             self.price_txt,
             self.price_value
         )
+        self.blockchain_info_box.add(
+            self.chain_txt,
+            self.chain_value,
+            self.blocks_txt,
+            self.blocks_value,
+            self.sync_txt,
+            self.sync_value,
+            self.dep_text,
+            self.dep_value
+        )
         self.add(
             self.buttons_box,
             self.divider_top,
             self.total_balances_box,
             self.balances_box,
             self.divider_bottom,
-            self.price_box
+            self.price_box,
+            self.blockchain_info_box
         )
         self.app.add_background_task(
             self.update_total_balances
@@ -158,13 +205,29 @@ class MainMenu(Box):
             await self.update_price()
             
     async def update_price(self):
-        await asyncio.sleep(1)
         price = await get_btcz_price()
         if price is not None:
             price_format = self.format_price(price)
             self.price_value.text = f"$ {price_format}"
         else:
             self.price_value.text = "$ NaN"
+        await self.update_blockchain_info()
+            
+    
+    async def update_blockchain_info(self):
+        info = self.request.getBlockchainInfo()
+        if info is not None:
+            chain = info["chain"]
+            blocks = info["blocks"]
+            sync = info["verificationprogress"]
+            sync_percentage = sync * 100
+            self.chain_value.text = f"{chain}"
+            self.blocks_value.text = f"{blocks}"
+            self.sync_value.text = f"%{float(sync_percentage):.2f}"
+        deprecation = self.request.getDeprecationInfo()
+        if info is not None:
+            dep = deprecation["deprecationheight"]
+            self.dep_value.text = f"{dep}"
             
     
     def format_balance(self, total):

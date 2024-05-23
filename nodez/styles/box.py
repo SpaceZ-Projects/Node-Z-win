@@ -1,5 +1,5 @@
 from toga.style.pack import Pack, COLUMN, ROW
-from toga.colors import rgb
+from toga.colors import rgb, BLACK
 
 
 class BoxStyle():
@@ -40,6 +40,17 @@ class BoxStyle():
     home_price_box = Pack(
         direction = ROW,
         alignment = "bottom"
+    )
+    
+    home_blockchain_info_box = Pack(
+        direction = ROW,
+        background_color = BLACK,
+        padding = 2
+    )
+    
+    setup_main_box = Pack(
+        direction = COLUMN,
+        alignment ="center"
     )
     
     social_main_box = Pack(

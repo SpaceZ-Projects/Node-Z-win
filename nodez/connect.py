@@ -207,7 +207,7 @@ class WindowRPC(Window):
     
     async def start_the_gui(self):
         await asyncio.sleep(1)
-        self.status_txt.text = "start the gui..."
+        self.status_txt.text = "starting GUI..."
         self.status_txt.style.color = BLACK
         await asyncio.sleep(2)
         self.close()

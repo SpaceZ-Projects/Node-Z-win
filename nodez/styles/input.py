@@ -23,3 +23,15 @@ class InputStyle():
         font_family = "monospace",
         color = BLUE
     )
+    
+    config_rpcuser_input = Pack(
+        padding_top = 2,
+    )
+    
+    config_rpcpassword_input = Pack(
+        padding_top = 2
+    )
+    
+    config_rpcport_input = Pack(
+        padding_top = 2
+    )

@@ -7,7 +7,10 @@ from toga import (
     ImageView,
     Button,
     Icon,
-    Divider
+    Divider,
+    Command,
+    Key,
+    Group
 )
 from toga.widgets.base import Widget
 from toga.constants import Direction
@@ -16,8 +19,11 @@ from .styles.label import LabelStyle
 from .styles.button import ButtonStyle
 
 from .connect import WindowRPC
-from .setup import NodeSetup
+from .startup import NodeSetup
 from .social import Social
+
+from .command import Toolbar
+from .config import EditConfig
 
 class MainWizard(Box):
     def __init__(
@@ -30,6 +36,7 @@ class MainWizard(Box):
         style = BoxStyle.wizard_main_box
         super().__init__(id, style, children)
         self.app = app
+        self.commands = Toolbar(self.app)
         
         self.nodez_banner = ImageView(
             "resources/nodez_banner.png"
@@ -65,8 +72,27 @@ class MainWizard(Box):
             Social(self.app)
         )
         self.app.add_background_task(
+            self.insert_toolbar
+        )
+        self.app.add_background_task(
             self.loading_options
         )
+        
+    def insert_toolbar(self, widget):
+        self.commands.config_cmd.action = self.display_config_window
+        self.app.commands.add(
+            self.commands.config_cmd,
+            self.commands.import_wallet_cmd
+        )
+    
+    def display_config_window(self, widget):
+        self.config_window = EditConfig(
+            self.app,
+            self.commands.config_cmd
+        )
+        self.commands.config_cmd.enabled = False
+        self.config_window.show()
+
     
     async def loading_options(self, widget):
         await asyncio.sleep(1)

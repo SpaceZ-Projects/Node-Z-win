@@ -1,4 +1,6 @@
 import asyncio
+import os
+import json
 from toga import (
     App,
     Box,
@@ -6,7 +8,10 @@ from toga import (
     Button,
     Divider,
     ImageView,
-    Icon
+    Icon,
+    Command,
+    Group,
+    Key
 )
 from toga.widgets.base import Widget
 from toga.constants import Direction
@@ -17,6 +22,9 @@ from .styles.divider import DividerStyle
 from .styles.label import LabelStyle
 
 from .request import RPCRequest, get_btcz_price
+from .client import ClientCommands
+from .command import Toolbar
+from .config import EditConfig
 
 
 class MainMenu(Box):
@@ -31,6 +39,8 @@ class MainMenu(Box):
         super().__init__(id, style, children)
         self.app = app
         self.request = RPCRequest(self.app)
+        self.client = ClientCommands(self.app)
+        self.commands = Toolbar(self.app)
         
         self.cash_button = Button(
             icon=Icon("icones/cash"),
@@ -183,51 +193,108 @@ class MainMenu(Box):
             self.blockchain_info_box
         )
         self.app.add_background_task(
+            self.insert_toolbar
+        )
+        self.app.add_background_task(
             self.update_total_balances
         )
         
+    def insert_toolbar(self, widget):
+        self.commands.config_cmd.action = self.display_config_window
+        self.app.commands.add(
+            self.commands.config_cmd,
+            self.commands.import_wallet_cmd
+        )
+    
+    def display_config_window(self, widget):
+        self.config_window = EditConfig(
+            self.app,
+            self.commands.config_cmd
+        )
+        self.commands.config_cmd.enabled = False
+        self.config_window.show()
+        
     async def update_total_balances(self, widget):
-        await asyncio.sleep(1)
-        balances = self.request.z_getTotalBalance()
-        if balances is not None:
-            total = self.format_balance(
-                float(balances["total"])
-            )
-            transparent = self.format_balance(
-                float(balances["transparent"])
-            )
-            private = self.format_balance(
-                float(balances["private"])
-            )
+        while True:
+            config_path = self.app.paths.config
+            db_path = os.path.join(config_path, 'config.db')
+            if os.path.exists(db_path):
+                balances = self.request.z_getTotalBalance()
+                if balances is not None:
+                    total = self.format_balance(
+                        float(balances["total"])
+                    )
+                    transparent = self.format_balance(
+                        float(balances["transparent"])
+                    )
+                    private = self.format_balance(
+                        float(balances["private"])
+                    )
+            if not os.path.exists(db_path):
+                balances = await self.client.z_getTotalBalance()
+                if balances is not None:
+                    if isinstance(balances, str):
+                        balances = json.loads(balances)
+                    total = self.format_balance(
+                        float(balances.get('total'))
+                    )
+                    transparent = self.format_balance(
+                        float(balances.get('transparent'))
+                    )
+                    private = self.format_balance(
+                        float(balances.get('private'))
+                    )
             self.total_balances.text = f"{total}"
             self.transparent_balance.text = f"{transparent}"
             self.private_balance.text = f"{private}"
             await self.update_price()
+            await asyncio.sleep(5)
+                
             
     async def update_price(self):
-        price = await get_btcz_price()
-        if price is not None:
-            price_format = self.format_price(price)
-            self.price_value.text = f"$ {price_format}"
-        else:
-            self.price_value.text = "$ NaN"
-        await self.update_blockchain_info()
+        while True:
+            price = await get_btcz_price()
+            if price is not None:
+                price_format = self.format_price(price)
+                self.price_value.text = f"$ {price_format}"
+            else:
+                self.price_value.text = "$ NaN"
+            await self.update_blockchain_info()
+            await asyncio.sleep(600)
             
     
     async def update_blockchain_info(self):
-        info = self.request.getBlockchainInfo()
-        if info is not None:
-            chain = info["chain"]
-            blocks = info["blocks"]
-            sync = info["verificationprogress"]
+        while True:
+            config_path = self.app.paths.config
+            db_path = os.path.join(config_path, 'config.db')
+            if os.path.exists(db_path):
+                info = self.request.getBlockchainInfo()
+                if info is not None:
+                    chain = info["chain"]
+                    blocks = info["blocks"]
+                    sync = info["verificationprogress"]
+                deprecation = self.request.getDeprecationInfo()
+                if deprecation is not None:
+                    dep = deprecation["deprecationheight"]
+            if not os.path.exists(db_path):
+                info = await self.client.getBlockchainInfo()
+                if isinstance(info, str):
+                    info = json.loads(info)
+                    if info is not None:
+                        chain = info.get('chain')
+                        blocks = info.get('blocks')
+                        sync = info.get('verificationprogress')
+                deprecation = await self.client.getDeprecationInfo()
+                if isinstance(deprecation, str):
+                    deprecation = json.loads(deprecation)
+                    if deprecation is not None:
+                        dep = deprecation.get('deprecationheight')
             sync_percentage = sync * 100
             self.chain_value.text = f"{chain}"
             self.blocks_value.text = f"{blocks}"
             self.sync_value.text = f"%{float(sync_percentage):.2f}"
-        deprecation = self.request.getDeprecationInfo()
-        if info is not None:
-            dep = deprecation["deprecationheight"]
             self.dep_value.text = f"{dep}"
+            await asyncio.sleep(5)
             
     
     def format_balance(self, total):

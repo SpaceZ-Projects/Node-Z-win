@@ -101,28 +101,28 @@ class WindowRPC(Window):
         rpchost = self.rpchost_input.value
         rpcport = self.rpcport_input.value
         if rpcuser == '':
-            self.app.main_window.info_dialog(
+            self.info_dialog(
                 "Empty input...",
                 "- rpcuser is required"
             )
             self.rpcuser_txt.style.color = RED
             return
         elif rpcpassword == '':
-            self.app.main_window.info_dialog(
+            self.info_dialog(
                 "Empty input...",
                 "- rpcpassword is required"
             )
             self.rpcpassword_txt.style.color = RED
             return
         elif rpchost == '':
-            self.app.main_window.info_dialog(
+            self.info_dialog(
                 "Empty input...",
                 "- rpchost is required"
             )
             self.rpchost_txt.style.color = RED
             return
         elif rpcport is None:
-            self.app.main_window.info_dialog(
+            self.info_dialog(
                 "Empty input...",
                 "- rpcport is required"
             )

@@ -1,8 +1,18 @@
 from toga.style.pack import Pack
-from toga.colors import rgb
+from toga.colors import rgb, YELLOW, BLACK
 
 
 class ButtonStyle():
+    
+    config_info_button = Pack(
+        width = 21,
+        height = 21,
+        padding_top = 3,
+        padding_bottom = 1,
+        padding_left = 5,
+        color = YELLOW,
+        background_color = BLACK
+    )
     
     rpc_button = Pack(
         padding_right = 70

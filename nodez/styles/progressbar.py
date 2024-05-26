@@ -13,5 +13,5 @@ class ProgressStyle():
         padding_left = 5,
         padding_right = 5,
         padding_top = 2,
-        height = 10
+        height = 5
     )

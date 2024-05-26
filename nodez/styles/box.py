@@ -1,12 +1,13 @@
-from toga.style.pack import Pack, COLUMN, ROW
-from toga.colors import rgb, BLACK
+from toga.style import Pack
+from toga.colors import rgb, BLACK, GREY, WHITE
+from toga.constants import CENTER, BOTTOM, TOP, ROW, COLUMN, RIGHT, LEFT
 
 
 class BoxStyle():
     
     connect_main_box = Pack(
         direction = COLUMN,
-        alignment = "center",
+        alignment = CENTER,
         padding = 5
     )
     
@@ -15,31 +16,72 @@ class BoxStyle():
         padding_top = 5
     )
     
+    config_main_box = Pack(
+        direction = COLUMN,
+        alignment = CENTER,
+        flex = 1
+    )
+    
+    config_rpc_box = Pack(
+        direction = COLUMN,
+        alignment = CENTER,
+        padding = 5,
+        flex = 1,
+        background_color = BLACK
+    )
+    
+    config_rpc_row_box = Pack(
+        direction = ROW,
+        background_color = GREY,
+        padding_left = 3,
+        padding_right = 3
+    )
+    
+    config_rpc_txt_box = Pack(
+        direction = COLUMN,
+        alignment = CENTER,
+        flex = 1,
+        background_color = GREY
+    )
+    
+    config_rpc_input_box = Pack(
+        direction = COLUMN,
+        flex = 1,
+        background_color = GREY
+    )
+    
+    config_rpc_button_box = Pack(
+        direction = COLUMN,
+        alignment = LEFT,
+        flex = 1,
+        background_color = GREY
+    )
+    
     home_main_box = Pack(
         direction = COLUMN,
-        alignment ="center",
+        alignment = CENTER,
         width = 305,
         height = 200,
     )
     
     home_buttons_box = Pack(
         direction = ROW,
-        alignment = "top"
+        alignment = TOP
     )
     
     home_balances_box = Pack(
         direction = ROW,
-        alignment = "center"
+        alignment = CENTER
     )
     
     home_total_balances_box = Pack(
         direction = ROW,
-        alignment = "center"
+        alignment = CENTER
     )
     
     home_price_box = Pack(
         direction = ROW,
-        alignment = "bottom"
+        alignment = BOTTOM
     )
     
     home_blockchain_info_box = Pack(
@@ -50,7 +92,7 @@ class BoxStyle():
     
     setup_main_box = Pack(
         direction = COLUMN,
-        alignment ="center"
+        alignment = CENTER
     )
     
     social_main_box = Pack(
@@ -61,7 +103,7 @@ class BoxStyle():
         direction = COLUMN,
         width = 405,
         height = 400,
-        alignment = "center"
+        alignment = CENTER
     )
     
     wizard_nodez_banner = Pack(
@@ -70,17 +112,17 @@ class BoxStyle():
     
     wizard_row_top = Pack(
         direction = ROW,
-        alignment = "top"
+        alignment = TOP
     )
     
     wizard_row_center = Pack(
         direction = ROW,
-        alignment = "center",
+        alignment = CENTER,
         flex = 1
     )
     
     wizard_row_bottom = Pack(
         direction = ROW,
-        alignment = "bottom",
+        alignment = BOTTOM,
         flex = 1
     )

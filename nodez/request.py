@@ -89,7 +89,6 @@ class RPCRequest():
             )
             response.raise_for_status()
             data = response.json()["result"]
-            print(data)
             return data
         except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError):
             return None

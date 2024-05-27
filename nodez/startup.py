@@ -98,7 +98,7 @@ class NodeSetup(Window):
         
 
     async def check_zcash_params(self):
-        self.cheking_txt.text = "Checking Zcash Params..."
+        self.cheking_txt.text = "Checking Params..."
         directory_path = os.path.join(os.getenv('APPDATA'), "ZcashParams")
         required_files = [
             'sprout-proving.key',
@@ -236,7 +236,7 @@ class NodeSetup(Window):
         if not os.path.exists(zcash_path):
             os.makedirs(zcash_path, exist_ok=True)
 
-        self.cheking_txt.text = "Downloading Zcash Params..."
+        self.cheking_txt.text = "Downloading Params..."
         self.title = "Downloading..."
         self.main_box.remove(
             self.bitcoinz_coin
@@ -274,7 +274,7 @@ class NodeSetup(Window):
                             self.file_handle.close()
                             self.file_handle = None
                     self.current_download_file = None
-                self.cheking_txt.text = "Zcash Params ready."
+                self.cheking_txt.text = "Params ready."
                 await asyncio.sleep(1)
                 self.main_box.remove(
                     self.progress_bar,
@@ -292,8 +292,6 @@ class NodeSetup(Window):
     def create_new_config(self, file_path):
         with open(file_path, 'w') as f:
             f.write(
-                "daemon=1\n"
-                "server=1\n"
                 "experimentalfeatures=1\n"
                 "insightexplorer=1\n"
                 "txindex=1\n"

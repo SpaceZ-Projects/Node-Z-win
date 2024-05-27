@@ -1,5 +1,5 @@
 from toga.style.pack import Pack, COLUMN, ROW
-from toga.colors import rgb, RED, YELLOW, BLUE, WHITE, BLACK, GREY
+from toga.colors import rgb, RED, YELLOW, BLUE, WHITE, BLACK, GREY, GRAY
 from toga.constants import CENTER, BOLD, MONOSPACE
 
 
@@ -13,14 +13,23 @@ class LabelStyle():
         padding_top = 5
     )
     
+    config_guide_txt = Pack(
+        color = WHITE,
+        background_color = BLACK,
+        padding_top = 3,
+        padding_bottom = 5,
+        padding_left = 5
+    )
+    
     config_rpc_txt = Pack(
         font_family = MONOSPACE,
         font_weight = BOLD,
-        font_size = 10,
         text_align = CENTER,
+        font_size = 10,
         color = YELLOW,
         background_color = BLACK,
-        padding_bottom = 5
+        padding_top = 5,
+        padding_bottom = 5,
     )
     
     config_rpcuser_txt = Pack(
@@ -29,7 +38,8 @@ class LabelStyle():
         font_size = 9,
         color = WHITE,
         background_color = GREY,
-        padding = 5
+        padding_top = 5,
+        padding_left = 5
     )
     
     config_rpcpassword_txt = Pack(
@@ -38,7 +48,8 @@ class LabelStyle():
         font_size = 9,
         color = WHITE,
         background_color = GREY,
-        padding = 5
+        padding_top = 8,
+        padding_left = 5
     )
     
     config_rpcport_txt = Pack(
@@ -47,7 +58,108 @@ class LabelStyle():
         font_size = 9,
         color = WHITE,
         background_color = GREY,
-        padding = 5
+        padding_top = 9,
+        padding_left = 5
+    )
+    
+    config_rpcbind_txt = Pack(
+        font_family = MONOSPACE,
+        font_weight = BOLD,
+        font_size = 9,
+        color = WHITE,
+        background_color = GREY,
+        padding_top = 40,
+        padding_left = 5
+    )
+    
+    config_rpcclienttimeout_txt = Pack(
+        font_family = MONOSPACE,
+        font_weight = BOLD,
+        font_size = 9,
+        color = WHITE,
+        background_color = GREY,
+        padding_top = 55,
+        padding_left = 5
+    )
+    
+    config_rpcallowip_txt = Pack(
+        font_family = MONOSPACE,
+        font_weight = BOLD,
+        font_size = 9,
+        color = WHITE,
+        background_color = GREY,
+        padding_top = 45,
+        padding_left = 5
+    )
+    
+    config_rpcconnect_txt = Pack(
+        font_family = MONOSPACE,
+        font_weight = BOLD,
+        font_size = 9,
+        color = WHITE,
+        background_color = GREY,
+        padding_top = 50,
+        padding_left = 5
+    )
+    
+    config_proxy_txt = Pack(
+        font_family = MONOSPACE,
+        font_weight = BOLD,
+        font_size = 9,
+        color = WHITE,
+        background_color = GREY,
+        padding_top = 5,
+        padding_left = 5
+    )
+    
+    config_bind_txt = Pack(
+        font_family = MONOSPACE,
+        font_weight = BOLD,
+        font_size = 9,
+        color = WHITE,
+        background_color = GREY,
+        padding_top = 8,
+        padding_left = 5
+    )
+    
+    config_whitebind_txt = Pack(
+        font_family = MONOSPACE,
+        font_weight = BOLD,
+        font_size = 9,
+        color = WHITE,
+        background_color = GREY,
+        padding_top = 9,
+        padding_left = 5
+    )
+    
+    config_maxconnections_txt = Pack(
+        font_family = MONOSPACE,
+        font_weight = BOLD,
+        font_size = 9,
+        color = WHITE,
+        background_color = GREY,
+        padding_top = 8,
+        padding_left = 5
+    )
+    
+    config_addnode_txt = Pack(
+        font_family = MONOSPACE,
+        font_weight = BOLD,
+        font_size = 9,
+        color = WHITE,
+        background_color = GREY,
+        padding_top = 40,
+        padding_left = 5
+    )
+    
+    config_connect_txt = Pack(
+        font_family = MONOSPACE,
+        font_weight = BOLD,
+        font_size = 9,
+        color = WHITE,
+        background_color = GREY,
+        padding_top = 85,
+        padding_left = 5
     )
     
     home_total_balances_txt = Pack(

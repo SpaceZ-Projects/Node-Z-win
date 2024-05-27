@@ -1,5 +1,5 @@
 from toga.style import Pack
-from toga.colors import rgb, BLACK, GREY, WHITE
+from toga.colors import rgb, BLACK, GREY, WHITE, GRAY
 from toga.constants import CENTER, BOTTOM, TOP, ROW, COLUMN, RIGHT, LEFT
 
 
@@ -22,19 +22,86 @@ class BoxStyle():
         flex = 1
     )
     
+    config_guide_box = Pack(
+        direction = COLUMN,
+        padding_top = 5,
+        padding_left = 5,
+        padding_right = 5,
+        background_color = BLACK
+    )
+    
+    config_net_box = Pack(
+        direction = COLUMN,
+        alignment = CENTER,
+        padding_top = 2,
+        padding_left = 5,
+        padding_right = 5,
+        background_color = BLACK
+    )
+    
     config_rpc_box = Pack(
         direction = COLUMN,
         alignment = CENTER,
-        padding = 5,
-        flex = 1,
+        padding_top = 2,
+        padding_left = 5,
+        padding_right = 5,
+        background_color = BLACK
+    )
+    
+    config_fee_box = Pack(
+        direction = COLUMN,
+        alignment = CENTER,
+        padding_top = 2,
+        padding_left = 5,
+        padding_right = 5,
+        background_color = BLACK
+    )
+
+    config_option_box = Pack(
+        direction = COLUMN,
+        alignment = CENTER,
+        padding_top = 2,
+        padding_bottom = 3,
+        padding_left = 5,
+        padding_right = 5,
         background_color = BLACK
     )
     
     config_rpc_row_box = Pack(
         direction = ROW,
         background_color = GREY,
+        padding_top = 3,
+        padding_bottom = 3,
         padding_left = 3,
         padding_right = 3
+    )
+    
+    config_net_row_box = Pack(
+        direction = ROW,
+        background_color = BLACK,
+        padding_left = 3,
+        padding_right = 3
+    )
+    
+    config_net_row2_box = Pack(
+        direction = ROW,
+        background_color = GREY,
+        padding_bottom = 3,
+        padding_left = 3,
+        padding_right = 3
+    )
+    
+    config_net_switch_box = Pack(
+        direction = COLUMN,
+        alignment = LEFT,
+        background_color = BLACK
+    )
+    
+    config_net_txt_box = Pack(
+        direction = COLUMN,
+        alignment = CENTER,
+        flex = 1,
+        background_color = GREY
     )
     
     config_rpc_txt_box = Pack(
@@ -50,10 +117,28 @@ class BoxStyle():
         background_color = GREY
     )
     
+    config_net_input_box = Pack(
+        direction = COLUMN,
+        flex = 1,
+        background_color = GREY
+    )
+    
     config_rpc_button_box = Pack(
         direction = COLUMN,
         alignment = LEFT,
-        flex = 1,
+        background_color = GREY
+    )
+    
+    config_net_button_box = Pack(
+        direction = COLUMN,
+        alignment = LEFT,
+        background_color = BLACK,
+        flex = 1
+    )
+    
+    config_net_button2_box = Pack(
+        direction = COLUMN,
+        alignment = LEFT,
         background_color = GREY
     )
     

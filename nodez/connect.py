@@ -94,6 +94,12 @@ class WindowRPC(Window):
             self.button_box
         )
         self.content = self.main_box
+        self.app.add_background_task(
+            self.auto_focus
+        )
+        
+    def auto_focus(self, widget):
+        self.rpcuser_input.focus()
         
     async def check_inputs(self, button):
         rpcuser = self.rpcuser_input.value

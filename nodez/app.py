@@ -71,7 +71,7 @@ class NodeZ(App):
                 await self.clean_config_path()
                 self.exit()
 
-        self.main_window.confirm_dialog(
+        self.main_window.question_dialog(
             title="Exit...",
             message="You are about to exit the app. Are you sure ?",
             on_result=on_confirm

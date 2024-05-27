@@ -79,6 +79,7 @@ class MainWizard(Box):
         )
         
     def insert_toolbar(self, widget):
+        self.app.commands.clear()
         self.commands.config_cmd.action = self.display_config_window
         self.app.commands.add(
             self.commands.config_cmd,

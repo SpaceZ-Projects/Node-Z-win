@@ -26,7 +26,7 @@ class Toolbar():
         order=0,
         section=0
     )
-    
+
     import_wallet_cmd = Command(
         text="Import wallet",
         group=file,

@@ -8,10 +8,7 @@ from toga import (
     Button,
     Divider,
     ImageView,
-    Icon,
-    Command,
-    Group,
-    Key
+    Icon
 )
 from toga.widgets.base import Widget
 from toga.constants import Direction
@@ -24,7 +21,6 @@ from .styles.label import LabelStyle
 from .request import RPCRequest, get_btcz_price
 from .client import ClientCommands
 from .command import Toolbar
-from .config import EditConfig
 
 
 class MainMenu(Box):
@@ -193,26 +189,15 @@ class MainMenu(Box):
             self.blockchain_info_box
         )
         self.app.add_background_task(
-            self.insert_toolbar
-        )
-        self.app.add_background_task(
             self.update_total_balances
         )
-        
-    def insert_toolbar(self, widget):
-        self.commands.config_cmd.action = self.display_config_window
-        self.app.commands.add(
-            self.commands.config_cmd,
-            self.commands.import_wallet_cmd
+        self.app.add_background_task(
+            self.update_price
         )
-    
-    def display_config_window(self, widget):
-        self.config_window = EditConfig(
-            self.app,
-            self.commands.config_cmd
+        self.app.add_background_task(
+            self.update_blockchain_info
         )
-        self.commands.config_cmd.enabled = False
-        self.config_window.show()
+
         
     async def update_total_balances(self, widget):
         while True:
@@ -247,11 +232,10 @@ class MainMenu(Box):
             self.total_balances.text = f"{total}"
             self.transparent_balance.text = f"{transparent}"
             self.private_balance.text = f"{private}"
-            await self.update_price()
             await asyncio.sleep(5)
                 
             
-    async def update_price(self):
+    async def update_price(self, widget):
         while True:
             price = await get_btcz_price()
             if price is not None:
@@ -259,11 +243,10 @@ class MainMenu(Box):
                 self.price_value.text = f"$ {price_format}"
             else:
                 self.price_value.text = "$ NaN"
-            await self.update_blockchain_info()
             await asyncio.sleep(600)
             
     
-    async def update_blockchain_info(self):
+    async def update_blockchain_info(self, widget):
         while True:
             config_path = self.app.paths.config
             db_path = os.path.join(config_path, 'config.db')

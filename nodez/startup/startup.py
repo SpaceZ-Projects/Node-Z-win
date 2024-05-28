@@ -21,8 +21,8 @@ from .styles.label import LabelStyle
 from .styles.progressbar import ProgressStyle
 from .styles.divider import DividerStyle
 
-from .home import MainMenu
-from .client import ClientCommands
+from ..home.home import MainMenu
+from ..client import ClientCommands
 
 
 class NodeSetup(Window):

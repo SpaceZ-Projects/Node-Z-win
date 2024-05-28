@@ -18,9 +18,9 @@ from .styles.button import ButtonStyle
 from .styles.divider import DividerStyle
 from .styles.label import LabelStyle
 
-from .request import RPCRequest, get_btcz_price
-from .client import ClientCommands
-from .command import Toolbar
+from ..request import RPCRequest, get_btcz_price
+from ..client import ClientCommands
+from ..command import Toolbar
 
 
 class MainMenu(Box):
@@ -189,6 +189,9 @@ class MainMenu(Box):
             self.blockchain_info_box
         )
         self.app.add_background_task(
+            self.clear_toolbar   
+        )
+        self.app.add_background_task(
             self.update_total_balances
         )
         self.app.add_background_task(
@@ -197,6 +200,9 @@ class MainMenu(Box):
         self.app.add_background_task(
             self.update_blockchain_info
         )
+        
+    def clear_toolbar(self, widget):
+        self.app.commands.clear()
 
         
     async def update_total_balances(self, widget):

@@ -13,13 +13,13 @@ from toga import (
     Button,
     Icon
 )
-from .request import rpc_test
+from ..request import rpc_test
 from .styles.box import BoxStyle
 from .styles.label import LabelStyle
 from .styles.input import InputStyle
 from toga.colors import RED, BLACK, GREEN
 
-from .home import MainMenu
+from ..home.home import MainMenu
 
 
 class WindowRPC(Window):
@@ -37,35 +37,35 @@ class WindowRPC(Window):
         
         self.rpcuser_txt = Label(
             "rpcuser :",
-            style=LabelStyle.connect_txt
+            style=LabelStyle.rpcuser_txt
         )
         self.rpcuser_input = TextInput(
             on_gain_focus=self.rpcuser_on_gain_focus,
-            style=InputStyle.connect_rpcuser_input
+            style=InputStyle.rpcuser_input
         )
         self.rpcpassword_txt = Label(
             "rpcpassword :",
-            style=LabelStyle.connect_txt
+            style=LabelStyle.rpcpassword_txt
         )
         self.rpcpassword_input = PasswordInput(
             on_gain_focus=self.rpcpassword_on_gain_focus,
-            style=InputStyle.connect_rpcpassword_input
+            style=InputStyle.rpcpassword_input
         )
         self.rpchost_txt = Label(
             "rpchost :",
-            style=LabelStyle.connect_txt
+            style=LabelStyle.rpchost_txt
         )
         self.rpchost_input = TextInput(
             on_gain_focus=self.rpchost_on_gain_focus,
-            style=InputStyle.connect_rpchost_input
+            style=InputStyle.rpchost_input
         )
         self.rpcport_txt = Label(
             "rpcport :",
-            style=LabelStyle.connect_txt
+            style=LabelStyle.rpcport_txt
         )
         self.rpcport_input = NumberInput(
             on_change=self.rpcport_on_change,
-            style=InputStyle.connect_rpcport_input
+            style=InputStyle.rpcport_input
         )
         self.divider = Divider()
         self.connect_button = Button(
@@ -73,10 +73,10 @@ class WindowRPC(Window):
             on_press=self.check_inputs
         )
         self.button_box = Box(
-            style=BoxStyle.connect_button_box
+            style=BoxStyle.button_box
         )
         self.main_box = Box(
-            style=BoxStyle.connect_main_box
+            style=BoxStyle.main_box
         )
         self.button_box.add(
             self.connect_button
@@ -140,7 +140,7 @@ class WindowRPC(Window):
     async def try_to_connect(self, rpcuser, rpcpassword, rpchost, rpcport):
         self.status_txt = Label(
             "connecting...",
-            style=LabelStyle.default_txt_bold_style
+            style=LabelStyle.status_txt
         )
         self.button_box.remove(
             self.connect_button

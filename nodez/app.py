@@ -1,10 +1,11 @@
 import os
+
 from toga import (
     App,
     MainWindow
 )
 
-from .wizard import MainWizard
+from .wizard.wizard import MainWizard
 
 
 class NodeZ(App):

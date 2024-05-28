@@ -5,7 +5,7 @@ from toga.constants import CENTER, BOLD, MONOSPACE
 
 class SwitchStyle():
     
-    config_net_switch = Pack(
+    switch = Pack(
         font_family = MONOSPACE,
         font_weight = BOLD,
         font_size = 9,

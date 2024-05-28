@@ -7,10 +7,7 @@ from toga import (
     ImageView,
     Button,
     Icon,
-    Divider,
-    Command,
-    Key,
-    Group
+    Divider
 )
 from toga.widgets.base import Widget
 from toga.constants import Direction
@@ -18,12 +15,12 @@ from .styles.box import BoxStyle
 from .styles.label import LabelStyle
 from .styles.button import ButtonStyle
 
-from .connect import WindowRPC
-from .startup import NodeSetup
+from ..connect.connect import WindowRPC
+from ..startup.startup import NodeSetup
 from .social import Social
 
-from .command import Toolbar
-from .config import EditConfig
+from ..command import Toolbar
+from ..config.config import EditConfig
 
 class MainWizard(Box):
     def __init__(
@@ -99,7 +96,7 @@ class MainWizard(Box):
         await asyncio.sleep(1)
         self.loading_txt = Label(
             "Loading...",
-            style=LabelStyle.default_txt_bold_style
+            style=LabelStyle.loading_txt
         )
         self.row_center_box.add(
             self.loading_txt

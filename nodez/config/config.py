@@ -1,5 +1,6 @@
 import asyncio
 import os
+from decimal import Decimal
 
 from toga import (
     App,
@@ -20,17 +21,18 @@ from toga.colors import RED
 from toga.widgets.base import Widget
 
 from .styles.box import BoxStyle
-from .styles.label import LabelStyle
-from .styles.input import InputStyle
 from .styles.button import ButtonStyle
+from .styles.label import LabelStyle
 from .styles.switch import SwitchStyle
+from .styles.input import InputStyle
+from .styles.scroll import ScrollStyle
 
 
 class EditConfig(Window):
     def __init__(self, app:App, config_window):
         super().__init__(
             title="Edit Config",
-            size=(450, 550),
+            size=(450, 620),
             position=(500, 50),
             resizable=False,
             minimizable=False,
@@ -57,18 +59,29 @@ class EditConfig(Window):
         guid_message = "".join(guid_message_str)
         self.guide_txt = Label(
             guid_message,
-            style=LabelStyle.config_guide_txt
+            style=LabelStyle.guide_txt
+        )
+        self.save_button = Button(
+            "Save",
+            style=ButtonStyle.save,
+            on_press=self.close_window
         )
         self.guide_box = Box(
-            style=BoxStyle.config_guide_box
+            style=BoxStyle.guide_box
+        )
+        self.scroll_box = Box(
+            style=BoxStyle.scroll_box
+        )
+        self.button_box = Box(
+            style=BoxStyle.button_box
         )
         self.main_box = Box(
-            style=BoxStyle.config_main_box
+            style=BoxStyle.main_box
         )
         self.guide_box.add(
             self.guide_txt
         )
-        self.main_box.add(
+        self.scroll_box.add(
             self.guide_box,
             NetConfig(),
             RPCConfig(),
@@ -78,9 +91,17 @@ class EditConfig(Window):
         self.main_scroll = ScrollContainer(
             horizontal=False,
             vertical=True,
-            content=self.main_box
+            content=self.scroll_box,
+            style=ScrollStyle.main_scroll
         )
-        self.content = self.main_scroll
+        self.button_box.add(
+            self.save_button
+        )
+        self.main_box.add(
+            self.main_scroll,
+            self.button_box
+        )
+        self.content = self.main_box
         
         
     def close_window(self, widget):
@@ -90,72 +111,71 @@ class EditConfig(Window):
 
 class NetConfig(Box):
     def __init__(self, id: str | None = None, style=None, children: list[Widget] | None = None):
-        style = BoxStyle.config_net_box
+        style = BoxStyle.net_box
         super().__init__(id, style, children)
         
         self.net_txt = Label(
             "Network settings",
-            style=LabelStyle.config_rpc_txt
+            style=LabelStyle.rpc_txt
         )
         self.net_divider = Divider(
             direction=Direction.HORIZONTAL
         )
         self.testnet_switch = Switch(
             "testnet",
-            style=SwitchStyle.config_net_switch
+            style=SwitchStyle.switch
         )
         self.regtest_switch = Switch(
             "regtest",
-            style=SwitchStyle.config_net_switch
+            style=SwitchStyle.switch
         )
         self.listen_switch = Switch(
             "listen",
-            style=SwitchStyle.config_net_switch
+            style=SwitchStyle.switch
         )
         self.server_switch = Switch(
             "server",
-            style=SwitchStyle.config_net_switch
+            style=SwitchStyle.switch
         )
         self.proxy_txt = Label(
             "proxy :",
-            style=LabelStyle.config_proxy_txt
+            style=LabelStyle.proxy_txt
         )
         self.bind_txt = Label(
             "bind :",
-            style=LabelStyle.config_bind_txt
+            style=LabelStyle.bind_txt
         )
         self.whitebind_txt = Label(
             "whitebind :",
-            style=LabelStyle.config_whitebind_txt
+            style=LabelStyle.whitebind_txt
         )
         self.maxconnections_txt = Label(
             "maxconnections :",
-            style=LabelStyle.config_maxconnections_txt
+            style=LabelStyle.maxconnections_txt
         )
         self.addnode_txt = Label(
             "addnode :",
-            style=LabelStyle.config_addnode_txt
+            style=LabelStyle.addnode_txt
         )
         self.connect_txt = Label(
             "connect :",
-            style=LabelStyle.config_connect_txt
+            style=LabelStyle.connect_txt
         )
         self.proxy_input = TextInput(
             placeholder="127.0.0.1:9050",
-            style=InputStyle.config_proxy_input
+            style=InputStyle.proxy_input
         )
         self.bind_input = TextInput(
             placeholder="<addr>",
-            style=InputStyle.config_bind_input
+            style=InputStyle.bind_input
         )
         self.whitebind_input = TextInput(
             placeholder="<addr>",
-            style=InputStyle.config_whitebind_input
+            style=InputStyle.whitebind_input
         )
         self.maxconnections_input = NumberInput(
-            max=8,
-            min=2,
-            style=InputStyle.config_maxconnections_input
+            min=0,
+            style=InputStyle.maxconnections_input
         )
         self.addnode_input = MultilineTextInput(
             placeholder="149.28.202.159:1989"
@@ -164,7 +184,7 @@ class NetConfig(Box):
                         "\nseed.btcz.app"
                         "\nbtzseed.blockhub.info"
                         "\nbtzseed2.blockhub.info",
-            style=InputStyle.config_addnode_input
+            style=InputStyle.addnode_input
         )
         self.connect_input = MultilineTextInput(
             placeholder="149.28.202.159:1989"
@@ -173,88 +193,88 @@ class NetConfig(Box):
                         "\nseed.btcz.app"
                         "\nbtzseed.blockhub.info"
                         "\nbtzseed2.blockhub.info",
-            style=InputStyle.config_connect_input
+            style=InputStyle.connect_input
         )
         self.testnet_info = Button(
             "?",
             id="testnet",
-            style=ButtonStyle.config_net_info_button,
+            style=ButtonStyle.switch_info_button,
             on_press=self.display_info
         )
         self.regtest_info = Button(
             "?",
             id="regtest",
-            style=ButtonStyle.config_net_info_button,
+            style=ButtonStyle.switch_info_button,
             on_press=self.display_info
         )
         self.listen_info = Button(
             "?",
             id="listen",
-            style=ButtonStyle.config_net_info_button,
+            style=ButtonStyle.switch_info_button,
             on_press=self.display_info
         )
         self.server_info = Button(
             "?",
             id="server",
-            style=ButtonStyle.config_net_info_button,
+            style=ButtonStyle.switch_info_button,
             on_press=self.display_info
         )
         self.proxy_info = Button(
             "?",
             id="proxy",
-            style=ButtonStyle.config_info_button,
+            style=ButtonStyle.info_button,
             on_press=self.display_info
         )
         self.bind_info = Button(
             "?",
             id="bind",
-            style=ButtonStyle.config_info_button,
+            style=ButtonStyle.info_button,
             on_press=self.display_info
         )
         self.whitebind_info = Button(
             "?",
             id="whitebind",
-            style=ButtonStyle.config_info_button,
+            style=ButtonStyle.info_button,
             on_press=self.display_info
         )
         self.maxconnections_info = Button(
             "?",
             id="maxconnections",
-            style=ButtonStyle.config_info_button,
+            style=ButtonStyle.info_button,
             on_press=self.display_info
         )
         self.addnode_info = Button(
             "?",
             id="addnode",
-            style=ButtonStyle.config_addnode_info,
+            style=ButtonStyle.addnode_info,
             on_press=self.display_info
         )
         self.connect_info = Button(
             "?",
             id="connect",
-            style=ButtonStyle.config_connect_info,
+            style=ButtonStyle.connect_info,
             on_press=self.display_info
         )
         self.net_switch_box = Box(
-            style=BoxStyle.config_net_switch_box
+            style=BoxStyle.net_switch_box
         )
         self.net_button_box = Box(
-            style=BoxStyle.config_net_button_box
+            style=BoxStyle.net_button_box
         )
         self.net_button2_box = Box(
-            style=BoxStyle.config_net_button2_box
+            style=BoxStyle.net_button2_box
         )
         self.net_txt_box = Box(
-            style=BoxStyle.config_net_txt_box
+            style=BoxStyle.net_txt_box
         )
         self.net_input_box = Box(
-            style=BoxStyle.config_net_input_box
+            style=BoxStyle.net_input_box
         )
         self.net_row_box = Box(
-            style=BoxStyle.config_net_row_box
+            style=BoxStyle.net_row_box
         )
         self.net_row2_box = Box(
-            style=BoxStyle.config_net_row2_box
+            style=BoxStyle.net_row2_box
         )
         self.net_switch_box.add(
             self.testnet_switch,
@@ -339,122 +359,122 @@ class NetConfig(Box):
         
 class RPCConfig(Box):
     def __init__(self, id: str | None = None, style=None, children: list[Widget] | None = None):
-        style = BoxStyle.config_rpc_box
+        style = BoxStyle.rpc_box
         super().__init__(id, style, children)
         
         self.rpc_txt = Label(
             "RPC server options",
-            style=LabelStyle.config_rpc_txt
+            style=LabelStyle.rpc_txt
         )
         self.rpcuser_txt = Label(
             "rpcuser :",
-            style=LabelStyle.config_rpcuser_txt
+            style=LabelStyle.rpcuser_txt
         )
         self.rpcpassword_txt = Label(
             "rpcpassword :",
-            style=LabelStyle.config_rpcpassword_txt
+            style=LabelStyle.rpcpassword_txt
         )
         self.rpcport_txt = Label(
             "rpcport :",
-            style=LabelStyle.config_rpcport_txt
+            style=LabelStyle.rpcport_txt
         )
         self.rpcbind_txt = Label(
             "rpcbind :",
-            style=LabelStyle.config_rpcbind_txt
+            style=LabelStyle.rpcbind_txt
         )
         self.rpcclienttimeout_txt = Label(
             "rpcclienttimeout :",
-            style=LabelStyle.config_rpcclienttimeout_txt
+            style=LabelStyle.rpcclienttimeout_txt
         )
         self.rpcallowip_txt = Label(
             "rpcallowip :",
-            style=LabelStyle.config_rpcallowip_txt
+            style=LabelStyle.rpcallowip_txt
         )
         self.rpcconnect_txt = Label(
             "rpcconnect :",
-            style=LabelStyle.config_rpcconnect_txt
+            style=LabelStyle.rpcconnect_txt
         )
         self.rpcuser_input = TextInput(
             placeholder="<username>",
-            style=InputStyle.config_rpcuser_input
+            style=InputStyle.rpcuser_input
         )
         self.rpcpassword_input = PasswordInput(
             placeholder="<password>",
-            style=InputStyle.config_rpcpassword_input
+            style=InputStyle.rpcpassword_input
         )
         self.rpcport_input = NumberInput(
-            style=InputStyle.config_rpcport_input
+            style=InputStyle.rpcport_input
         )
         self.rpcbind_input = MultilineTextInput(
             placeholder="<addr>",
-            style=InputStyle.config_rpcbind_input
+            style=InputStyle.rpcbind_input
         )
         self.rpcclienttimeout_input = NumberInput(
-            style=InputStyle.config_rpcclienttimeout_input
+            style=InputStyle.rpcclienttimeout_input
         )
         self.rpcallowip_input = MultilineTextInput(
             placeholder="127.0.0.1/255.255.255.0"
                         "\n127.0.0.1/24"
                         "\n::1/128",
-            style=InputStyle.config_rpcallowip_input
+            style=InputStyle.rpcallowip_input
         )
         self.rpcconnect_input = TextInput(
             placeholder="127.0.0.1",
-            style=InputStyle.config_rpcconnect_input
+            style=InputStyle.rpcconnect_input
         )
         self.rpcuser_info = Button(
             "?",
             id="rpcuser",
-            style=ButtonStyle.config_info_button,
+            style=ButtonStyle.info_button,
             on_press=self.display_info
         )
         self.rpcpassword_info = Button(
             "?",
             id="rpcpassword",
-            style=ButtonStyle.config_info_button,
+            style=ButtonStyle.info_button,
             on_press=self.display_info
         )
         self.rpcport_info = Button(
             "?",
             id="rpcport",
-            style=ButtonStyle.config_info_button,
+            style=ButtonStyle.info_button,
             on_press=self.display_info
         )
         self.rpcbind_info = Button(
             "?",
             id="rpcbind",
-            style=ButtonStyle.config_rpcbind_info,
+            style=ButtonStyle.rpcbind_info,
             on_press=self.display_info
         )
         self.rpcclienttimeout_info = Button(
             "?",
             id="rpcclienttimeout",
-            style=ButtonStyle.config_rpcclienttimeout_info,
+            style=ButtonStyle.rpcclienttimeout_info,
             on_press=self.display_info
         )
         self.rpcallowip_info = Button(
             "?",
             id="rpcallowip",
-            style=ButtonStyle.config_rpcallowip_info,
+            style=ButtonStyle.rpcallowip_info,
             on_press=self.display_info
         )
         self.rpcconnect_info = Button(
             "?",
             id="rpcconnect",
-            style=ButtonStyle.config_rpcconnect_info,
+            style=ButtonStyle.rpcconnect_info,
             on_press=self.display_info
         )
         self.rpc_divider = Divider(
             direction=Direction.HORIZONTAL
         )
         self.rpc_txt_box = Box(
-            style=BoxStyle.config_rpc_txt_box
+            style=BoxStyle.rpc_txt_box
         )
         self.rpc_input_box = Box(
-            style=BoxStyle.config_rpc_input_box
+            style=BoxStyle.rpc_input_box
         )
         self.rpc_button_box = Box(
-            style=BoxStyle.config_rpc_button_box
+            style=BoxStyle.rpc_button_box
         )
         self.rpc_txt_box.add(
             self.rpcuser_txt,
@@ -484,7 +504,7 @@ class RPCConfig(Box):
             self.rpcconnect_info
         )
         self.rpc_row_box = Box(
-            style=BoxStyle.config_rpc_row_box
+            style=BoxStyle.rpc_row_box
         )
         self.rpc_row_box.add(
             self.rpc_txt_box,
@@ -537,27 +557,137 @@ class RPCConfig(Box):
         
 class FeeConfig(Box):
     def __init__(self, id: str | None = None, style=None, children: list[Widget] | None = None):
-        style = BoxStyle.config_fee_box
+        style = BoxStyle.fee_box
         super().__init__(id, style, children)
         
         self.fee_txt = Label(
             "Transaction fee",
-            style=LabelStyle.config_rpc_txt
+            style=LabelStyle.rpc_txt
+        )
+        self.paytxfee_txt = Label(
+            "paytxfee :",
+            style=LabelStyle.paytxfee_txt
+        )
+        self.fee_divider = Divider(
+            direction=Direction.HORIZONTAL
+        )
+        self.sendfreetransactions_switch = Switch(
+            "sendfreetransactions",
+            style=SwitchStyle.switch
+        )
+        self.txconfirmtarget_switch = Switch(
+            "txconfirmtarget",
+            style=SwitchStyle.switch
+        )
+        self.paytxfee_input = NumberInput(
+            step=Decimal('0.00000001'),
+            min=Decimal('0.00000001'),
+            style=InputStyle.paytxfee_input
+        )
+        self.sendfreetransactions_info = Button(
+            "?",
+            id="sendfreetransactions",
+            style=ButtonStyle.switch_info_button,
+            on_press=self.display_info
+        )
+        self.txconfirmtarget_info = Button(
+            "?",
+            id="txconfirmtarget",
+            style=ButtonStyle.switch_info_button,
+            on_press=self.display_info
+        )
+        self.paytxfee_info = Button(
+            "?",
+            id="paytxfee",
+            style=ButtonStyle.info_button,
+            on_press=self.display_info
+        )
+        self.fee_switch_box = Box(
+            style=BoxStyle.fee_switch_box
+        )
+        self.fee_button_box = Box(
+            style=BoxStyle.fee_button_box
+        )
+        self.fee_txt_box = Box(
+            style=BoxStyle.fee_txt_box
+        )
+        self.fee_input_box = Box(
+            style=BoxStyle.fee_input_box
+        )
+        self.fee_button2_box = Box(
+            style=BoxStyle.fee_button2_box
+        )
+        self.fee_row_box = Box(
+            style=BoxStyle.fee_row_box
+        )
+        self.fee_row2_box = Box(
+            style=BoxStyle.fee_row2_box
+        )
+        self.fee_switch_box.add(
+            self.sendfreetransactions_switch,
+            self.txconfirmtarget_switch
+        )
+        self.fee_button_box.add(
+            self.sendfreetransactions_info,
+            self.txconfirmtarget_info
+        )
+        self.fee_txt_box.add(
+            self.paytxfee_txt
+        )
+        self.fee_input_box.add(
+            self.paytxfee_input
+        )
+        self.fee_button2_box.add(
+            self.paytxfee_info
+        )
+        self.fee_row_box.add(
+            self.fee_switch_box,
+            self.fee_button_box
+        )
+        self.fee_row2_box.add(
+            self.fee_txt_box,
+            self.fee_input_box,
+            self.fee_button2_box
+        )
+        self.add(
+            self.fee_txt,
+            self.fee_divider,
+            self.fee_row_box,
+            self.fee_row2_box
         )
         
-        self.add(
-            self.fee_txt
+    def display_info(self, button):
+        if button.id == "sendfreetransactions":
+            info_message = "Send transactions as zero-fee transactions if possible (default: 0)"
+        elif button.id == "txconfirmtarget":
+            info_message_str = [
+                "Create transactions that have enough fees (or priority) so they are ",
+                "likely to # begin confirmation within n blocks (default: 1). ",
+                "This setting is overridden by the -paytxfee option"
+            ]
+            info_message = "".join(info_message_str)
+        elif button.id == "paytxfee":
+            info_message_str = [
+                "Pay an optional transaction fee every time you send BitcoinZ. Transactions with fees ",
+                "are more likely than free transactions to be included in generated blocks, so may ",
+                "be validated sooner. This setting does not affect private transactions created with ",
+                "z_sendmany"
+            ]
+            info_message = "".join(info_message_str)
+        self.app.main_window.info_dialog(
+            "Info",
+            info_message
         )
         
         
 class OptionsConfig(Box):
     def __init__(self, id: str | None = None, style=None, children: list[Widget] | None = None):
-        style = BoxStyle.config_option_box
+        style = BoxStyle.option_box
         super().__init__(id, style, children)
         
         self.option_txt = Label(
             "Features",
-            style=LabelStyle.config_rpc_txt
+            style=LabelStyle.rpc_txt
         )
         
         self.add(

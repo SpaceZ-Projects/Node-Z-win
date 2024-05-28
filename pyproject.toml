@@ -28,7 +28,7 @@ test_requires = [
 
 [tool.briefcase.app.nodez.windows]
 requires = [
-    "toga-winforms==0.4.4",
+    "toga-winforms",
     "requests",
     "aiohttp"
 ]
@@ -167,7 +167,7 @@ flatpak_sdk = "org.gnome.Sdk"
 # Web deployments
 [tool.briefcase.app.nodez.web]
 requires = [
-    "toga-web~=0.4.0",
+    "toga-web",
 ]
 style_framework = "Shoelace v2.3"
 

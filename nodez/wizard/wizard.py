@@ -88,8 +88,6 @@ class MainWizard(Box):
             self.app,
             self.commands.config_cmd
         )
-        self.commands.config_cmd.enabled = False
-        self.config_window.show()
 
     
     async def loading_options(self, widget):

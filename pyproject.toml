@@ -28,7 +28,7 @@ test_requires = [
 
 [tool.briefcase.app.nodez.windows]
 requires = [
-    "toga-winforms",
+    "git+https://github.com/ezzygarmyz/toga.git@v0.4.4#subdirectory=winforms",
     "requests",
     "aiohttp"
 ]

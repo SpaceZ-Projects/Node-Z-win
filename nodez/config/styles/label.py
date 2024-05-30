@@ -15,7 +15,7 @@ class LabelStyle():
         padding_left = 5
     )
     
-    rpc_txt = Pack(
+    title_txt = Pack(
         font_family = MONOSPACE,
         font_weight = BOLD,
         text_align = CENTER,
@@ -163,5 +163,35 @@ class LabelStyle():
         color = WHITE,
         background_color = GREY,
         padding_top = 5,
+        padding_left = 5
+    )
+    
+    genproclimit_txt = Pack(
+        font_family = MONOSPACE,
+        font_weight = BOLD,
+        font_size = 9,
+        color = WHITE,
+        background_color = GREY,
+        padding_top = 5,
+        padding_left = 5
+    )
+    
+    equihashsolver_txt = Pack(
+        font_family = MONOSPACE,
+        font_weight = BOLD,
+        font_size = 9,
+        color = WHITE,
+        background_color = GREY,
+        padding_top = 8,
+        padding_left = 5
+    )
+    
+    keypool_txt = Pack(
+        font_family = MONOSPACE,
+        font_weight = BOLD,
+        font_size = 9,
+        color = WHITE,
+        background_color = GREY,
+        padding_top = 8,
         padding_left = 5
     )

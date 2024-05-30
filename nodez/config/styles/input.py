@@ -87,3 +87,21 @@ class InputStyle():
         color = WHITE,
         background_color = BLACK
     )
+    
+    genproclimit_input = Pack(
+        padding_top = 2,
+        color = WHITE,
+        background_color = BLACK
+    )
+    
+    equihashsolver_input = Pack(
+        padding_top = 2,
+        color = WHITE,
+        background_color = BLACK
+    )
+    
+    keypool_input = Pack(
+        padding_top = 2,
+        color = WHITE,
+        background_color = BLACK
+    )

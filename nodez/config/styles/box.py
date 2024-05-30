@@ -63,6 +63,15 @@ class BoxStyle():
         direction = COLUMN,
         alignment = CENTER,
         padding_top = 2,
+        padding_left = 5,
+        padding_right = 5,
+        background_color = BLACK
+    )
+    
+    divers_box = Pack(
+        direction = COLUMN,
+        alignment = CENTER,
+        padding_top = 2,
         padding_bottom = 3,
         padding_left = 5,
         padding_right = 5,
@@ -188,5 +197,72 @@ class BoxStyle():
     fee_button2_box = Pack(
         direction = COLUMN,
         alignment = LEFT,
+        background_color = GREY
+    )
+    
+    explorer_row_box = Pack(
+        direction = ROW,
+        background_color = BLACK,
+        padding_left = 3,
+        padding_right = 3
+    )
+    
+    explorer_switch_box = Pack(
+        direction = COLUMN,
+        alignment = LEFT,
+        background_color = BLACK
+    )
+    
+    explorer_button_box = Pack(
+        direction = COLUMN,
+        alignment = LEFT,
+        background_color = BLACK,
+        flex = 1
+    )
+    
+    divers_row_box = Pack(
+        direction = ROW,
+        background_color = BLACK,
+        padding_left = 3,
+        padding_right = 3
+    )
+    
+    divers_row2_box = Pack(
+        direction = ROW,
+        background_color = GREY,
+        padding_bottom = 20,
+        padding_left = 3,
+        padding_right = 3
+    )
+    
+    divers_switch_box = Pack(
+        direction = COLUMN,
+        alignment = LEFT,
+        background_color = BLACK
+    )
+    
+    divers_button_box = Pack(
+        direction = COLUMN,
+        alignment = LEFT,
+        background_color = BLACK,
+        flex = 1
+    )
+    
+    divers_button2_box = Pack(
+        direction = COLUMN,
+        alignment = LEFT,
+        background_color = GREY
+    )
+    
+    divers_txt_box = Pack(
+        direction = COLUMN,
+        alignment = CENTER,
+        flex = 1,
+        background_color = GREY
+    )
+    
+    divers_input_box = Pack(
+        direction = COLUMN,
+        flex = 1,
         background_color = GREY
     )

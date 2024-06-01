@@ -46,6 +46,8 @@ requires = [
 [tool.briefcase.app.nodez.linux]
 requires = [
     "toga-gtk",
+    "requests",
+    "aiohttp",
 ]
 
 

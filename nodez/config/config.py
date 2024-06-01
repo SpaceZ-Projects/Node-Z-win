@@ -1,4 +1,4 @@
-
+import os
 from toga import (
     App,
     Window,
@@ -53,10 +53,9 @@ class EditConfig(Window):
             guid_message,
             style=LabelStyle.guide_txt
         )
-        self.save_button = Button(
-            "Save",
-            id="save",
-            style=ButtonStyle.save,
+        self.done_button = Button(
+            "Done",
+            style=ButtonStyle.done_button,
             on_press=self.close_window
         )
         self.guide_box = Box(
@@ -89,7 +88,7 @@ class EditConfig(Window):
             style=ScrollStyle.main_scroll
         )
         self.button_box.add(
-            self.save_button
+            self.done_button
         )
         self.main_box.add(
             self.main_scroll,

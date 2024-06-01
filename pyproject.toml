@@ -28,7 +28,7 @@ test_requires = [
 
 [tool.briefcase.app.nodez.windows]
 requires = [
-    "git+https://github.com/ezzygarmyz/toga.git@v0.4.4#subdirectory=winforms",
+    "toga-winforms",
     "requests",
     "aiohttp"
 ]
@@ -38,14 +38,14 @@ use_full_install_path = false
 [tool.briefcase.app.nodez.macOS]
 universal_build = true
 requires = [
-    "toga-cocoa~=0.4.0",
-    "std-nslog~=1.0.0",
+    "toga-cocoa",
+    "std-nslog",
 ]
 
 
 [tool.briefcase.app.nodez.linux]
 requires = [
-    "toga-gtk~=0.4.0",
+    "toga-gtk",
 ]
 
 

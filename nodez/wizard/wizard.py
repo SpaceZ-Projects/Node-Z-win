@@ -1,5 +1,5 @@
 import asyncio
-
+import os
 from toga import (
     App,
     Box,
@@ -38,6 +38,16 @@ class MainWizard(Box):
         self.nodez_banner = ImageView(
             "resources/nodez_banner.png"
         )
+        self.rpc_button = Button(
+            icon=Icon("icones/rpc_button"),
+            style=ButtonStyle.rpc_button,
+            on_press=self.open_rpc_window
+        )
+        self.local_button = Button(
+            icon=Icon("icones/start_button"),
+            style=ButtonStyle.local_button,
+            on_press=self.check_files
+        )
         self.version_txt = Label(
             f"version {self.app._version}",
             style=LabelStyle.version_text_style
@@ -57,6 +67,10 @@ class MainWizard(Box):
         self.divider_bottom = Divider(
             direction=Direction.HORIZONTAL
         )
+        self.row_center_box.add(
+            self.rpc_button,
+            self.local_button
+        )
         self.row_bottom_box.add(
             self.version_txt
         )
@@ -71,9 +85,6 @@ class MainWizard(Box):
         self.app.add_background_task(
             self.insert_toolbar
         )
-        self.app.add_background_task(
-            self.loading_options
-        )
         
     def insert_toolbar(self, widget):
         self.app.commands.clear()
@@ -82,44 +93,24 @@ class MainWizard(Box):
             self.commands.config_cmd,
             self.commands.import_wallet_cmd
         )
+        self.app.main_window.show()
     
     def display_config_window(self, widget):
+        config_file = "bitcoinz.conf"
+        config_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
+        if not os.path.exists(config_path):
+            os.makedirs(config_path, exist_ok=True)
+        file_path = os.path.join(config_path, config_file)
+        if not os.path.exists(file_path):
+            with open(file_path, 'w') as f:
+                f.write(
+                    "experimentalfeatures=1\n"
+                    "insightexplorer=1\n"
+                    "txindex=1\n"
+                )
         self.config_window = EditConfig(
             self.app,
             self.commands.config_cmd
-        )
-
-    
-    async def loading_options(self, widget):
-        await asyncio.sleep(1)
-        self.loading_txt = Label(
-            "Loading...",
-            style=LabelStyle.loading_txt
-        )
-        self.row_center_box.add(
-            self.loading_txt
-        )
-        await self.display_options()
-    
-    
-    async def display_options(self):
-        await asyncio.sleep(1)
-        self.row_center_box.remove(
-            self.loading_txt
-        )
-        self.rpc_button = Button(
-            icon=Icon("icones/rpc_button"),
-            style=ButtonStyle.rpc_button,
-            on_press=self.open_rpc_window
-        )
-        self.local_button = Button(
-            icon=Icon("icones/start_button"),
-            style=ButtonStyle.local_button,
-            on_press=self.check_files
-        )
-        self.row_center_box.add(
-            self.rpc_button,
-            self.local_button
         )
         
     async def open_rpc_window(self, button):

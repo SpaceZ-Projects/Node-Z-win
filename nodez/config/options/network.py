@@ -1,4 +1,3 @@
-import asyncio
 import os
 
 from toga import (
@@ -13,7 +12,6 @@ from toga import (
     Button
 )
 from toga.constants import Direction
-from toga.colors import RED
 from toga.widgets.base import Widget
 
 from ..styles.box import BoxStyle
@@ -35,6 +33,9 @@ class NetConfig(Box):
         style = BoxStyle.net_box
         super().__init__(id, style, children)
         self.app = app
+        config_file = "bitcoinz.conf"
+        config_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
+        self.file_path = os.path.join(config_path, config_file)
         
         self.net_txt = Label(
             "Network settings",
@@ -46,19 +47,30 @@ class NetConfig(Box):
         self.testnet_switch = Switch(
             "testnet",
             style=SwitchStyle.switch,
-            on_change=self.update_testnet
+            on_change=lambda switch: self.update_config_switch(
+                switch, "testnet"
+            )
         )
         self.regtest_switch = Switch(
             "regtest",
-            style=SwitchStyle.switch
+            style=SwitchStyle.switch,
+            on_change=lambda switch: self.update_config_switch(
+                switch, "regtest"
+            )
         )
         self.listen_switch = Switch(
             "listen",
-            style=SwitchStyle.switch
+            style=SwitchStyle.switch,
+            on_change=lambda switch: self.update_config_switch(
+                switch, "listen"
+            )
         )
         self.server_switch = Switch(
             "server",
-            style=SwitchStyle.switch
+            style=SwitchStyle.switch,
+            on_change=lambda switch: self.update_config_switch(
+                switch, "server"
+            )
         )
         self.proxy_txt = Label(
             "proxy :",
@@ -86,19 +98,31 @@ class NetConfig(Box):
         )
         self.proxy_input = TextInput(
             placeholder="127.0.0.1:9050",
-            style=InputStyle.proxy_input
+            style=InputStyle.proxy_input,
+            on_lose_focus=lambda input: self.update_config_input(
+                input, "proxy"
+            )
         )
         self.bind_input = TextInput(
             placeholder="<addr>",
-            style=InputStyle.bind_input
+            style=InputStyle.bind_input,
+            on_lose_focus=lambda input: self.update_config_input(
+                input, "bind"
+            )
         )
         self.whitebind_input = TextInput(
             placeholder="<addr>",
-            style=InputStyle.whitebind_input
+            style=InputStyle.whitebind_input,
+            on_lose_focus=lambda input: self.update_config_input(
+                input, "whitebind"
+            )
         )
         self.maxconnections_input = NumberInput(
             min=0,
-            style=InputStyle.maxconnections_input
+            style=InputStyle.maxconnections_input,
+            on_change=lambda input: self.update_config_input(
+                input, "maxconnections"
+            )
         )
         self.addnode_input = MultilineTextInput(
             placeholder="149.28.202.159:1989"
@@ -107,7 +131,10 @@ class NetConfig(Box):
                         "\nseed.btcz.app"
                         "\nbtzseed.blockhub.info"
                         "\nbtzseed2.blockhub.info",
-            style=InputStyle.addnode_input
+            style=InputStyle.addnode_input,
+            on_change=lambda input: self.update_config_multiinput(
+                input, "addnode"
+            )
         )
         self.connect_input = MultilineTextInput(
             placeholder="149.28.202.159:1989"
@@ -116,7 +143,10 @@ class NetConfig(Box):
                         "\nseed.btcz.app"
                         "\nbtzseed.blockhub.info"
                         "\nbtzseed2.blockhub.info",
-            style=InputStyle.connect_input
+            style=InputStyle.connect_input,
+            on_change=lambda input: self.update_config_multiinput(
+                input, "connect"
+            )
         )
         self.testnet_info = Button(
             "?",
@@ -243,28 +273,16 @@ class NetConfig(Box):
             self.net_row2_box
         )
         self.app.add_background_task(
-            self.check_config_file
+            self.read_file_lines
         )
-        
-    
-    async def check_config_file(self, widget):
-        config_file = "bitcoinz.conf"
-        config_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
-        if not os.path.exists(config_path):
-            return
-        file_path = os.path.join(config_path, config_file)
-        if not os.path.exists(file_path):
-            return
-        else:
-            await self.read_file_lines(file_path)
-            
-            
-    async def read_file_lines(self, file_path):
+
+                 
+    async def read_file_lines(self, widget):
         testnet = regtest = listen = server = proxy = None
         bind = whitebind = maxconnections = None
         addnodes = []
         connections = []
-        with open(file_path, 'r') as file:
+        with open(self.file_path, 'r') as file:
             lines = file.readlines()
             for line in lines:
                 line = line.strip()
@@ -319,9 +337,82 @@ class NetConfig(Box):
             self.connect_input
         )
         
-    def update_testnet(self, switch):
-        if switch.value is True:
-            switch.enabled = False
+    def update_config_switch(self, switch, key):
+        new_value = "1" if switch.value else "0"
+        key_found = False
+        updated_lines = []
+        with open(self.file_path, 'r') as file:
+            lines = file.readlines()
+        for line in lines:
+            stripped_line = line.strip()
+            if "=" in stripped_line:
+                current_key, value = map(str.strip, stripped_line.split('=', 1))
+                if current_key == key:
+                    updated_lines.append(f"{key}={new_value}\n")
+                    key_found = True
+                else:
+                    updated_lines.append(line)
+            else:
+                updated_lines.append(line)
+        if not key_found:
+            updated_lines.append(f"{key}={new_value}\n")
+        with open(self.file_path, 'w') as file:
+            file.writelines(updated_lines)
+            
+            
+    def update_config_input(self, input, key):
+        current_value = input.value
+        key_found = False
+        updated_lines = []
+        with open(self.file_path, 'r') as file:
+            lines = file.readlines()
+        for line in lines:
+            stripped_line = line.strip()
+            if "=" in stripped_line:
+                current_key, value = map(str.strip, stripped_line.split('=', 1))
+                if current_key == key:
+                    if current_value is not None:
+                        updated_lines.append(f"{key}={current_value}\n")
+                    else:
+                        updated_lines.append(f"{key}=\n")
+                    key_found = True
+                else:
+                    updated_lines.append(line)
+            else:
+                updated_lines.append(line)
+        if not key_found:
+            if current_value is not None:
+                updated_lines.append(f"{key}={current_value}\n")
+            else:
+                updated_lines.append(f"{key}=\n")
+        with open(self.file_path, 'w') as file:
+            file.writelines(updated_lines)
+            
+    
+    def update_config_multiinput(self, input, key):
+        input_lines = input.value.strip().split('\n')
+        updated_lines = []
+        key_lines = [f"{key}={line.strip()}\n" for line in input_lines if line.strip()]
+
+        with open(self.file_path, 'r') as file:
+            lines = file.readlines()
+
+        key_found = False
+        for line in lines:
+            stripped_line = line.strip()
+            if stripped_line.startswith(f"{key}="):
+                if not key_found:
+                    updated_lines.extend(key_lines)
+                    key_found = True
+            else:
+                updated_lines.append(line)
+
+        if not key_found:
+            updated_lines.extend(key_lines)
+
+        with open(self.file_path, 'w') as file:
+            file.writelines(updated_lines)
+                    
         
     def display_info(self, button):
         if button.id == "testnet":

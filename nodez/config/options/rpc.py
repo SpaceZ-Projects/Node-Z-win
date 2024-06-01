@@ -1,6 +1,4 @@
-import asyncio
 import os
-from decimal import Decimal
 
 from toga import (
     App,
@@ -14,13 +12,11 @@ from toga import (
     Button
 )
 from toga.constants import Direction
-from toga.colors import RED
 from toga.widgets.base import Widget
 
 from ..styles.box import BoxStyle
 from ..styles.button import ButtonStyle
 from ..styles.label import LabelStyle
-from ..styles.switch import SwitchStyle
 from ..styles.input import InputStyle
         
         
@@ -36,6 +32,9 @@ class RPCConfig(Box):
         style = BoxStyle.rpc_box
         super().__init__(id, style, children)
         self.app = app
+        config_file = "bitcoinz.conf"
+        config_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
+        self.file_path = os.path.join(config_path, config_file)
         
         self.rpc_txt = Label(
             "RPC server options",
@@ -71,31 +70,54 @@ class RPCConfig(Box):
         )
         self.rpcuser_input = TextInput(
             placeholder="<username>",
-            style=InputStyle.rpcuser_input
+            style=InputStyle.rpcuser_input,
+            on_lose_focus=lambda input: self.update_config_input(
+                input, "rpcuser"
+            )
         )
         self.rpcpassword_input = PasswordInput(
             placeholder="<password>",
-            style=InputStyle.rpcpassword_input
+            style=InputStyle.rpcpassword_input,
+            on_lose_focus=lambda input: self.update_config_input(
+                input, "rpcpassword"
+            )
         )
         self.rpcport_input = NumberInput(
-            style=InputStyle.rpcport_input
+            min=0,
+            style=InputStyle.rpcport_input,
+            on_change=lambda input: self.update_config_input(
+                input, "rpcport"
+            )
         )
         self.rpcbind_input = MultilineTextInput(
             placeholder="<addr>",
-            style=InputStyle.rpcbind_input
+            style=InputStyle.rpcbind_input,
+            on_change=lambda input: self.update_config_multiinput(
+                input, "rpcbind"
+            )
         )
         self.rpcclienttimeout_input = NumberInput(
-            style=InputStyle.rpcclienttimeout_input
+            min=0,
+            style=InputStyle.rpcclienttimeout_input,
+            on_change=lambda input: self.update_config_input(
+                input, "rpcclienttimeout"
+            )
         )
         self.rpcallowip_input = MultilineTextInput(
             placeholder="127.0.0.1/255.255.255.0"
                         "\n127.0.0.1/24"
                         "\n::1/128",
-            style=InputStyle.rpcallowip_input
+            style=InputStyle.rpcallowip_input,
+            on_change=lambda input: self.update_config_multiinput(
+                input, "rpcallowip"
+            )
         )
         self.rpcconnect_input = TextInput(
             placeholder="127.0.0.1",
-            style=InputStyle.rpcconnect_input
+            style=InputStyle.rpcconnect_input,
+            on_lose_focus=lambda input: self.update_config_input(
+                input, "rpcconnect"
+            )
         )
         self.rpcuser_info = Button(
             "?",
@@ -160,15 +182,6 @@ class RPCConfig(Box):
             self.rpcallowip_txt,
             self.rpcconnect_txt
         )
-        self.rpc_input_box.add(
-            self.rpcuser_input,
-            self.rpcpassword_input,
-            self.rpcport_input,
-            self.rpcbind_input,
-            self.rpcclienttimeout_input,
-            self.rpcallowip_input,
-            self.rpcconnect_input
-        )
         self.rpc_button_box.add(
             self.rpcuser_info,
             self.rpcpassword_info,
@@ -191,6 +204,119 @@ class RPCConfig(Box):
             self.rpc_divider,
             self.rpc_row_box
         )
+        self.app.add_background_task(
+            self.read_file_lines
+        )
+        
+        
+    async def read_file_lines(self, widget):
+        rpcuser = rpcpassword = rpcconnect = None
+        rpcport = ""
+        rpcclienttimeout = ""
+        rpcbinds = []
+        rpcallowips = []
+        with open(self.file_path, 'r') as file:
+            lines = file.readlines()
+            for line in lines:
+                line = line.strip()
+                if "=" in line:
+                    key, value = map(str.strip, line.split('=', 1))
+                    if key == "rpcuser":
+                        rpcuser = value
+                    elif key == "rpcpassword":
+                        rpcpassword = value
+                    elif key == "rpcport":
+                        rpcport = value
+                    elif key == "rpcclienttimeout":
+                        rpcclienttimeout = value
+                    elif key == "rpcconnect":
+                        rpcconnect = value
+                if line.startswith("rpcbind="):
+                    rpcbinds.append(line.split("=", 1)[1].strip())
+                if line.startswith("rpcallowip="):
+                    rpcallowips.append(line.split("=", 1)[1].strip())
+        await self.update_values(
+                rpcuser, rpcpassword, rpcport, rpcclienttimeout,
+                rpcconnect, rpcbinds, rpcallowips
+            )
+        
+    async def update_values(
+        self,
+        rpcuser, rpcpassword, rpcport, rpcclienttimeout,
+        rpcconnect, rpcbinds, rpcallowips
+    ):
+        self.rpcuser_input.value = rpcuser
+        self.rpcpassword_input.value = rpcpassword
+        self.rpcport_input.value = rpcport
+        self.rpcclienttimeout_input.value = rpcclienttimeout
+        self.rpcconnect_input.value = rpcconnect
+        self.rpcbind_input.value = "\n".join(rpcbinds) if rpcbinds else ""
+        self.rpcallowip_input.value = "\n".join(rpcallowips) if rpcallowips else ""
+        self.rpc_input_box.add(
+            self.rpcuser_input,
+            self.rpcpassword_input,
+            self.rpcport_input,
+            self.rpcbind_input,
+            self.rpcclienttimeout_input,
+            self.rpcallowip_input,
+            self.rpcconnect_input
+        )
+
+        
+        
+    def update_config_input(self, input, key):
+        current_value = input.value
+        key_found = False
+        updated_lines = []
+        with open(self.file_path, 'r') as file:
+            lines = file.readlines()
+        for line in lines:
+            stripped_line = line.strip()
+            if "=" in stripped_line:
+                current_key, value = map(str.strip, stripped_line.split('=', 1))
+                if current_key == key:
+                    if current_value is not None:
+                        updated_lines.append(f"{key}={current_value}\n")
+                    else:
+                        updated_lines.append(f"{key}=\n")
+                    key_found = True
+                else:
+                    updated_lines.append(line)
+            else:
+                updated_lines.append(line)
+        if not key_found:
+            if current_value is not None:
+                updated_lines.append(f"{key}={current_value}\n")
+            else:
+                updated_lines.append(f"{key}=\n")
+        with open(self.file_path, 'w') as file:
+            file.writelines(updated_lines)
+            
+    
+    def update_config_multiinput(self, input, key):
+        input_lines = input.value.strip().split('\n')
+        updated_lines = []
+        key_lines = [f"{key}={line.strip()}\n" for line in input_lines if line.strip()]
+
+        with open(self.file_path, 'r') as file:
+            lines = file.readlines()
+
+        key_found = False
+        for line in lines:
+            stripped_line = line.strip()
+            if stripped_line.startswith(f"{key}="):
+                if not key_found:
+                    updated_lines.extend(key_lines)
+                    key_found = True
+            else:
+                updated_lines.append(line)
+
+        if not key_found:
+            updated_lines.extend(key_lines)
+
+        with open(self.file_path, 'w') as file:
+            file.writelines(updated_lines)
+            
         
     def display_info(self, button):
         if button.id == "rpcuser":

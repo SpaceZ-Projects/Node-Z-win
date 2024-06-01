@@ -61,7 +61,6 @@ class NodeZ(App):
             resizable=False
         )
         self.main_window.content = MainWizard(self.app)
-        self.main_window.show()
         self.on_exit = self.prevent_close
         
     async def prevent_close(self, window):

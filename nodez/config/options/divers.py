@@ -1,4 +1,3 @@
-import asyncio
 import os
 
 from toga import (
@@ -35,9 +34,12 @@ class DiversConfig(Box):
         style = BoxStyle.divers_box
         super().__init__(id, style, children)
         self.app = app
+        config_file = "bitcoinz.conf"
+        config_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
+        self.file_path = os.path.join(config_path, config_file)
         
         self.divers_txt = Label(
-            "Miscellaneous Options",
+            "Miscellaneous options",
             style=LabelStyle.title_txt
         )
         self.divers_divider = Divider(
@@ -45,7 +47,10 @@ class DiversConfig(Box):
         )
         self.gen_switch = Switch(
             "gen",
-            style=SwitchStyle.switch
+            style=SwitchStyle.switch,
+            on_change=lambda switch: self.update_config_switch(
+                switch, "gen"
+            )
         )
         self.genproclimit_txt = Label(
             "genproclimit :",
@@ -62,16 +67,25 @@ class DiversConfig(Box):
         self.genproclimit_input = NumberInput(
             step=1,
             min=-1,
-            style=InputStyle.genproclimit_input
+            style=InputStyle.genproclimit_input,
+            on_change=lambda input: self.update_config_input(
+                input, "genproclimit"
+            )
         )
         self.keypool_input = NumberInput(
             step=1,
             min=0,
-            style=InputStyle.keypool_input
+            style=InputStyle.keypool_input,
+            on_change=lambda input: self.update_config_input(
+                input, "keypool"
+            )
         )
         self.equihashsolver_input = TextInput(
             placeholder="e.g. “tromp”",
-            style=InputStyle.equihashsolver_input
+            style=InputStyle.equihashsolver_input,
+            on_lose_focus=lambda input: self.update_config_input(
+                input, "equihashsolver"
+            )
         )
         self.gen_info = Button(
             "?",
@@ -150,27 +164,16 @@ class DiversConfig(Box):
             self.divers_row2_box
         )
         self.app.add_background_task(
-            self.check_config_file
+            self.read_file_lines
         )
-    
-    async def check_config_file(self, widget):
-        config_file = "bitcoinz.conf"
-        config_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
-        if not os.path.exists(config_path):
-            return
-        file_path = os.path.join(config_path, config_file)
-        if not os.path.exists(file_path):
-            return
-        else:
-            await self.read_file_lines(file_path)
                 
     
-    async def read_file_lines(self, file_path):
+    async def read_file_lines(self, widget):
         gen = None
         genproclimit = None
         equihashsolver = None
         keypool = None
-        with open(file_path, 'r') as file:
+        with open(self.file_path, 'r') as file:
             lines = file.readlines()
             for line in lines:
                 line = line.strip()
@@ -183,8 +186,7 @@ class DiversConfig(Box):
                     elif key == "equihashsolver":
                         equihashsolver =value
                     elif key == "keypool":
-                        keypool = value
-                        
+                        keypool = value             
         await self.update_values(
             gen, genproclimit, equihashsolver, keypool
         )
@@ -202,6 +204,58 @@ class DiversConfig(Box):
             self.equihashsolver_input,
             self.keypool_input
         )
+        
+    
+    def update_config_switch(self, switch, key):
+        new_value = "1" if switch.value else "0"
+        key_found = False
+        updated_lines = []
+        with open(self.file_path, 'r') as file:
+            lines = file.readlines()
+        for line in lines:
+            stripped_line = line.strip()
+            if "=" in stripped_line:
+                current_key, value = map(str.strip, stripped_line.split('=', 1))
+                if current_key == key:
+                    updated_lines.append(f"{key}={new_value}\n")
+                    key_found = True
+                else:
+                    updated_lines.append(line)
+            else:
+                updated_lines.append(line)
+        if not key_found:
+            updated_lines.append(f"{key}={new_value}\n")
+        with open(self.file_path, 'w') as file:
+            file.writelines(updated_lines)
+            
+            
+    def update_config_input(self, input, key):
+        current_value = input.value
+        key_found = False
+        updated_lines = []
+        with open(self.file_path, 'r') as file:
+            lines = file.readlines()
+        for line in lines:
+            stripped_line = line.strip()
+            if "=" in stripped_line:
+                current_key, value = map(str.strip, stripped_line.split('=', 1))
+                if current_key == key:
+                    if current_value is not None:
+                        updated_lines.append(f"{key}={current_value}\n")
+                    else:
+                        updated_lines.append(f"{key}=\n")
+                    key_found = True
+                else:
+                    updated_lines.append(line)
+            else:
+                updated_lines.append(line)
+        if not key_found:
+            if current_value is not None:
+                updated_lines.append(f"{key}={current_value}\n")
+            else:
+                updated_lines.append(f"{key}=\n")
+        with open(self.file_path, 'w') as file:
+            file.writelines(updated_lines)
                     
                     
     def display_info(self, button):

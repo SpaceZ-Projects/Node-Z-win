@@ -1,4 +1,3 @@
-import asyncio
 import os
 
 from toga import (
@@ -18,8 +17,7 @@ from ..styles.label import LabelStyle
 from ..styles.switch import SwitchStyle
 from ..styles.button import ButtonStyle
         
-        
-        
+              
         
 class insightConfig(Box):
     def __init__(
@@ -32,6 +30,9 @@ class insightConfig(Box):
         style = BoxStyle.option_box
         super().__init__(id, style, children)
         self.app = app
+        config_file = "bitcoinz.conf"
+        config_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
+        self.file_path = os.path.join(config_path, config_file)
         
         self.explorer_txt = Label(
             "Insight explorer",
@@ -42,15 +43,24 @@ class insightConfig(Box):
         )
         self.txindex_switch = Switch(
             "txindex",
-            style=SwitchStyle.switch
+            style=SwitchStyle.switch,
+            on_change=lambda switch: self.update_config_switch(
+                switch, "txindex"
+            )
         )
         self.experimentalfeatures_switch = Switch(
             "experimentalfeatures",
-            style=SwitchStyle.switch
+            style=SwitchStyle.switch,
+            on_change=lambda switch: self.update_config_switch(
+                switch, "experimentalfeatures"
+            )
         )
         self.insightexplorer_switch = Switch(
             "insightexplorer",
-            style=SwitchStyle.switch
+            style=SwitchStyle.switch,
+            on_change=lambda switch: self.update_config_switch(
+                switch, "insightexplorer"
+            )
         )
         self.txindex_info = Button(
             "?",
@@ -99,26 +109,15 @@ class insightConfig(Box):
             self.explorer_row_box
         )
         self.app.add_background_task(
-            self.check_config_file
+            self.read_file_lines
         )
-    
-    async def check_config_file(self, widget):
-        config_file = "bitcoinz.conf"
-        config_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
-        if not os.path.exists(config_path):
-            return
-        file_path = os.path.join(config_path, config_file)
-        if not os.path.exists(file_path):
-            return
-        else:
-            await self.read_file_lines(file_path)
                 
     
-    async def read_file_lines(self, file_path):
+    async def read_file_lines(self, widget):
         txindex = None
         experimentalfeatures = None
         insightexplorer = None
-        with open(file_path, 'r') as file:
+        with open(self.file_path, 'r') as file:
             lines = file.readlines()
             for line in lines:
                 line = line.strip()
@@ -143,6 +142,29 @@ class insightConfig(Box):
         self.txindex_switch.value = (txindex == "1")
         self.experimentalfeatures_switch.value = (experimentalfeatures == "1")
         self.insightexplorer_switch.value = (insightexplorer == "1")
+        
+        
+    def update_config_switch(self, switch, key):
+        new_value = "1" if switch.value else "0"
+        key_found = False
+        updated_lines = []
+        with open(self.file_path, 'r') as file:
+            lines = file.readlines()
+        for line in lines:
+            stripped_line = line.strip()
+            if "=" in stripped_line:
+                current_key, value = map(str.strip, stripped_line.split('=', 1))
+                if current_key == key:
+                    updated_lines.append(f"{key}={new_value}\n")
+                    key_found = True
+                else:
+                    updated_lines.append(line)
+            else:
+                updated_lines.append(line)
+        if not key_found:
+            updated_lines.append(f"{key}={new_value}\n")
+        with open(self.file_path, 'w') as file:
+            file.writelines(updated_lines)
                     
                     
     def display_info(self, button):

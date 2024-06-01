@@ -5,7 +5,7 @@ from toga.constants import CENTER, BOLD, MONOSPACE
 
 class ButtonStyle():
     
-    save = Pack(
+    done_button = Pack(
         font_family = MONOSPACE,
         font_weight = BOLD,
         font_size = 11,

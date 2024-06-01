@@ -14,16 +14,27 @@ class Toolbar():
     
     file = Group.FILE
     help = Group.HELP
-    utils = Group("Utils")
+    config = Group("Config")
     
     config_cmd = Command(
         text="Edit config",
-        group=utils,
+        group=config,
         enabled=True,
         tooltip="Edit bitcoinz.conf file",
         shortcut=Key.F2,
         action=True,
         order=0,
+        section=0
+    )
+    
+    start_config_cmd = Command(
+        text="Start with <config file>",
+        group=config,
+        enabled=True,
+        tooltip="Start the node with spcecific config file",
+        shortcut=Key.F3,
+        action=True,
+        order=1,
         section=0
     )
 

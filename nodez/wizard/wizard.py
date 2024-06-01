@@ -89,11 +89,26 @@ class MainWizard(Box):
     def insert_toolbar(self, widget):
         self.app.commands.clear()
         self.commands.config_cmd.action = self.display_config_window
+        self.commands.start_config_cmd.action = self.start_with_config
         self.app.commands.add(
             self.commands.config_cmd,
+            self.commands.start_config_cmd,
             self.commands.import_wallet_cmd
         )
         self.app.main_window.show()
+        
+        
+    async def start_with_config(self, window):
+        config_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
+        async def on_confirm(window, result):
+            print(result)
+        self.app.main_window.open_file_dialog(
+            "Select config file...",
+            file_types=["conf"],
+            initial_directory=config_path,
+            on_result=on_confirm
+        )
+        
     
     def display_config_window(self, widget):
         config_file = "bitcoinz.conf"

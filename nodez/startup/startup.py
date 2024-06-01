@@ -3,6 +3,7 @@ import aiohttp
 import os
 import zipfile
 import subprocess
+import platform
 
 from toga import (
     App,
@@ -81,11 +82,18 @@ class NodeSetup(Window):
         
     async def check_node_files(self, widget):
         data_path = self.app.paths.data
-        required_files = [
-            'bitcoinzd.exe',
-            'bitcoinz-cli.exe',
-            'bitcoinz-tx.exe'
-        ]
+        if platform.system().lower() == "windows":
+            required_files = [
+                'bitcoinzd.exe',
+                'bitcoinz-cli.exe',
+                'bitcoinz-tx.exe'
+            ]
+        elif platform.system().lower() == "linux":
+            required_files = [
+                'bitcoinzd',
+                'bitcoinz-cli',
+                'bitcoinz-tx'
+            ]
         missing_files = [
             file_name for file_name in required_files
             if not os.path.exists(os.path.join(data_path, file_name))
@@ -99,7 +107,10 @@ class NodeSetup(Window):
 
     async def check_zcash_params(self):
         self.cheking_txt.text = "Checking Params..."
-        directory_path = os.path.join(os.getenv('APPDATA'), "ZcashParams")
+        if platform.system().lower() == "windows":
+            directory_path = os.path.join(os.getenv('APPDATA'), "ZcashParams")
+        elif platform.system().lower() == "linux":
+            directory_path = os.path.expanduser("~/.zcash-params")
         required_files = [
             'sprout-proving.key',
             'sprout-verifying.key',
@@ -123,7 +134,10 @@ class NodeSetup(Window):
         config_file = "bitcoinz.conf"
         self.cheking_txt.text = f"Checking {config_file}..."
         await asyncio.sleep(1)
-        config_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
+        if platform.system().lower() == "windows":
+            config_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
+        elif platform.system().lower() == "linux":
+            config_path = os.path.expanduser("~/.bitcoinz")
         if not os.path.exists(config_path):
             os.makedirs(config_path, exist_ok=True)
         file_path = os.path.join(config_path, config_file)
@@ -179,7 +193,10 @@ class NodeSetup(Window):
         self.cheking_txt.text = "Downloading node files..."
         self.title = "Downloading..."
         url = "https://github.com/btcz/bitcoinz/releases/download/2.0.8-EXT/"
-        file_name = "bitcoinz-2.0.8-EXT-6c6447fba1-win64.zip"
+        if platform.system().lower() == "windows":
+            file_name = "bitcoinz-2.0.8-EXT-6c6447fba1-win64.zip"
+        elif platform.system().lower() == "linux":
+            file_name ="bitcoinz-2.0.8-EXT-6c6447fba1-linux-ARM-aarch64.zip"
         destination = os.path.join(data_path, file_name)
         self.current_download_file = destination
         try:
@@ -232,7 +249,10 @@ class NodeSetup(Window):
 
     async def download_zcash_params(self, missing_files):
         await asyncio.sleep(1)
-        zcash_path = os.path.join(os.getenv('APPDATA'), "ZcashParams")
+        if platform.system().lower() == "windows":
+            zcash_path = os.path.join(os.getenv('APPDATA'), "ZcashParams")
+        elif platform.system().lower() == "linux":
+            zcash_path = os.path.expanduser("~/.zcash-params")
         if not os.path.exists(zcash_path):
             os.makedirs(zcash_path, exist_ok=True)
 

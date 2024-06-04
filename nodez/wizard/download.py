@@ -2,8 +2,6 @@ import asyncio
 import aiohttp
 import os
 import zipfile
-import subprocess
-import platform
 
 from toga import (
     App,
@@ -22,12 +20,11 @@ from .styles.label import LabelStyle
 from .styles.progressbar import ProgressStyle
 from .styles.divider import DividerStyle
 
-from ..home.home import MainMenu
-from ..client import ClientCommands
+from .system import SystemOp
 
 
-class NodeSetup(Window):
-    def __init__(self, app:App, rpc_button, local_button):
+class DownloadNode(Window):
+    def __init__(self, app:App, download_button, local_botton):
         super().__init__(
             title="Loading...",
             size=(280, 90),
@@ -36,23 +33,23 @@ class NodeSetup(Window):
             minimizable=False,
             on_close=self.close_window
         )
-        self.command = ClientCommands(self.app)
-        self.rpc_button = rpc_button
-        self.local_button = local_button
+        self.system = SystemOp(self.app)
+        self.download_button = download_button
+        self.local_button = local_botton
         self.download_task = None
         self.current_download_file = None
         self.file_handle = None
         
-        self.cheking_txt = Label(
-            "Checking node files...",
-            style=LabelStyle.setup_cheking_txt
+        self.download_txt = Label(
+            "Downloading node files...",
+            style=LabelStyle.download_txt
         )
         self.divider_top = Divider(
             direction=Direction.HORIZONTAL,
-            style=DividerStyle.setup_divider_top
+            style=DividerStyle.download_divider_top
         )
         self.main_box = Box(
-            style=BoxStyle.setup_main_box
+            style=BoxStyle.download_main_box
         )
         self.progress_bar = ProgressBar(
             max=100,
@@ -64,139 +61,39 @@ class NodeSetup(Window):
         )
         self.file_name_txt = Label(
             "File :",
-            style=LabelStyle.setup_file_name_txt
+            style=LabelStyle.file_name_txt
         )
         self.bitcoinz_coin = ImageView(
             ("resources/btcz_coin1.gif")
         )
         self.main_box.add(
-            self.cheking_txt,
+            self.download_txt,
             self.divider_top,
             self.bitcoinz_coin
         )
         self.content = self.main_box
         self.app.add_background_task(
-            self.check_node_files
+            self.download_node_files
         )
         
         
-    async def check_node_files(self, widget):
+    async def download_node_files(self, widget):
+        self.download_button.enabled = False
+        self.show()
         data_path = self.app.paths.data
-        if platform.system().lower() == "windows":
-            required_files = [
-                'bitcoinzd.exe',
-                'bitcoinz-cli.exe',
-                'bitcoinz-tx.exe'
-            ]
-        elif platform.system().lower() == "linux":
-            required_files = [
-                'bitcoinzd',
-                'bitcoinz-cli',
-                'bitcoinz-tx'
-            ]
-        missing_files = [
-            file_name for file_name in required_files
-            if not os.path.exists(os.path.join(data_path, file_name))
-        ]
-        if missing_files:
-            self.download_task = asyncio.create_task(self.download_node_file(data_path))
-            await self.download_task
+        self.download_task = asyncio.create_task(self.fetch_node_files(data_path))
+        await self.download_task
         await asyncio.sleep(1)
-        await self.check_zcash_params()
-        
-
-    async def check_zcash_params(self):
-        self.cheking_txt.text = "Checking Params..."
-        if platform.system().lower() == "windows":
-            directory_path = os.path.join(os.getenv('APPDATA'), "ZcashParams")
-        elif platform.system().lower() == "linux":
-            directory_path = os.path.expanduser("~/.zcash-params")
-        required_files = [
-            'sprout-proving.key',
-            'sprout-verifying.key',
-            'sapling-spend.params',
-            'sapling-output.params',
-            'sprout-groth16.params'
-        ]
-        missing_files = [
-            file_name for file_name in required_files
-            if not os.path.exists(os.path.join(directory_path, file_name))
-        ]
-
-        if missing_files:
-            self.download_task = asyncio.create_task(self.download_zcash_params(missing_files))
-            await self.download_task
-        await asyncio.sleep(1)
-        await self.check_config_file()
-        
-
-    async def check_config_file(self):
-        config_file = "bitcoinz.conf"
-        self.cheking_txt.text = f"Checking {config_file}..."
-        await asyncio.sleep(1)
-        if platform.system().lower() == "windows":
-            config_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
-        elif platform.system().lower() == "linux":
-            config_path = os.path.expanduser("~/.bitcoinz")
-        if not os.path.exists(config_path):
-            os.makedirs(config_path, exist_ok=True)
-        file_path = os.path.join(config_path, config_file)
-        if not os.path.exists(file_path):
-            self.create_new_config(file_path)
-        await self.start_node()
-            
-    
-    async def start_node(self):
-        data_path = self.app.paths.data
-        bitcoinzd_file = os.path.join(data_path, "bitcoinzd.exe")
-        self.cheking_txt.text = "Starting node..."
-        self.title = "Loading..."
-        await asyncio.sleep(1)
-        await asyncio.create_subprocess_exec(
-            bitcoinzd_file,
-            stderr=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            creationflags=subprocess.CREATE_NO_WINDOW
-        )
-        await self.check_node_status()
-    
-    
-    async def check_node_status(self):
-        await asyncio.sleep(1)
-        while True:
-            result = await self.command.getInfo()
-            if result:
-                self.cheking_txt.text = "Starting GUI..."
-                await asyncio.sleep(1)
-                self.close()
-                self.app.main_window.hide()
-                await asyncio.sleep(2)
-                self.app.main_window.content.clear()
-                self.app.main_window.content = MainMenu(self.app)
-                self.app.main_window.size = (450, 200)
-                self.app.main_window.position = (0,0)
-                self.app.main_window.title = "Node-Z (Local)"
-                self.app.main_window.show()
-                return
-            else:
-                self.cheking_txt.text = "Loading blocks..."
-                print(False)
-
-            await asyncio.sleep(4)
             
         
          
-    async def download_node_file(self, data_path):
+    async def fetch_node_files(self, data_path):
         await asyncio.sleep(1)
         if not os.path.exists(data_path):
             os.makedirs(data_path, exist_ok=True)
-        self.cheking_txt.text = "Downloading node files..."
         self.title = "Downloading..."
         url = "https://github.com/btcz/bitcoinz/releases/download/2.0.8-EXT/"
-        if platform.system().lower() == "windows":
-            file_name = "bitcoinz-2.0.8-EXT-6c6447fba1-win64.zip"
-        elif platform.system().lower() == "linux":
-            file_name ="bitcoinz-2.0.8-EXT-6c6447fba1-linux-ARM-aarch64.zip"
+        file_name = "bitcoinz-2.0.8-EXT-6c6447fba1-win64.zip"
         destination = os.path.join(data_path, file_name)
         self.current_download_file = destination
         try:
@@ -227,7 +124,7 @@ class NodeSetup(Window):
                         self.file_handle.close()
                         self.file_handle = None
 
-                        self.cheking_txt.text = "Extracting node files..."
+                        self.download_txt.text = "Extracting node files..."
                         self.main_box.remove(
                             self.progress_bar,
                             self.file_name_txt
@@ -238,25 +135,132 @@ class NodeSetup(Window):
                         await asyncio.sleep(1)
                         with zipfile.ZipFile(destination, 'r') as zip_ref:
                             zip_ref.extractall(data_path)
-                        self.cheking_txt.text = "Node files ready."
+                        self.download_txt.text = "Node files ready."
                         os.remove(destination)
                         self.current_download_file = destination
                         await asyncio.sleep(1)
+                        self.close()
+                        self.check_requirements_files()
         except aiohttp.ClientError as e:
             print(e)
             self.handle_download_error()
             
+            
+    def check_requirements_files(self):
+        config_file = self.system.load_config_file()
+        if config_file is None:
+            config_status = False
+        else:
+            config_status = True
+        node_files = self.system.load_node_files()
+        if node_files is not None:
+            node_status = False
+        else:
+            node_status = True
+        params_files = self.system.load_params_files()
+        if params_files is not None:
+            params_status = False
+        else:
+            params_status = True
+        if config_status is True and node_status is True and params_status is True:
+            self.local_button.enabled = True
+            
+            
+    def handle_download_error(self):
+        if self.file_handle:
+            self.file_handle.close()
+            self.file_handle = None
+        if self.current_download_file and os.path.exists(self.current_download_file):
+            os.remove(self.current_download_file)
+        self.download_txt.style.color = RED
+        self.download_txt.text = "Download Failed"
+        self.progress_bar.value = 0
+        self.close()
 
-    async def download_zcash_params(self, missing_files):
+    def close_window(self, widget):
+        if self.download_task is not None:
+            self.download_task.cancel()
+            if self.file_handle:
+                self.file_handle.close()
+                self.file_handle = None
+            if self.current_download_file and os.path.exists(self.current_download_file):
+                os.remove(self.current_download_file)
+        self.close()
+        
+        
+        
+            
+            
+class DownloadParams(Window):
+    def __init__(self, app:App, download_button, local_button):
+        super().__init__(
+            title="Loading...",
+            size=(280, 90),
+            position=(220, 250),
+            resizable=False,
+            minimizable=False,
+            on_close=self.close_window
+        )
+        self.system = SystemOp(self.app)
+        self.download_button = download_button
+        self.local_button = local_button
+        self.download_task = None
+        self.current_download_file = None
+        self.file_handle = None
+        
+        self.download_txt = Label(
+            "Downloading Params...",
+            style=LabelStyle.download_txt
+        )
+        self.divider_top = Divider(
+            direction=Direction.HORIZONTAL,
+            style=DividerStyle.download_divider_top
+        )
+        self.main_box = Box(
+            style=BoxStyle.download_main_box
+        )
+        self.progress_bar = ProgressBar(
+            max=100,
+            style=ProgressStyle.setup_progress_bar
+        )
+        self.file_progress_bar = ProgressBar(
+            max=100,
+            style=ProgressStyle.setup_file_progress_bar
+        )
+        self.file_name_txt = Label(
+            "File :",
+            style=LabelStyle.file_name_txt
+        )
+        self.bitcoinz_coin = ImageView(
+            ("resources/btcz_coin1.gif")
+        )
+        self.main_box.add(
+            self.download_txt,
+            self.divider_top,
+            self.bitcoinz_coin
+        )
+        self.content = self.main_box
+        self.app.add_background_task(
+            self.download_zcash_params
+        )
+            
+            
+    async def download_zcash_params(self, widget):
+        self.download_button.enabled = False
+        self.show()
+        missing_files = self.system.load_params_files()
+        if missing_files:
+            self.download_task = asyncio.create_task(self.fetch_zcash_params(missing_files))
+            await self.download_task
         await asyncio.sleep(1)
-        if platform.system().lower() == "windows":
-            zcash_path = os.path.join(os.getenv('APPDATA'), "ZcashParams")
-        elif platform.system().lower() == "linux":
-            zcash_path = os.path.expanduser("~/.zcash-params")
+            
+
+    async def fetch_zcash_params(self, missing_files):
+        await asyncio.sleep(1)
+        zcash_path = os.path.join(os.getenv('APPDATA'), "ZcashParams")
         if not os.path.exists(zcash_path):
             os.makedirs(zcash_path, exist_ok=True)
-
-        self.cheking_txt.text = "Downloading Params..."
+            
         self.title = "Downloading..."
         self.main_box.remove(
             self.bitcoinz_coin
@@ -294,28 +298,33 @@ class NodeSetup(Window):
                             self.file_handle.close()
                             self.file_handle = None
                     self.current_download_file = None
-                self.cheking_txt.text = "Params ready."
+                self.download_txt.text = "Params ready."
                 await asyncio.sleep(1)
-                self.main_box.remove(
-                    self.progress_bar,
-                    self.file_progress_bar,
-                    self.file_name_txt
-                )
-                self.main_box.add(
-                    self.bitcoinz_coin
-                )
+                self.close()
+                self.check_requirements_files()
         except aiohttp.ClientError as e:
             print(e)
             self.handle_download_error()
             
             
-    def create_new_config(self, file_path):
-        with open(file_path, 'w') as f:
-            f.write(
-                "experimentalfeatures=1\n"
-                "insightexplorer=1\n"
-                "txindex=1\n"
-            )
+    def check_requirements_files(self):
+        config_file = self.system.load_config_file()
+        if config_file is None:
+            config_status = False
+        else:
+            config_status = True
+        node_files = self.system.load_node_files()
+        if node_files is not None:
+            node_status = False
+        else:
+            node_status = True
+        params_files = self.system.load_params_files()
+        if params_files is not None:
+            params_status = False
+        else:
+            params_status = True
+        if config_status is True and node_status is True and params_status is True:
+            self.local_button.enabled = True
             
 
     def handle_download_error(self):
@@ -324,11 +333,9 @@ class NodeSetup(Window):
             self.file_handle = None
         if self.current_download_file and os.path.exists(self.current_download_file):
             os.remove(self.current_download_file)
-        self.cheking_txt.style.color = RED
-        self.cheking_txt.text = "Download Failed"
+        self.download_txt.style.color = RED
+        self.download_txt.text = "Download Failed"
         self.progress_bar.value = 0
-        self.rpc_button.enabled = True
-        self.local_button.enabled = True
         self.close()
 
     def close_window(self, widget):
@@ -339,7 +346,5 @@ class NodeSetup(Window):
                 self.file_handle = None
             if self.current_download_file and os.path.exists(self.current_download_file):
                 os.remove(self.current_download_file)
-        self.rpc_button.enabled = True
-        self.local_button.enabled = True
         self.close()
         

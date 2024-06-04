@@ -189,9 +189,6 @@ class MainMenu(Box):
             self.blockchain_info_box
         )
         self.app.add_background_task(
-            self.clear_toolbar   
-        )
-        self.app.add_background_task(
             self.update_total_balances
         )
         self.app.add_background_task(
@@ -200,9 +197,16 @@ class MainMenu(Box):
         self.app.add_background_task(
             self.update_blockchain_info
         )
+        self.app.add_background_task(
+            self.display_main_window  
+        )
         
-    def clear_toolbar(self, widget):
+    def display_main_window(self, widget):
         self.app.commands.clear()
+        self.app.main_window.size = (450, 200)
+        self.app.main_window.position = (0,0)
+        self.app.main_window.title = "Node-Z (Local)"
+        self.app.main_window.show()
 
         
     async def update_total_balances(self, widget):
@@ -221,7 +225,7 @@ class MainMenu(Box):
                     private = self.format_balance(
                         float(balances["private"])
                     )
-            if not os.path.exists(db_path):
+            else:
                 balances = await self.client.z_getTotalBalance()
                 if balances is not None:
                     if isinstance(balances, str):

@@ -21,7 +21,7 @@ from .styles.scroll import ScrollStyle
 
 
 class EditConfig(Window):
-    def __init__(self, app:App, config_window):
+    def __init__(self, app:App, config_window, config_button):
         super().__init__(
             title="Edit Config",
             size=(450, 620),
@@ -31,6 +31,7 @@ class EditConfig(Window):
             on_close=self.close_window
         )
         self.config_window = config_window
+        self.config_button = config_button
         
         guid_message_str = [
             "Below contains information for additional configuration"

@@ -1,16 +1,22 @@
 from toga.style import Pack
 from toga.constants import CENTER, BOTTOM, TOP, ROW, COLUMN
+from toga.colors import BLACK, YELLOW, WHITE
 
 
 class BoxStyle():
     
-    setup_main_box = Pack(
+    social_main_box = Pack(
+        direction = ROW
+    )
+    
+    start_main_box = Pack(
         direction = COLUMN,
         alignment = CENTER
     )
     
-    social_main_box = Pack(
-        direction = ROW
+    download_main_box = Pack(
+        direction = COLUMN,
+        alignment = CENTER
     )
     
     wizard_main_box = Pack(
@@ -29,10 +35,25 @@ class BoxStyle():
         alignment = TOP
     )
     
-    wizard_row_center = Pack(
-        direction = ROW,
+    wizard_center = Pack(
+        direction = COLUMN,
         alignment = CENTER,
-        flex = 1
+    )
+    
+    wizard_local_row = Pack(
+        direction = ROW,
+        padding_top = 30,
+        background_color = BLACK,
+        width = 450,
+        height = 100,
+    )
+    
+    wizard_rpc_row = Pack(
+        direction = ROW,
+        padding = 3,
+        background_color = BLACK,
+        width = 450,
+        height = 100,
     )
     
     wizard_row_bottom = Pack(

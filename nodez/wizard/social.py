@@ -1,4 +1,6 @@
+
 import webbrowser
+
 from toga import (
     App,
     Box,

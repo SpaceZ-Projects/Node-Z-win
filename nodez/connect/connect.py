@@ -34,6 +34,10 @@ class WindowRPC(Window):
         )
         self.rpc_button = rpc_button
         self.local_button = local_button
+        if self.local_button.enabled is True:
+            self.button_status = True
+        else:
+            self.button_status = False
         
         self.rpcuser_txt = Label(
             "rpcuser :",
@@ -99,6 +103,10 @@ class WindowRPC(Window):
         )
         
     def auto_focus(self, widget):
+        if self.button_status is True:
+            self.local_button.enabled = False
+        self.rpc_button.enabled = False
+        self.show()
         self.rpcuser_input.focus()
         
     async def check_inputs(self, button):
@@ -242,6 +250,8 @@ class WindowRPC(Window):
         
         
     def close_window(self, widget):
+        if self.button_status is True:
+            self.local_button.enabled = True
         self.rpc_button.enabled = True
-        self.local_button.enabled = True
+        
         self.close()

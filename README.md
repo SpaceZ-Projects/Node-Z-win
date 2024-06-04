@@ -10,6 +10,8 @@ Node-Z is a GUI interface designed to manage BitcoinZ nodes through RPC connecti
 - Real-time monitoring and status updates.
 - User-friendly interface for node operations.
 
+<p align="center"><img src="https://github.com/ezzygarmyz/nodez-win/screenshot/nodez_screenshot.png" </p>
+
 ## Getting Started :
 
 ### Requirements :

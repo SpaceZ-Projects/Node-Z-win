@@ -2,7 +2,6 @@ import asyncio
 import os
 import subprocess
 import json
-import platform
 
 from toga import App
 
@@ -11,10 +10,7 @@ class ClientCommands():
         super().__init__()
         self.app = app
         data_path = self.app.paths.data
-        if platform.system().lower() == "windows":
-            self.bitcoinzd_file = os.path.join(data_path, "bitcoinz-cli.exe")
-        elif platform.system().lower() == "linux":
-            self.bitcoinzd_file = os.path.join(data_path, "bitcoinz-cli")
+        self.bitcoinzd_file = os.path.join(data_path, "bitcoinz-cli.exe")
         
     
     async def _run_command(self, command):

@@ -1,5 +1,4 @@
-import asyncio
-import os
+
 from toga import (
     App,
     Box,
@@ -14,13 +13,16 @@ from toga.constants import Direction
 from .styles.box import BoxStyle
 from .styles.label import LabelStyle
 from .styles.button import ButtonStyle
+from .styles.divider import DividerStyle
 
 from ..connect.connect import WindowRPC
-from ..startup.startup import NodeSetup
+from .start import StartNode
 from .social import Social
+from .download import DownloadNode, DownloadParams
 
 from ..command import Toolbar
 from ..config.config import EditConfig
+from .system import SystemOp
 
 class MainWizard(Box):
     def __init__(
@@ -34,6 +36,10 @@ class MainWizard(Box):
         super().__init__(id, style, children)
         self.app = app
         self.commands = Toolbar(self.app)
+        self.system = SystemOp(self.app)
+        self.config_status = None
+        self.node_status = None
+        self.params_status = None
         
         self.nodez_banner = ImageView(
             "resources/nodez_banner.png"
@@ -46,30 +52,93 @@ class MainWizard(Box):
         self.local_button = Button(
             icon=Icon("icones/start_button"),
             style=ButtonStyle.local_button,
-            on_press=self.check_files
+            on_press=self.start_node
+        )
+        self.download_node_button = Button(
+            icon=Icon("icones/download"),
+            style=ButtonStyle.download_button,
+            on_press=self.download_node_files
+        )
+        self.download_params_button = Button(
+            icon=Icon("icones/download"),
+            style=ButtonStyle.download_button,
+            on_press=self.download_params_files
+        )
+        self.config_button = Button(
+            icon=Icon("icones/config"),
+            style=ButtonStyle.download_button
         )
         self.version_txt = Label(
             f"version {self.app._version}",
             style=LabelStyle.version_text_style
         )
-        self.row_top_box = Box(
-            style=BoxStyle.wizard_row_top
+        self.node_files_txt = Label(
+            "Node\nfiles",
+            style=LabelStyle.node_files_txt
         )
-        self.row_center_box = Box(
-            style=BoxStyle.wizard_row_center
+        self.params_txt = Label(
+            "Params\nfiles",
+            style=LabelStyle.params_txt
+        )
+        self.config_txt = Label(
+            "Config\nfile",
+            style=LabelStyle.config_txt
+        )
+        self.rpc_description_txt = Label(
+            "connection to a node via remote procedure calls",
+            style=LabelStyle.rpc_description_txt
+        )
+        self.divider_top = Divider(
+            direction=Direction.HORIZONTAL,
+            style=DividerStyle.wizard_divider_top
+        )
+        self.divider_center = Divider(
+            direction=Direction.HORIZONTAL,
+            style=DividerStyle.wizard_divider_center
+        )
+        self.divider_bottom = Divider(
+            direction=Direction.HORIZONTAL,
+            style=DividerStyle.wizard_divider_bottom
+        )
+        self.local_divider_1 = Divider(
+            direction=Direction.VERTICAL,
+            style=DividerStyle.local_divider
+        )
+        self.local_divider_2 = Divider(
+            direction=Direction.VERTICAL,
+            style=DividerStyle.local_divider
+        )
+        self.local_row_box = Box(
+            style=BoxStyle.wizard_local_row
+        )
+        self.rpc_row_box = Box(
+            style=BoxStyle.wizard_rpc_row
+        )
+        self.center_box = Box(
+            style=BoxStyle.wizard_center
         )
         self.row_bottom_box = Box(
             style=BoxStyle.wizard_row_bottom
         )
-        self.divider_top = Divider(
-            direction=Direction.HORIZONTAL
+        self.local_row_box.add(
+            self.local_button,
+            self.node_files_txt,
+            self.download_node_button,
+            self.local_divider_1,
+            self.params_txt,
+            self.download_params_button,
+            self.local_divider_2,
+            self.config_txt,
+            self.config_button
         )
-        self.divider_bottom = Divider(
-            direction=Direction.HORIZONTAL
-        )
-        self.row_center_box.add(
+        self.rpc_row_box.add(
             self.rpc_button,
-            self.local_button
+            self.rpc_description_txt
+        )
+        self.center_box.add(
+            self.local_row_box,
+            self.divider_center,
+            self.rpc_row_box
         )
         self.row_bottom_box.add(
             self.version_txt
@@ -77,73 +146,116 @@ class MainWizard(Box):
         self.add(
             self.nodez_banner,
             self.divider_top,
-            self.row_center_box,
+            self.center_box,
             self.row_bottom_box,
             self.divider_bottom,
             Social(self.app)
         )
         self.app.add_background_task(
-            self.insert_toolbar
+            self.check_config
         )
         
-    def insert_toolbar(self, widget):
+    async def check_config(self, widget):
+        config_file = self.system.load_config_file()
+        if config_file is None:
+            self.config_status = False
+            self.commands.edit_config_cmd.enabled = False
+            self.config_button.enabled = True
+        else:
+            self.config_status = True
+            self.commands.edit_config_cmd.enabled = True
+            self.config_button.enabled = False
+            
+        await self.check_node_files()
+        
+    
+    async def check_node_files(self):
+        node_files = self.system.load_node_files()
+        if node_files is not None:
+            self.node_status = False
+            self.download_node_button.enabled = True
+        else:
+            self.node_status = True
+            self.download_node_button.enabled = False
+        
+        await self.check_params_files()
+        
+        
+    async def check_params_files(self):
+        params_files = self.system.load_params_files()
+        if params_files is not None:
+            self.params_status = False
+            self.download_params_button.enabled = True
+        else:
+            self.params_status = True
+            self.download_params_button.enabled = False
+            
+        await self.insert_toolbar()
+        
+        
+    async def insert_toolbar(self):
         self.app.commands.clear()
-        self.commands.config_cmd.action = self.display_config_window
+        self.commands.edit_config_cmd.action = self.display_config_window
         self.commands.start_config_cmd.action = self.start_with_config
         self.app.commands.add(
-            self.commands.config_cmd,
+            self.commands.edit_config_cmd,
             self.commands.start_config_cmd,
             self.commands.import_wallet_cmd
         )
+        await self.display_main_window()
+        
+        
+    async def display_main_window(self):
+        if self.config_status is True and self.node_status is True and self.params_status is True:
+            self.local_button.enabled = True
+        else:
+            self.local_button.enabled = False
+            
         self.app.main_window.show()
         
         
     async def start_with_config(self, window):
-        config_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
         async def on_confirm(window, result):
             print(result)
         self.app.main_window.open_file_dialog(
             "Select config file...",
             file_types=["conf"],
-            initial_directory=config_path,
             on_result=on_confirm
+        )
+        
+    def download_node_files(self, button):
+        self.download_node_window = DownloadNode(
+            self.app,
+            self.download_node_button,
+            self.local_button
+        )
+        
+    def download_params_files(self, button):
+        self.download_params_window = DownloadParams(
+            self.app,
+            self.download_params_button,
+            self.local_button
         )
         
     
     def display_config_window(self, widget):
-        config_file = "bitcoinz.conf"
-        config_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
-        if not os.path.exists(config_path):
-            os.makedirs(config_path, exist_ok=True)
-        file_path = os.path.join(config_path, config_file)
-        if not os.path.exists(file_path):
-            with open(file_path, 'w') as f:
-                f.write(
-                    "experimentalfeatures=1\n"
-                    "insightexplorer=1\n"
-                    "txindex=1\n"
-                )
         self.config_window = EditConfig(
             self.app,
-            self.commands.config_cmd
+            self.commands.edit_config_cmd,
+            self.config_button
         )
         
-    async def open_rpc_window(self, button):
-        self.rpc_button.enabled = False
-        self.local_button.enabled = False
-        rpc_window = WindowRPC(
+    
+    def start_node(self, button):
+        self.local_window = StartNode(
             self.app,
             self.rpc_button,
             self.local_button
         )
-        rpc_window.show()
         
-    async def check_files(self, button):
-        self.rpc_button.enabled = False
-        self.local_button.enabled = False
-        download_window = NodeSetup(
+    def open_rpc_window(self, button):
+        self.rpc_window = WindowRPC(
             self.app,
             self.rpc_button,
             self.local_button
         )
-        download_window.show()

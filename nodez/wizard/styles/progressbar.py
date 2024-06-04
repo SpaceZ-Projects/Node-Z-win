@@ -1,4 +1,5 @@
 from toga.style.pack import Pack
+from toga.colors import YELLOW
 
 
 class ProgressStyle():
@@ -13,5 +14,6 @@ class ProgressStyle():
         padding_left = 5,
         padding_right = 5,
         padding_top = 2,
-        height = 5
+        height = 5,
+        background_color = YELLOW
     )

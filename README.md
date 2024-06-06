@@ -17,6 +17,14 @@ Node-Z is a GUI interface designed to manage BitcoinZ nodes through RPC connecti
 ### Requirements :
 Python 3.8 or higher
 
+### Build App :
+
+On Windows open PowerShell and run the following script:
+
+```
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/ezzygarmyz/nodez-win/main/scripts/build-win.ps1" -OutFile "$env:TEMP\build-win.ps1"; Invoke-Expression -Command "$env:TEMP\build-win.ps1"
+```
+
 ### DEV Mode (Shell)
 Create and activate a virtual environment :
 ```

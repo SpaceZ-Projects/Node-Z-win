@@ -17,23 +17,24 @@ from .styles.box import BoxStyle
 from .styles.label import LabelStyle
 from .styles.divider import DividerStyle
 
-from ..client import ClientCommands
-from ..home.home import MainMenu
+from ..commands import ClientCommands
+from ..home.home import HomeWindow
+from ..system import SystemOp
 
 
 class StartNode(Window):
-    def __init__(self, app:App, rpc_button, local_button):
+    def __init__(self, app:App):
         super().__init__(
             title="Loading...",
             size=(280, 90),
-            position=(220, 250),
             resizable=False,
             minimizable=False,
             closable=False
         )
-        self.command = ClientCommands(self.app)
-        self.rpc_button = rpc_button
-        self.local_button = local_button
+        self.commands = ClientCommands(self.app)
+        self.system = SystemOp(self.app)
+        position_center = self.system.windows_screen_center(self.size)
+        self.position = position_center
         
         self.starting_txt = Label(
             "Starting Node...",
@@ -60,8 +61,8 @@ class StartNode(Window):
         )
         
     async def display_window(self, widget):
-        self.local_button.enabled = False
-        self.rpc_button.enabled = False
+        self.app.main_window.hide()
+        await asyncio.sleep(1)
         self.show()
         await self.start_node()
     
@@ -82,18 +83,15 @@ class StartNode(Window):
     async def check_node_status(self):
         await asyncio.sleep(1)
         while True:
-            result = await self.command.getInfo()
+            result = await self.commands.getInfo()
             if result:
                 self.starting_txt.text = "Starting GUI..."
-                await asyncio.sleep(1)
-                self.close()
-                self.app.main_window.hide()
                 await asyncio.sleep(2)
-                self.app.main_window.content.clear()
-                self.app.main_window.content = MainMenu(self.app)
+                self.home_window = HomeWindow(self.app)
+                self.home_window.title = "MainMenu (Local)"
+                self.close()
                 return
             else:
                 self.starting_txt.text = "Loading blocks..."
-                print(False)
 
             await asyncio.sleep(4)

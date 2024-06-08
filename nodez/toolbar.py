@@ -3,8 +3,7 @@ from toga import(
     App,
     Group,
     Command,
-    Key,
-    Icon
+    Key
 )
 
 

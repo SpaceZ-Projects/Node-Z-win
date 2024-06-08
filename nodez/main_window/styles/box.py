@@ -5,6 +5,17 @@ from toga.colors import BLACK, YELLOW, WHITE
 
 class BoxStyle():
     
+    connect_main_box = Pack(
+        direction = COLUMN,
+        alignment = CENTER,
+        padding = 5
+    )
+    
+    connect_button_box = Pack(
+        direction = ROW,
+        padding_top = 5
+    )
+    
     social_main_box = Pack(
         direction = ROW
     )

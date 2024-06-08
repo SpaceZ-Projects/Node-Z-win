@@ -1,40 +1,49 @@
 from toga.style import Pack
 from toga.colors import BLACK
-from toga.constants import CENTER, BOTTOM, TOP, ROW, COLUMN
+from toga.constants import CENTER, ROW, COLUMN
 
 
 class BoxStyle():
     
     
     home_main_box = Pack(
+        direction = ROW,
+        width = 600,
+        height = 150
+    )
+    
+    home_node_box = Pack(
         direction = COLUMN,
         alignment = CENTER,
-        width = 305,
-        height = 200,
+        background_color = BLACK,
+        width = 200,
+        height = 150
     )
     
-    home_buttons_box = Pack(
+    balances_box = Pack(
         direction = ROW,
-        alignment = TOP
+        background_color = BLACK
     )
     
-    home_balances_box = Pack(
+    price_box = Pack(
         direction = ROW,
-        alignment = CENTER
+        background_color = BLACK
     )
     
-    home_total_balances_box = Pack(
-        direction = ROW,
-        alignment = CENTER
-    )
-    
-    home_price_box = Pack(
-        direction = ROW,
-        alignment = BOTTOM
+    home_menu_box = Pack(
+        direction = COLUMN,
     )
     
     home_blockchain_info_box = Pack(
         direction = ROW,
         background_color = BLACK,
-        padding = 2
+        width = 600,
+        height = 30
+    )
+    
+    home_buttons_box = Pack(
+        direction = ROW,
+        background_color = BLACK,
+        width = 600,
+        height = 110
     )

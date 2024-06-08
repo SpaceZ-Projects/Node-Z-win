@@ -1,4 +1,5 @@
-import os
+import asyncio
+
 from toga import (
     App,
     Window,
@@ -14,6 +15,8 @@ from .options.txfee import FeeConfig
 from .options.explorer import insightConfig
 from .options.divers import DiversConfig
 
+from ..system import SystemOp
+
 from .styles.box import BoxStyle
 from .styles.button import ButtonStyle
 from .styles.label import LabelStyle
@@ -21,17 +24,18 @@ from .styles.scroll import ScrollStyle
 
 
 class EditConfig(Window):
-    def __init__(self, app:App, config_window, config_button):
+    def __init__(self, app:App, local_button):
         super().__init__(
             title="Edit Config",
             size=(450, 620),
-            position=(500, 50),
             resizable=False,
             minimizable=False,
             on_close=self.close_window
         )
-        self.config_window = config_window
-        self.config_button = config_button
+        self.system = SystemOp(self.app)
+        position_center = self.system.windows_screen_center(self.size)
+        self.position = position_center
+        self.local_button = local_button
         
         guid_message_str = [
             "Below contains information for additional configuration"
@@ -102,10 +106,31 @@ class EditConfig(Window):
         
         
     async def show_window(self, window):
-        self.config_window.enabled = False
         self.show()
         
         
-    def close_window(self, widget):
-        self.config_window.enabled = True
+    async def close_window(self, widget):
+        self.check_requirements_files()
         self.close()
+        await asyncio.sleep(1)
+        self.app.main_window.show()
+        
+        
+    def check_requirements_files(self):
+        config_file = self.system.load_config_file()
+        if config_file is None:
+            config_status = False
+        else:
+            config_status = True
+        node_files = self.system.load_node_files()
+        if node_files is not None:
+            node_status = False
+        else:
+            node_status = True
+        params_files = self.system.load_params_files()
+        if params_files is not None:
+            params_status = False
+        else:
+            params_status = True
+        if config_status is True and node_status is True and params_status is True:
+            self.local_button.enabled = True

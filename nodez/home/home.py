@@ -1,50 +1,56 @@
 import asyncio
 import os
 import json
+
 from toga import (
     App,
+    Window,
     Box,
     Label,
-    Button,
     Divider,
     ImageView,
+    Button,
     Icon
 )
-from toga.widgets.base import Widget
-from toga.constants import Direction
+from toga.constants import Direction, HIDDEN
+from toga.colors import RED, BLACK
 
 from .styles.box import BoxStyle
-from .styles.button import ButtonStyle
 from .styles.divider import DividerStyle
 from .styles.label import LabelStyle
+from .styles.button import ButtonStyle
+from .styles.image import ImageStyle
 
-from ..request import RPCRequest, get_btcz_price
-from ..client import ClientCommands
-from ..command import Toolbar
+from ..client import RPCRequest, get_btcz_price
+from ..commands import ClientCommands
+from ..system import SystemOp
+
+from ..cash.send import CashWindow
+from ..wallet.receive import WalletWindow
+from ..browser.navigator import BrowserWindow
 
 
-class MainMenu(Box):
-    def __init__(
-        self,
-        app:App,
-        id: str | None = None,
-        style=None,
-        children: list[Widget] | None = None
-    ):
-        style=BoxStyle.home_main_box
-        super().__init__(id, style, children)
-        self.app = app
-        self.request = RPCRequest(self.app)
-        self.client = ClientCommands(self.app)
-        self.commands = Toolbar(self.app)
+class HomeWindow(Window):
+    def __init__(self, app:App):
+        super().__init__(
+            size=(745, 130),
+            position=(0, 5),
+            resizable=False,
+            on_close=self.close_window
+        )
+        self.client = RPCRequest(self.app)
+        self.commands = ClientCommands(self.app)
+        self.system = SystemOp(self.app)
         
         self.cash_button = Button(
             icon=Icon("icones/cash"),
-            style=ButtonStyle.menu_button
+            style=ButtonStyle.menu_button,
+            on_press=self.open_cash_window
         )
-        self.wallet_buuton = Button(
+        self.wallet_button = Button(
             icon=Icon("icones/wallet"),
-            style=ButtonStyle.menu_button
+            style=ButtonStyle.menu_button,
+            on_press=self.open_wallet_window
         )
         self.explorer_button = Button(
             icon=Icon("icones/explorer"),
@@ -54,20 +60,21 @@ class MainMenu(Box):
             icon=Icon("icones/message"),
             style=ButtonStyle.menu_button
         )
-        self.tools_button = Button(
-            icon=Icon("icones/tools"),
+        self.mining_button = Button(
+            icon=Icon("icones/mining"),
             style=ButtonStyle.menu_button
         )
-        self.buttons_box = Box(
-            style=BoxStyle.home_buttons_box
+        self.browser_button = Button(
+            icon=Icon("icones/browser"),
+            style=ButtonStyle.menu_button,
+            on_press=self.open_browser_window
         )
-        self.divider_top = Divider(
+        self.divider_menu = Divider(
             direction=Direction.HORIZONTAL,
-            style=DividerStyle.home_divider_top
+            style=DividerStyle.home_divider_menu
         )
-        self.divider_bottom = Divider(
-            direction=Direction.HORIZONTAL,
-            style=DividerStyle.home_divider_bottom
+        self.divider_vertical = Divider(
+            direction=Direction.VERTICAL
         )
         self.total_balances_txt = Label(
             "Total Balance :",
@@ -93,15 +100,29 @@ class MainMenu(Box):
             "_._",
             style=LabelStyle.home_private_balance
         )
+        self.unconfirmed_txt = Label(
+            "",
+            style=LabelStyle.home_unconfirmed_txt
+        )
+        self.unconfirmed_balance = Label(
+            "",
+            style=LabelStyle.home_unconfirmed_balance
+        )
         self.btcz_coin = ImageView(
-            "resources/btcz_coin.gif"
+            "resources/btcz_coin.gif",
+            style=ImageStyle.btcz_coin
+        )
+        self.unconfirmed_loading = ImageView(
+            "icones/unconfirmed.gif",
+            style=ImageStyle.unconfimed_loading
         )
         self.price_txt = Label(
             "BTCZ Price :",
             style=LabelStyle.home_price_txt
         )
         self.price_value = Label(
-            "$ _._"
+            "$_._",
+            style=LabelStyle.home_price_value
         )
         self.chain_txt = Label(
             "Chain :",
@@ -135,39 +156,71 @@ class MainMenu(Box):
             "NaN",
             style=LabelStyle.home_dep_value
         )
-        self.total_balances_box = Box(
-            style=BoxStyle.home_total_balances_box
+        self.buttons_box = Box(
+            style=BoxStyle.home_buttons_box
         )
-        self.balances_box = Box(
-            style=BoxStyle.home_balances_box
+        self.node_box = Box(
+            style=BoxStyle.home_node_box
+        )
+        self.total_balances_box = Box(
+            style=BoxStyle.balances_box
+        )
+        self.transparent_balance_box = Box(
+            style=BoxStyle.balances_box
+        )
+        self.private_balance_box = Box(
+            style=BoxStyle.balances_box
+        )
+        self.unconfirmed_balance_box = Box(
+            style=BoxStyle.balances_box
         )
         self.price_box = Box(
-            style=BoxStyle.home_price_box
+            style=BoxStyle.price_box
+        )
+        self.menu_box = Box(
+            style=BoxStyle.home_menu_box
         )
         self.blockchain_info_box = Box(
             style=BoxStyle.home_blockchain_info_box
         )
-        self.buttons_box.add(
-            self.cash_button,
-            self.wallet_buuton,
-            self.explorer_button,
-            self.message_button,
-            self.tools_button
+        self.main_box = Box(
+            style=BoxStyle.home_main_box
         )
         self.total_balances_box.add(
-            self.total_balances_txt,
             self.total_balances,
             self.btcz_coin
         )
-        self.balances_box.add(
+        self.transparent_balance_box.add(
             self.transparent_balance_txt,
-            self.transparent_balance,
+            self.transparent_balance
+        )
+        self.private_balance_box.add(
             self.private_balance_txt,
             self.private_balance
+        )
+        self.unconfirmed_balance_box.add(
+            self.unconfirmed_txt,
+            self.unconfirmed_balance
         )
         self.price_box.add(
             self.price_txt,
             self.price_value
+        )
+        self.node_box.add(
+            self.total_balances_txt,
+            self.total_balances_box,
+            self.transparent_balance_box,
+            self.private_balance_box,
+            self.unconfirmed_balance_box,
+            self.price_box
+        )
+        self.buttons_box.add(
+            self.cash_button,
+            self.wallet_button,
+            self.explorer_button,
+            self.message_button,
+            self.mining_button,
+            self.browser_button
         )
         self.blockchain_info_box.add(
             self.chain_txt,
@@ -179,105 +232,111 @@ class MainMenu(Box):
             self.dep_text,
             self.dep_value
         )
-        self.add(
+        self.menu_box.add(
             self.buttons_box,
-            self.divider_top,
-            self.total_balances_box,
-            self.balances_box,
-            self.divider_bottom,
-            self.price_box,
+            self.divider_menu,
             self.blockchain_info_box
         )
-        self.app.add_background_task(
-            self.update_total_balances
+        self.main_box.add(
+            self.node_box,
+            self.divider_vertical,
+            self.menu_box
         )
-        self.app.add_background_task(
-            self.update_price
-        )
-        self.app.add_background_task(
-            self.update_blockchain_info
-        )
+        
+        self.content = self.main_box
+        
         self.app.add_background_task(
             self.display_main_window  
         )
         
-    def display_main_window(self, widget):
-        self.app.commands.clear()
-        self.app.main_window.size = (450, 200)
-        self.app.main_window.position = (0,0)
-        self.app.main_window.title = "Node-Z (Local)"
-        self.app.main_window.show()
-
+    async def display_main_window(self, widget):
+        self.update_price_task = asyncio.create_task(self.update_price())
+        self.update_balance_task = asyncio.create_task(self.update_total_balances())
+        self.update_info_task = asyncio.create_task(self.update_blockchain_info())
+        await asyncio.sleep(2)
+        self.show()
+        await asyncio.gather(
+            self.update_price_task,
+            self.update_balance_task,
+            self.update_info_task
+        )
         
-    async def update_total_balances(self, widget):
+        
+    async def update_total_balances(self):
         while True:
             config_path = self.app.paths.config
             db_path = os.path.join(config_path, 'config.db')
-            if os.path.exists(db_path):
-                balances = self.request.z_getTotalBalance()
+            
+            try:
+                if os.path.exists(db_path):
+                    balances = self.client.z_getTotalBalance()
+                    unconfirmed_balances = self.client.getUnconfirmedBalance()
+                else:
+                    balances = await self.commands.z_getTotalBalance()
+                    unconfirmed_balances = self.commands.getUnconfirmedBalance()
+
                 if balances is not None:
-                    total = self.format_balance(
-                        float(balances["total"])
-                    )
-                    transparent = self.format_balance(
-                        float(balances["transparent"])
-                    )
-                    private = self.format_balance(
-                        float(balances["private"])
-                    )
-            else:
-                balances = await self.client.z_getTotalBalance()
-                if balances is not None:
-                    if isinstance(balances, str):
-                        balances = json.loads(balances)
-                    total = self.format_balance(
-                        float(balances.get('total'))
-                    )
-                    transparent = self.format_balance(
-                        float(balances.get('transparent'))
-                    )
-                    private = self.format_balance(
-                        float(balances.get('private'))
-                    )
-            self.total_balances.text = f"{total}"
-            self.transparent_balance.text = f"{transparent}"
-            self.private_balance.text = f"{private}"
-            await asyncio.sleep(5)
+                    total = self.format_balance(float(balances.get("total", "NaN")))
+                    transparent = self.format_balance(float(balances.get("transparent", "NaN")))
+                    private = self.format_balance(float(balances.get("private", "NaN")))
+                elif balances is None:
+                    total, transparent, private = "NaN", "NaN", "NaN"
+                    await asyncio.sleep(1)
+                    await self.close_all_windows()
+
+                if unconfirmed_balances is not None and unconfirmed_balances > 0:
+                    self.unconfirmed_txt.text = "U :"
+                    self.unconfirmed_balance.style.background_color = RED
+                    self.unconfirmed_balance.text = f"{unconfirmed_balances}"
+                elif unconfirmed_balances is None:
+                    self.unconfirmed_txt.text = ""
+                    self.unconfirmed_balance.style.background_color = BLACK
+                    self.unconfirmed_balance.text = ""
+
+            except Exception as e:
+                print(f"An error occurred: {e}")
+
+            finally:
+                self.total_balances.text = f"{total}"
+                self.transparent_balance.text = f"{transparent}"
+                self.private_balance.text = f"{private}"
+                
+                await asyncio.sleep(5)
                 
             
-    async def update_price(self, widget):
+    async def update_price(self):
         while True:
             price = await get_btcz_price()
             if price is not None:
                 price_format = self.format_price(price)
-                self.price_value.text = f"$ {price_format}"
+                self.price_value.text = f"${price_format}"
             else:
                 self.price_value.text = "$ NaN"
             await asyncio.sleep(600)
             
     
-    async def update_blockchain_info(self, widget):
+    async def update_blockchain_info(self):
         while True:
             config_path = self.app.paths.config
             db_path = os.path.join(config_path, 'config.db')
             if os.path.exists(db_path):
-                info = self.request.getBlockchainInfo()
+                info = self.client.getBlockchainInfo()
                 if info is not None:
                     chain = info["chain"]
                     blocks = info["blocks"]
                     sync = info["verificationprogress"]
-                deprecation = self.request.getDeprecationInfo()
+                deprecation = self.client.getDeprecationInfo()
                 if deprecation is not None:
                     dep = deprecation["deprecationheight"]
             if not os.path.exists(db_path):
-                info = await self.client.getBlockchainInfo()
+                info = await self.commands.getBlockchainInfo()
                 if isinstance(info, str):
                     info = json.loads(info)
                     if info is not None:
                         chain = info.get('chain')
                         blocks = info.get('blocks')
                         sync = info.get('verificationprogress')
-                deprecation = await self.client.getDeprecationInfo()
+                deprecation = await self.commands.getDeprecationInfo()
                 if isinstance(deprecation, str):
                     deprecation = json.loads(deprecation)
                     if deprecation is not None:
@@ -289,6 +348,84 @@ class MainMenu(Box):
             self.dep_value.text = f"{dep}"
             await asyncio.sleep(5)
             
+    
+    def open_cash_window(self, button):
+        self.cash_button.style.visibility = HIDDEN
+        self.cash_window = CashWindow(
+            self.app,
+            self.cash_button
+        )
+        self.system.update_settings('cash_window', True)
+        
+    def open_wallet_window(self, button):
+        self.wallet_button.style.visibility = HIDDEN
+        self.wallet_window = WalletWindow(
+            self.app,
+            self.wallet_button
+        )
+        self.system.update_settings('wallet_window', True)
+        
+    def open_browser_window(self, button):
+        self.browser_button.style.visibility = HIDDEN
+        self.browser_window = BrowserWindow(
+            self.app,
+            self.browser_button
+        )
+        self.system.update_settings('browser_window', True)
+            
+            
+    async def close_window(self, window):
+        if self.system.check_window_is_open():
+            return
+
+        async def on_confirm(window, result):
+            if result is False:
+                return
+            if result is True:
+                try:
+                    tasks = [task for task in (self.update_price_task, self.update_balance_task, self.update_info_task) if not task.done()]
+                    for task in tasks:
+                        task.cancel()
+
+                    await asyncio.gather(*tasks, return_exceptions=True)
+                except asyncio.CancelledError:
+                    pass
+                self.system.clean_config_path()
+                self.close()
+                await asyncio.sleep(1)
+                self.app.main_window.show()
+
+        self.question_dialog(
+            "Exit GUI...",
+            "You are about to exit and return to the main wizard, are you sure?",
+            on_result=on_confirm
+        )
+        
+
+    async def close_all_windows(self):
+        async def on_confirm(window, result):
+            if result is None:
+                try:
+                    tasks = [task for task in (self.update_price_task, self.update_balance_task, self.update_info_task) if not task.done()]
+                    for task in tasks:
+                        task.cancel()
+
+                    await asyncio.gather(*tasks, return_exceptions=True)
+                except asyncio.CancelledError:
+                    pass
+                self.system.clean_config_path()
+        active_windows = list(self.app.windows)
+        for active_window in active_windows:
+            if not active_window.title.startswith("Node-Z"):
+                active_window.close()
+        await asyncio.sleep(1)
+        self.app.main_window.show()
+        self.error_dialog(
+            "Connection Lost",
+            "The application has lost connection to the node. Please check your network connection or node status.",
+            on_result=on_confirm
+        )
+                    
     
     def format_balance(self, total):
         formatted_total = '{:.8f}'.format(total)  
@@ -304,6 +441,7 @@ class MainMenu(Box):
 
         formatted_balance = integer_part + '.' + formatted_decimal
         return formatted_balance
+    
     
     def format_price(self, price):
         if price > 0.00000001 and price < 0.0000001:

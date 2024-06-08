@@ -1,11 +1,11 @@
-import os
 
 from toga import (
     App,
     MainWindow
 )
 
-from .wizard.wizard import MainWizard
+from .main_window.wizard import MainWizard
+from .system import SystemOp
 
 
 class NodeZ(App):
@@ -54,21 +54,26 @@ class NodeZ(App):
         
         
     def startup(self):
+        self.system = SystemOp(self.app)
 
         self.main_window = MainWindow(
             title=self.formal_name,
             size=(550 ,400),
             resizable=False
         )
+        position_center = self.system.windows_screen_center(
+            self.main_window.size
+        )
+        self.main_window.position = position_center
         self.main_window.content = MainWizard(self.app)
         self.on_exit = self.prevent_close
+        
         
     async def prevent_close(self, window):
         async def on_confirm(window, result):
             if result is False:
                 return
             if result is True:
-                await self.clean_config_path()
                 self.exit()
 
         self.main_window.question_dialog(
@@ -76,14 +81,6 @@ class NodeZ(App):
             message="You are about to exit the app. Are you sure ?",
             on_result=on_confirm
         )
-    
-    async def clean_config_path(self):
-        config_path = self.app.paths.config
-        if not os.path.exists(config_path):
-            return
-        db_path = os.path.join(config_path, 'config.db')
-        if os.path.exists(db_path):
-            os.remove(db_path)
 
 
 def main():

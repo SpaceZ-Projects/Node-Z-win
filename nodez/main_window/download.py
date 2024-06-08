@@ -20,22 +20,30 @@ from .styles.label import LabelStyle
 from .styles.progressbar import ProgressStyle
 from .styles.divider import DividerStyle
 
-from .system import SystemOp
+from ..system import SystemOp
 
 
 class DownloadNode(Window):
-    def __init__(self, app:App, download_button, local_botton):
+    def __init__(
+        self,
+        app:App,
+        download_button,
+        local_botton,
+        rpc_button
+    ):
         super().__init__(
             title="Loading...",
             size=(280, 90),
-            position=(220, 250),
             resizable=False,
             minimizable=False,
             on_close=self.close_window
         )
         self.system = SystemOp(self.app)
+        position_center = self.system.windows_screen_center(self.size)
+        self.position = position_center
         self.download_button = download_button
         self.local_button = local_botton
+        self.rpc_button = rpc_button
         self.download_task = None
         self.current_download_file = None
         self.file_handle = None
@@ -78,12 +86,12 @@ class DownloadNode(Window):
         
         
     async def download_node_files(self, widget):
-        self.download_button.enabled = False
+        self.app.main_window.hide()
+        await asyncio.sleep(1)
         self.show()
         data_path = self.app.paths.data
         self.download_task = asyncio.create_task(self.fetch_node_files(data_path))
         await self.download_task
-        await asyncio.sleep(1)
             
         
          
@@ -140,30 +148,12 @@ class DownloadNode(Window):
                         self.current_download_file = destination
                         await asyncio.sleep(1)
                         self.close()
+                        self.rpc_button.enabled = True
                         self.check_requirements_files()
+                        self.app.main_window.show()
         except aiohttp.ClientError as e:
             print(e)
             self.handle_download_error()
-            
-            
-    def check_requirements_files(self):
-        config_file = self.system.load_config_file()
-        if config_file is None:
-            config_status = False
-        else:
-            config_status = True
-        node_files = self.system.load_node_files()
-        if node_files is not None:
-            node_status = False
-        else:
-            node_status = True
-        params_files = self.system.load_params_files()
-        if params_files is not None:
-            params_status = False
-        else:
-            params_status = True
-        if config_status is True and node_status is True and params_status is True:
-            self.local_button.enabled = True
             
             
     def handle_download_error(self):
@@ -175,7 +165,9 @@ class DownloadNode(Window):
         self.download_txt.style.color = RED
         self.download_txt.text = "Download Failed"
         self.progress_bar.value = 0
+        self.rpc_button.enabled = True
         self.close()
+        self.app.main_window.show()
 
     def close_window(self, widget):
         if self.download_task is not None:
@@ -185,25 +177,58 @@ class DownloadNode(Window):
                 self.file_handle = None
             if self.current_download_file and os.path.exists(self.current_download_file):
                 os.remove(self.current_download_file)
+        self.rpc_button.enabled = True
+        self.check_requirements_files()
         self.close()
+        self.app.main_window.show()
+        
+    
+    def check_requirements_files(self):
+        config_file = self.system.load_config_file()
+        if config_file is None:
+            config_status = False
+        else:
+            config_status = True
+        node_files = self.system.load_node_files()
+        if node_files is not None:
+            node_status = False
+            self.download_button.enabled = True
+        else:
+            node_status = True
+            self.download_button.enabled = False
+        params_files = self.system.load_params_files()
+        if params_files is not None:
+            params_status = False
+        else:
+            params_status = True
+        if config_status is True and node_status is True and params_status is True:
+            self.local_button.enabled = True
         
         
         
             
             
 class DownloadParams(Window):
-    def __init__(self, app:App, download_button, local_button):
+    def __init__(
+        self,
+        app:App,
+        download_button,
+        local_button,
+        rpc_button
+    ):
         super().__init__(
             title="Loading...",
             size=(280, 90),
-            position=(220, 250),
             resizable=False,
             minimizable=False,
             on_close=self.close_window
         )
         self.system = SystemOp(self.app)
+        position_center = self.system.windows_screen_center(self.size)
+        self.position = position_center
         self.download_button = download_button
         self.local_button = local_button
+        self.rpc_button = rpc_button
         self.download_task = None
         self.current_download_file = None
         self.file_handle = None
@@ -246,13 +271,13 @@ class DownloadParams(Window):
             
             
     async def download_zcash_params(self, widget):
-        self.download_button.enabled = False
+        self.app.main_window.hide()
+        await asyncio.sleep(1)
         self.show()
         missing_files = self.system.load_params_files()
         if missing_files:
             self.download_task = asyncio.create_task(self.fetch_zcash_params(missing_files))
             await self.download_task
-        await asyncio.sleep(1)
             
 
     async def fetch_zcash_params(self, missing_files):
@@ -301,12 +326,42 @@ class DownloadParams(Window):
                 self.download_txt.text = "Params ready."
                 await asyncio.sleep(1)
                 self.close()
+                self.rpc_button.enabled = True
                 self.check_requirements_files()
+                self.app.main_window.show()
         except aiohttp.ClientError as e:
             print(e)
             self.handle_download_error()
             
-            
+
+    def handle_download_error(self):
+        if self.file_handle:
+            self.file_handle.close()
+            self.file_handle = None
+        if self.current_download_file and os.path.exists(self.current_download_file):
+            os.remove(self.current_download_file)
+        self.download_txt.style.color = RED
+        self.download_txt.text = "Download Failed"
+        self.progress_bar.value = 0
+        self.rpc_button.enabled = True
+        self.close()
+        self.app.main_window.show()
+        
+
+    def close_window(self, widget):
+        if self.download_task is not None:
+            self.download_task.cancel()
+            if self.file_handle:
+                self.file_handle.close()
+                self.file_handle = None
+            if self.current_download_file and os.path.exists(self.current_download_file):
+                os.remove(self.current_download_file)
+        self.rpc_button.enabled = True
+        self.check_requirements_files()
+        self.close()
+        self.app.main_window.show()
+        
+        
     def check_requirements_files(self):
         config_file = self.system.load_config_file()
         if config_file is None:
@@ -321,30 +376,10 @@ class DownloadParams(Window):
         params_files = self.system.load_params_files()
         if params_files is not None:
             params_status = False
+            self.download_button.enabled = True
         else:
             params_status = True
+            self.download_button.enabled = False
         if config_status is True and node_status is True and params_status is True:
             self.local_button.enabled = True
-            
-
-    def handle_download_error(self):
-        if self.file_handle:
-            self.file_handle.close()
-            self.file_handle = None
-        if self.current_download_file and os.path.exists(self.current_download_file):
-            os.remove(self.current_download_file)
-        self.download_txt.style.color = RED
-        self.download_txt.text = "Download Failed"
-        self.progress_bar.value = 0
-        self.close()
-
-    def close_window(self, widget):
-        if self.download_task is not None:
-            self.download_task.cancel()
-            if self.file_handle:
-                self.file_handle.close()
-                self.file_handle = None
-            if self.current_download_file and os.path.exists(self.current_download_file):
-                os.remove(self.current_download_file)
-        self.close()
         

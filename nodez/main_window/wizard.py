@@ -1,3 +1,4 @@
+import os
 
 from toga import (
     App,
@@ -15,14 +16,13 @@ from .styles.label import LabelStyle
 from .styles.button import ButtonStyle
 from .styles.divider import DividerStyle
 
-from ..connect.connect import WindowRPC
+from .connect import WindowRPC
 from .start import StartNode
 from .social import Social
 from .download import DownloadNode, DownloadParams
 
-from ..command import Toolbar
 from ..config.config import EditConfig
-from .system import SystemOp
+from ..system import SystemOp
 
 class MainWizard(Box):
     def __init__(
@@ -35,7 +35,6 @@ class MainWizard(Box):
         style = BoxStyle.wizard_main_box
         super().__init__(id, style, children)
         self.app = app
-        self.commands = Toolbar(self.app)
         self.system = SystemOp(self.app)
         self.config_status = None
         self.node_status = None
@@ -66,7 +65,8 @@ class MainWizard(Box):
         )
         self.config_button = Button(
             icon=Icon("icones/config"),
-            style=ButtonStyle.download_button
+            style=ButtonStyle.download_button,
+            on_press=self.display_config_window
         )
         self.version_txt = Label(
             f"version {self.app._version}",
@@ -159,12 +159,8 @@ class MainWizard(Box):
         config_file = self.system.load_config_file()
         if config_file is None:
             self.config_status = False
-            self.commands.edit_config_cmd.enabled = False
-            self.config_button.enabled = True
         else:
             self.config_status = True
-            self.commands.edit_config_cmd.enabled = True
-            self.config_button.enabled = False
             
         await self.check_node_files()
         
@@ -195,13 +191,6 @@ class MainWizard(Box):
         
     async def insert_toolbar(self):
         self.app.commands.clear()
-        self.commands.edit_config_cmd.action = self.display_config_window
-        self.commands.start_config_cmd.action = self.start_with_config
-        self.app.commands.add(
-            self.commands.edit_config_cmd,
-            self.commands.start_config_cmd,
-            self.commands.import_wallet_cmd
-        )
         await self.display_main_window()
         
         
@@ -209,53 +198,48 @@ class MainWizard(Box):
         if self.config_status is True and self.node_status is True and self.params_status is True:
             self.local_button.enabled = True
         else:
-            self.local_button.enabled = False
-            
+            self.local_button.enabled = False   
         self.app.main_window.show()
         
-        
-    async def start_with_config(self, window):
-        async def on_confirm(window, result):
-            print(result)
-        self.app.main_window.open_file_dialog(
-            "Select config file...",
-            file_types=["conf"],
-            on_result=on_confirm
-        )
         
     def download_node_files(self, button):
         self.download_node_window = DownloadNode(
             self.app,
             self.download_node_button,
-            self.local_button
+            self.local_button,
+            self.rpc_button
         )
         
     def download_params_files(self, button):
         self.download_params_window = DownloadParams(
             self.app,
             self.download_params_button,
-            self.local_button
+            self.local_button,
+            self.rpc_button
         )
         
-    
-    def display_config_window(self, widget):
+    def display_config_window(self, button):
+        self.app.main_window.hide()
+        config_file = "bitcoinz.conf"
+        config_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
+        if not os.path.exists(config_path):
+            os.makedirs(config_path, exist_ok=True)
+        file_path = os.path.join(config_path, config_file)
+        if not os.path.exists(file_path):
+            with open(file_path, 'w') as file:
+                file.write('')
         self.config_window = EditConfig(
             self.app,
-            self.commands.edit_config_cmd,
-            self.config_button
+            self.local_button
         )
         
     
     def start_node(self, button):
         self.local_window = StartNode(
-            self.app,
-            self.rpc_button,
-            self.local_button
+            self.app
         )
         
     def open_rpc_window(self, button):
         self.rpc_window = WindowRPC(
-            self.app,
-            self.rpc_button,
-            self.local_button
+            self.app
         )

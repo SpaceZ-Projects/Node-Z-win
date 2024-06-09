@@ -114,6 +114,12 @@ class RPCRequest():
             []
         )
         
+    def getNetworkSolps(self):
+        return self.make_rpc_request(
+            "getnetworksolps",
+            []
+        )
+        
     def getBestblockhash(self):
         return self.make_rpc_request(
             "getbestblockhash",

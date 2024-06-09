@@ -8,7 +8,7 @@ class BoxStyle():
     
     home_main_box = Pack(
         direction = ROW,
-        width = 600,
+        width = 695,
         height = 150
     )
     
@@ -30,6 +30,11 @@ class BoxStyle():
         background_color = BLACK
     )
     
+    total_value_box = Pack(
+        direction = ROW,
+        background_color = BLACK
+    )
+    
     home_menu_box = Pack(
         direction = COLUMN,
     )
@@ -37,13 +42,13 @@ class BoxStyle():
     home_blockchain_info_box = Pack(
         direction = ROW,
         background_color = BLACK,
-        width = 600,
+        width = 695,
         height = 30
     )
     
     home_buttons_box = Pack(
         direction = ROW,
         background_color = BLACK,
-        width = 600,
+        width = 695,
         height = 110
     )

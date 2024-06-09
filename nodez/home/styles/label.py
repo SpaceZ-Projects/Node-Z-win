@@ -95,6 +95,23 @@ class LabelStyle():
         flex = 1
     )
     
+    total_value_txt = Pack(
+        font_family = MONOSPACE,
+        background_color = BLACK,
+        color = WHITE,
+        padding_top = 5,
+        padding_left = 5
+    )
+    
+    total_value = Pack(
+        font_family = MONOSPACE,
+        background_color = BLACK,
+        color = WHITE,
+        padding_top = 5,
+        padding_left = 5,
+        flex = 1
+    )
+    
     home_chain_txt = Pack(
         color = WHITE,
         background_color = BLACK,
@@ -146,6 +163,34 @@ class LabelStyle():
     )
     
     home_dep_value = Pack(
+        background_color = WHITE,
+        padding_top = 5,
+        padding_right = 5,
+        padding_bottom = 3
+    )
+    
+    home_networksol_txt = Pack(
+        color= WHITE,
+        background_color = BLACK,
+        padding_top = 5,
+        padding_bottom = 3
+    )
+    
+    home_networksol_value = Pack(
+        background_color = WHITE,
+        padding_top = 5,
+        padding_right = 5,
+        padding_bottom = 3
+    )
+    
+    home_difficulty_txt = Pack(
+        color= WHITE,
+        background_color = BLACK,
+        padding_top = 5,
+        padding_bottom = 3
+    )
+    
+    home_difficulty_value = Pack(
         background_color = WHITE,
         padding_top = 5,
         padding_right = 5,

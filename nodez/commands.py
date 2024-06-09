@@ -57,6 +57,11 @@ class ClientCommands():
         return await self._run_command(command)
     
     
+    async def getNetworkSolps(self):
+        command = [self.bitcoinzd_file, "getnetworksolps"]
+        return await self._run_command(command)
+    
+    
     async def getBestblockhash(self):
         command = [self.bitcoinzd_file, "getbestblockhash"]
         return await self._run_command(command)

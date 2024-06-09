@@ -33,7 +33,7 @@ from ..browser.navigator import BrowserWindow
 class HomeWindow(Window):
     def __init__(self, app:App):
         super().__init__(
-            size=(745, 130),
+            size=(835, 130),
             position=(0, 5),
             resizable=False,
             on_close=self.close_window
@@ -58,6 +58,10 @@ class HomeWindow(Window):
         )
         self.message_button = Button(
             icon=Icon("icones/message"),
+            style=ButtonStyle.menu_button
+        )
+        self.ecosys_button = Button(
+            icon=Icon("icones/ecosys"),
             style=ButtonStyle.menu_button
         )
         self.mining_button = Button(
@@ -124,6 +128,14 @@ class HomeWindow(Window):
             "$_._",
             style=LabelStyle.home_price_value
         )
+        self.total_value_txt = Label(
+            "Total value :",
+            style=LabelStyle.total_value_txt
+        )
+        self.total_value = Label(
+            "$_._",
+            style=LabelStyle.total_value
+        )
         self.chain_txt = Label(
             "Chain :",
             style=LabelStyle.home_chain_txt
@@ -156,6 +168,22 @@ class HomeWindow(Window):
             "NaN",
             style=LabelStyle.home_dep_value
         )
+        self.networksol_txt = Label(
+            "Net :",
+            style=LabelStyle.home_networksol_txt
+        )
+        self.networksol_value = Label(
+            "NaN Sol/s",
+            style=LabelStyle.home_networksol_value
+        )
+        self.difficulty_txt = Label(
+            "Diff :",
+            style=LabelStyle.home_difficulty_txt
+        )
+        self.difficulty_value = Label(
+            "NaN",
+            style=LabelStyle.home_difficulty_value 
+        )
         self.buttons_box = Box(
             style=BoxStyle.home_buttons_box
         )
@@ -176,6 +204,9 @@ class HomeWindow(Window):
         )
         self.price_box = Box(
             style=BoxStyle.price_box
+        )
+        self.total_value_box = Box(
+            style=BoxStyle.total_value_box
         )
         self.menu_box = Box(
             style=BoxStyle.home_menu_box
@@ -206,19 +237,25 @@ class HomeWindow(Window):
             self.price_txt,
             self.price_value
         )
+        self.total_value_box.add(
+            self.total_value_txt,
+            self.total_value
+        )
         self.node_box.add(
             self.total_balances_txt,
             self.total_balances_box,
             self.transparent_balance_box,
             self.private_balance_box,
             self.unconfirmed_balance_box,
-            self.price_box
+            self.price_box,
+            self.total_value_box
         )
         self.buttons_box.add(
             self.cash_button,
             self.wallet_button,
             self.explorer_button,
             self.message_button,
+            self.ecosys_button,
             self.mining_button,
             self.browser_button
         )
@@ -230,7 +267,11 @@ class HomeWindow(Window):
             self.sync_txt,
             self.sync_value,
             self.dep_text,
-            self.dep_value
+            self.dep_value,
+            self.networksol_txt,
+            self.networksol_value,
+            self.difficulty_txt,
+            self.difficulty_value
         )
         self.menu_box.add(
             self.buttons_box,
@@ -250,8 +291,8 @@ class HomeWindow(Window):
         )
         
     async def display_main_window(self, widget):
-        self.update_price_task = asyncio.create_task(self.update_price())
         self.update_balance_task = asyncio.create_task(self.update_total_balances())
+        self.update_price_task = asyncio.create_task(self.update_price())
         self.update_info_task = asyncio.create_task(self.update_blockchain_info())
         await asyncio.sleep(2)
         self.show()
@@ -266,52 +307,83 @@ class HomeWindow(Window):
         while True:
             config_path = self.app.paths.config
             db_path = os.path.join(config_path, 'config.db')
-            
             try:
                 if os.path.exists(db_path):
                     balances = self.client.z_getTotalBalance()
                     unconfirmed_balances = self.client.getUnconfirmedBalance()
                 else:
                     balances = await self.commands.z_getTotalBalance()
-                    unconfirmed_balances = self.commands.getUnconfirmedBalance()
+                    unconfirmed_balances = await self.commands.getUnconfirmedBalance()
 
                 if balances is not None:
-                    total = self.format_balance(float(balances.get("total", "NaN")))
-                    transparent = self.format_balance(float(balances.get("transparent", "NaN")))
-                    private = self.format_balance(float(balances.get("private", "NaN")))
+                    if isinstance(balances, str):
+                        balances = json.loads(balances)
+                        total = self.format_balance(float(balances.get("total")))
+                        transparent = self.format_balance(float(balances.get("transparent")))
+                        private = self.format_balance(float(balances.get("private")))
+                    else:
+                        total = self.format_balance(float(balances["total"]))
+                        transparent = self.format_balance(float(balances["transparent"]))
+                        private = self.format_balance(float(balances["private"]))
                 elif balances is None:
-                    total, transparent, private = "NaN", "NaN", "NaN"
+                    total, transparent, private = "_._", "_._", "_._"
                     await asyncio.sleep(1)
                     await self.close_all_windows()
 
-                if unconfirmed_balances is not None and unconfirmed_balances > 0:
-                    self.unconfirmed_txt.text = "U :"
-                    self.unconfirmed_balance.style.background_color = RED
-                    self.unconfirmed_balance.text = f"{unconfirmed_balances}"
+                if unconfirmed_balances is not None:
+                    if isinstance(unconfirmed_balances, str):
+                        unconfirmed_balances = json.loads(unconfirmed_balances)
+                    if unconfirmed_balances > 0:
+                        self.unconfirmed_balance.text = f"{unconfirmed_balances}"
+                        self.unconfirmed_balance.style.background_color = RED
+                        self.unconfirmed_txt.text = "U :"
+                    else:
+                        self.unconfirmed_txt.text = ""
+                        self.unconfirmed_balance.style.background_color = BLACK
+                        self.unconfirmed_balance.text = ""
                 elif unconfirmed_balances is None:
                     self.unconfirmed_txt.text = ""
                     self.unconfirmed_balance.style.background_color = BLACK
                     self.unconfirmed_balance.text = ""
-
             except Exception as e:
-                print(f"An error occurred: {e}")
-
-            finally:
-                self.total_balances.text = f"{total}"
-                self.transparent_balance.text = f"{transparent}"
-                self.private_balance.text = f"{private}"
+                print(e)
+            self.total_balances.text = f"{total}"
+            self.transparent_balance.text = f"{transparent}"
+            self.private_balance.text = f"{private}"
                 
-                await asyncio.sleep(5)
+            await asyncio.sleep(5)
                 
             
     async def update_price(self):
         while True:
-            price = await get_btcz_price()
-            if price is not None:
-                price_format = self.format_price(price)
-                self.price_value.text = f"${price_format}"
-            else:
+            config_path = self.app.paths.config
+            db_path = os.path.join(config_path, 'config.db')
+            try:
+                price = await get_btcz_price()
+                if price is not None:
+                    price_format = self.format_price(price)
+                    self.price_value.text = f"${price_format}"
+                else:
+                    self.price_value.text = "$ NaN"
+                if os.path.exists(db_path):
+                    total_balances = self.client.z_getTotalBalance()
+                else:
+                    total_balances = await self.commands.z_getTotalBalance()
+                if total_balances is not None:
+                    if isinstance(total_balances, str):
+                        balances = json.loads(total_balances)
+                        total = float(balances.get("total"))
+                    else:
+                        total = float(total_balances["total"])
+                    total_value = price * total
+                    total_value_format = self.format_price(total_value)
+                    self.total_value.text = f"${total_value_format}"
+                else:
+                    self.total_value.text = "$ NaN"
+            except Exception as e:
+                print(e)
                 self.price_value.text = "$ NaN"
+                self.total_value.text = "$ NaN"
             await asyncio.sleep(600)
             
     
@@ -325,9 +397,13 @@ class HomeWindow(Window):
                     chain = info["chain"]
                     blocks = info["blocks"]
                     sync = info["verificationprogress"]
+                    difficulty = self.format_balance(float(info["difficulty"]))
                 deprecation = self.client.getDeprecationInfo()
                 if deprecation is not None:
                     dep = deprecation["deprecationheight"]
+                networksol = self.client.getNetworkSolps()
+                if networksol is not None:
+                    netsol = networksol
             if not os.path.exists(db_path):
                 info = await self.commands.getBlockchainInfo()
                 if isinstance(info, str):
@@ -336,16 +412,24 @@ class HomeWindow(Window):
                         chain = info.get('chain')
                         blocks = info.get('blocks')
                         sync = info.get('verificationprogress')
+                        difficulty = self.format_balance(float(info.get("difficulty")))
                 deprecation = await self.commands.getDeprecationInfo()
                 if isinstance(deprecation, str):
                     deprecation = json.loads(deprecation)
                     if deprecation is not None:
                         dep = deprecation.get('deprecationheight')
+                networksol = await self.commands.getNetworkSolps()
+                if networksol is not None:
+                    if isinstance(networksol, str):
+                        networksol= json.loads(networksol)
+                        netsol = networksol
             sync_percentage = sync * 100
             self.chain_value.text = f"{chain}"
             self.blocks_value.text = f"{blocks}"
             self.sync_value.text = f"%{float(sync_percentage):.2f}"
             self.dep_value.text = f"{dep}"
+            self.networksol_value.text = f"{netsol} Sol/s"
+            self.difficulty_value.text = f"{difficulty}"
             await asyncio.sleep(5)
             
     

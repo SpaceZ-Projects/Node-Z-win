@@ -3,7 +3,7 @@ project_name = "Node-Z"
 bundle = "com.nodez"
 version = "1.0.1"
 url = "https://www.getbtcz.com"
-license = "MIT license"
+license.file = "LICENSE"
 author = "BTCZCommunity"
 author_email = "dragkhai@gmail.com"
 
@@ -40,6 +40,8 @@ universal_build = true
 requires = [
     "toga-cocoa",
     "std-nslog",
+    "requests",
+    "aiohttp"
 ]
 
 
@@ -169,7 +171,7 @@ flatpak_sdk = "org.gnome.Sdk"
 # Web deployments
 [tool.briefcase.app.nodez.web]
 requires = [
-    "toga-web",
+    "toga-web"
 ]
 style_framework = "Shoelace v2.3"
 

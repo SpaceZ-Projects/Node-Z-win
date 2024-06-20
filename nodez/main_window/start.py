@@ -8,7 +8,8 @@ from toga import (
     Box,
     Label,
     Divider,
-    ImageView
+    ImageView,
+    platform
 )
 from toga.constants import Direction
 from toga.colors import RED

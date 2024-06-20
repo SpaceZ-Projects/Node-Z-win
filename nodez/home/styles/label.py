@@ -1,6 +1,6 @@
 from toga.style.pack import Pack
-from toga.colors import YELLOW, BLUE, WHITE, BLACK, RED
-from toga.constants import BOLD, MONOSPACE, CENTER
+from toga.colors import YELLOW, BLUE, WHITE, BLACK, RED, CYAN
+from toga.constants import BOLD, MONOSPACE, CENTER, HIDDEN
 
 
 class LabelStyle():
@@ -36,7 +36,8 @@ class LabelStyle():
     home_transparent_balance= Pack(
         font_family = MONOSPACE,
         font_weight = BOLD,
-        background_color = YELLOW,
+        color = YELLOW,
+        background_color = BLACK,
         padding_right = 20,
         padding_top = 5,
         flex = 1
@@ -54,13 +55,14 @@ class LabelStyle():
     home_private_balance= Pack(
         font_family = MONOSPACE,
         font_weight = BOLD,
-        color= WHITE,
-        background_color = BLUE,
+        color= BLUE,
+        background_color = BLACK,
         padding_right = 20,
         flex = 1
     )
     
     home_unconfirmed_txt = Pack(
+        visibility = HIDDEN,
         font_family = MONOSPACE,
         font_weight = BOLD,
         color= WHITE,
@@ -70,9 +72,10 @@ class LabelStyle():
     )
     
     home_unconfirmed_balance = Pack(
+        visibility = HIDDEN,
         font_family = MONOSPACE,
         font_weight = BOLD,
-        color= WHITE,
+        color= RED,
         background_color = BLACK,
         padding_right = 20,
         flex = 1

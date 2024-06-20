@@ -12,7 +12,7 @@ from toga import (
     Button,
     Icon
 )
-from toga.constants import Direction, HIDDEN
+from toga.constants import Direction, HIDDEN, VISIBLE
 from toga.colors import RED, BLACK
 
 from .styles.box import BoxStyle
@@ -27,6 +27,7 @@ from ..system import SystemOp
 
 from ..cash.send import CashWindow
 from ..wallet.receive import WalletWindow
+from ..insight.explorer import ExplorerWindow
 from ..browser.navigator import BrowserWindow
 
 
@@ -54,19 +55,23 @@ class HomeWindow(Window):
         )
         self.explorer_button = Button(
             icon=Icon("icones/explorer"),
-            style=ButtonStyle.menu_button
+            style=ButtonStyle.menu_button,
+            on_press=self.open_explorer_window
         )
         self.message_button = Button(
             icon=Icon("icones/message"),
-            style=ButtonStyle.menu_button
+            style=ButtonStyle.menu_button,
+            on_press=self.open_message_window
         )
         self.ecosys_button = Button(
             icon=Icon("icones/ecosys"),
-            style=ButtonStyle.menu_button
+            style=ButtonStyle.menu_button,
+            on_press=self.open_ecosys_window
         )
         self.mining_button = Button(
             icon=Icon("icones/mining"),
-            style=ButtonStyle.menu_button
+            style=ButtonStyle.menu_button,
+            on_press=self.open_mining_window
         )
         self.browser_button = Button(
             icon=Icon("icones/browser"),
@@ -115,10 +120,6 @@ class HomeWindow(Window):
         self.btcz_coin = ImageView(
             "resources/btcz_coin.gif",
             style=ImageStyle.btcz_coin
-        )
-        self.unconfirmed_loading = ImageView(
-            "icones/unconfirmed.gif",
-            style=ImageStyle.unconfimed_loading
         )
         self.price_txt = Label(
             "BTCZ Price :",
@@ -314,17 +315,16 @@ class HomeWindow(Window):
                 else:
                     balances = await self.commands.z_getTotalBalance()
                     unconfirmed_balances = await self.commands.getUnconfirmedBalance()
-
                 if balances is not None:
                     if isinstance(balances, str):
                         balances = json.loads(balances)
-                        total = self.format_balance(float(balances.get("total")))
-                        transparent = self.format_balance(float(balances.get("transparent")))
-                        private = self.format_balance(float(balances.get("private")))
+                        total = self.system.format_balance(float(balances.get("total")))
+                        transparent = self.system.format_balance(float(balances.get("transparent")))
+                        private = self.system.format_balance(float(balances.get("private")))
                     else:
-                        total = self.format_balance(float(balances["total"]))
-                        transparent = self.format_balance(float(balances["transparent"]))
-                        private = self.format_balance(float(balances["private"]))
+                        total = self.system.format_balance(float(balances["total"]))
+                        transparent = self.system.format_balance(float(balances["transparent"]))
+                        private = self.system.format_balance(float(balances["private"]))
                 elif balances is None:
                     total, transparent, private = "_._", "_._", "_._"
                     await asyncio.sleep(1)
@@ -334,17 +334,16 @@ class HomeWindow(Window):
                     if isinstance(unconfirmed_balances, str):
                         unconfirmed_balances = json.loads(unconfirmed_balances)
                     if unconfirmed_balances > 0:
-                        self.unconfirmed_balance.text = f"{unconfirmed_balances}"
-                        self.unconfirmed_balance.style.background_color = RED
                         self.unconfirmed_txt.text = "U :"
+                        self.unconfirmed_balance.text = f"{unconfirmed_balances}"
+                        self.unconfirmed_txt.style.visibility = VISIBLE
+                        self.unconfirmed_balance.style.visibility = VISIBLE
                     else:
-                        self.unconfirmed_txt.text = ""
-                        self.unconfirmed_balance.style.background_color = BLACK
-                        self.unconfirmed_balance.text = ""
+                        self.unconfirmed_txt.style.visibility = HIDDEN
+                        self.unconfirmed_balance.style.visibility = HIDDEN
                 elif unconfirmed_balances is None:
-                    self.unconfirmed_txt.text = ""
-                    self.unconfirmed_balance.style.background_color = BLACK
-                    self.unconfirmed_balance.text = ""
+                    self.unconfirmed_txt.style.visibility = HIDDEN
+                    self.unconfirmed_balance.style.visibility = HIDDEN
             except Exception as e:
                 print(e)
             self.total_balances.text = f"{total}"
@@ -361,7 +360,7 @@ class HomeWindow(Window):
             try:
                 price = await get_btcz_price()
                 if price is not None:
-                    price_format = self.format_price(price)
+                    price_format = self.system.format_price(price)
                     self.price_value.text = f"${price_format}"
                 else:
                     self.price_value.text = "$ NaN"
@@ -376,7 +375,7 @@ class HomeWindow(Window):
                     else:
                         total = float(total_balances["total"])
                     total_value = price * total
-                    total_value_format = self.format_price(total_value)
+                    total_value_format = self.system.format_price(total_value)
                     self.total_value.text = f"${total_value_format}"
                 else:
                     self.total_value.text = "$ NaN"
@@ -397,7 +396,7 @@ class HomeWindow(Window):
                     chain = info["chain"]
                     blocks = info["blocks"]
                     sync = info["verificationprogress"]
-                    difficulty = self.format_balance(float(info["difficulty"]))
+                    difficulty = self.system.format_balance(float(info["difficulty"]))
                 deprecation = self.client.getDeprecationInfo()
                 if deprecation is not None:
                     dep = deprecation["deprecationheight"]
@@ -412,7 +411,7 @@ class HomeWindow(Window):
                         chain = info.get('chain')
                         blocks = info.get('blocks')
                         sync = info.get('verificationprogress')
-                        difficulty = self.format_balance(float(info.get("difficulty")))
+                        difficulty = self.system.format_balance(float(info.get("difficulty")))
                 deprecation = await self.commands.getDeprecationInfo()
                 if isinstance(deprecation, str):
                     deprecation = json.loads(deprecation)
@@ -442,12 +441,34 @@ class HomeWindow(Window):
         self.system.update_settings('cash_window', True)
         
     def open_wallet_window(self, button):
-        self.wallet_button.style.visibility = HIDDEN
-        self.wallet_window = WalletWindow(
-            self.app,
-            self.wallet_button
+        self.info_dialog(
+            "Under Dev",
+            "This feature is under dev..."
         )
-        self.system.update_settings('wallet_window', True)
+        
+    def open_explorer_window(self, button):
+        self.info_dialog(
+            "Under Dev",
+            "This feature is under dev..."
+        )
+        
+    def open_message_window(self, button):
+        self.info_dialog(
+            "Under Dev",
+            "This feature is under dev..."
+        )
+        
+    def open_mining_window(self, button):
+        self.info_dialog(
+            "Under Dev",
+            "This feature is under dev..."
+        )
+    
+    def open_ecosys_window(self, button):
+        self.info_dialog(
+            "Under Dev",
+            "This feature is under dev..."
+        )
         
     def open_browser_window(self, button):
         self.browser_button.style.visibility = HIDDEN
@@ -509,44 +530,3 @@ class HomeWindow(Window):
             "The application has lost connection to the node. Please check your network connection or node status.",
             on_result=on_confirm
         )
-                    
-    
-    def format_balance(self, total):
-        formatted_total = '{:.8f}'.format(total)  
-        parts = formatted_total.split('.')  
-        integer_part = parts[0]
-        decimal_part = parts[1] 
-
-        if len(integer_part) > 4:
-            digits_to_remove = len(integer_part) - 4
-            formatted_decimal = decimal_part[:-digits_to_remove]
-        else:
-            formatted_decimal = decimal_part
-
-        formatted_balance = integer_part + '.' + formatted_decimal
-        return formatted_balance
-    
-    
-    def format_price(self, price):
-        if price > 0.00000001 and price < 0.0000001:
-            return f"{price:.10f}"
-        elif price > 0.0000001 and price < 0.000001:
-            return f"{price:.9f}"
-        elif price > 0.000001 and price < 0.00001:
-            return f"{price:.8f}"
-        elif price > 0.00001 and price < 0.0001:
-            return f"{price:.7f}"
-        elif price > 0.0001 and price < 0.001:
-            return f"{price:.6f}"
-        elif price > 0.001 and price < 0.01:
-            return f"{price:.5f}"
-        elif price > 0.01 and price < 0.1:
-            return f"{price:.4f}"
-        elif price > 0.1 and price < 1:
-            return f"{price:.3f}"
-        elif price > 1 and price < 10:
-            return f"{price:.2f}"
-        elif price > 10 and price < 100:
-            return f"{price:.1f}"
-        else:
-            return f"{price:.0f}"

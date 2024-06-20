@@ -3,6 +3,7 @@ import requests
 import aiohttp
 import json
 import sqlite3
+import binascii
 
 from toga import App
 
@@ -90,7 +91,8 @@ class RPCRequest():
             response.raise_for_status()
             data = response.json()["result"]
             return data
-        except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError):
+        except Exception as e:
+            print(e)
             return None
         
     def getInfo(self):
@@ -149,6 +151,18 @@ class RPCRequest():
             "verifychain",
             []
         )
+        
+    def listAddressgroupPings(self):
+        return self.make_rpc_request(
+            "listaddressgroupings",
+            []
+        )
+        
+    def z_listAddresses(self):
+        return self.make_rpc_request(
+            "z_listaddresses",
+            []
+        )
     
     def validateAddress(self, address):
         return self.make_rpc_request(
@@ -165,11 +179,64 @@ class RPCRequest():
     def listTransactions(self):
         return self.make_rpc_request(
             "listtransactions",
-            ["*", 10]
+            ["*", 25]
         )
         
     def getTransaction(self, txid):
         return self.make_rpc_request(
             "gettransaction",
             [f"{txid}"]
+        )
+        
+    def sendToAddress(self, address, amount, comment):
+        if comment:
+            return self.make_rpc_request(
+                "sendtoaddress",
+                [f"{address}", amount, comment]
+            )
+        else:
+            return self.make_rpc_request(
+                "sendtoaddress",
+                [f"{address}", amount]
+            )
+            
+        
+    def sendMany(self, address, amount, comment):
+        if comment:
+            return self.make_rpc_request(
+                "sendmany",
+                ["", {f"\t{address}\t": amount}, 1, comment]
+            )
+        else:
+            return self.make_rpc_request(
+                "sendmany",
+                ["", {f"\t{address}\t": amount}, 1]
+            )
+            
+        
+    def z_sendMany(self, uaddress, toaddress, amount, comment, txfee):
+        if comment:
+            hex_comment = binascii.hexlify(comment.encode()).decode()
+            return self.make_rpc_request(
+                "z_sendmany",
+                [f"{uaddress}", [{"address": f"{toaddress}", "amount": float(amount), "memo": hex_comment}], 1, float(txfee)]
+            )
+        else:
+            return self.make_rpc_request(
+                "z_sendmany",
+                [f"{uaddress}", [{"address": f"{toaddress}", "amount": float(amount)}], 1, float(txfee)]
+            )
+    
+    
+    def z_getOperationStatus(self, operation):
+        return self.make_rpc_request(
+            "z_getoperationstatus",
+            [[f"{operation}"]]
+        )
+        
+        
+    def z_getOperationResult(self, operation):
+        return self.make_rpc_request(
+            "z_getoperationresult",
+            [[f"{operation}"]]
         )

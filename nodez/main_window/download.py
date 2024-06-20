@@ -10,7 +10,8 @@ from toga import (
     Label,
     ProgressBar,
     Divider,
-    ImageView
+    ImageView,
+    platform
 )
 from toga.constants import Direction
 from toga.colors import RED
@@ -283,6 +284,7 @@ class DownloadParams(Window):
     async def fetch_zcash_params(self, missing_files):
         await asyncio.sleep(1)
         zcash_path = os.path.join(os.getenv('APPDATA'), "ZcashParams")
+            
         if not os.path.exists(zcash_path):
             os.makedirs(zcash_path, exist_ok=True)
             

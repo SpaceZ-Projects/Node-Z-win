@@ -1,6 +1,7 @@
 import asyncio
 import os
 import sqlite3
+
 from toga import (
     App,
     Window,
@@ -13,7 +14,7 @@ from toga import (
     Button,
     Icon
 )
-from ..client import rpc_test
+
 from .styles.box import BoxStyle
 from .styles.label import LabelStyle
 from .styles.input import InputStyle
@@ -21,6 +22,7 @@ from toga.colors import RED, GREEN, BLACK
 
 from ..home.home import HomeWindow
 from ..system import SystemOp
+from ..client import rpc_test
 
 
 class WindowRPC(Window):

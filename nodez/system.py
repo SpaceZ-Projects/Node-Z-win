@@ -1,14 +1,96 @@
 import os
 import json
+import threading
+from typing import Optional, Callable
+
 
 from toga import App
+
+import clr
+clr.AddReference("System.Drawing")
+clr.AddReference("System.Windows.Forms")
+from System.Drawing import Icon
+from System.Windows.Forms import NotifyIcon
+
+
+class Notification():
+    def __init__(
+        self,
+        title:str,
+        message:str,
+        icon:str,
+        duration:int,
+        on_press: Optional[Callable] = None
+    ):
+        """Create a new Notification widget.
+
+        :param title: Notification title.
+        :param message: Message content.
+        :param icon: Path to the icon file in .ico format.
+        :param duration: Duration in seconds before hiding the notification.
+        :param on_press: Handler function when the notification is clicked.
+        """
+        app = App
+        self.title = title
+        self.message = message
+        self.icon = os.path.join(app.app.paths.app, icon)
+        self.duration = duration
+        self.on_press = on_press
+        
+        self.notify_icon = NotifyIcon()
+        self.notify_icon.Icon = Icon(self.icon)
+        self.notify_icon.Visible = False
+        self.notify_icon.BalloonTipClicked += self.on_notification_click
+        
+    def popup(self):
+        self.notify_icon.Icon = Icon(self.icon)
+        self.notify_icon.BalloonTipTitle = self.title
+        self.notify_icon.BalloonTipText = self.message
+        self.notify_icon.Visible = True
+        self.notify_icon.ShowBalloonTip(self.duration * 1000)
+        threading.Timer(
+            self.duration,
+            self.hide_notification
+        ).start()
+    
+    def on_notification_click(self, sender, event):
+        if self.on_press:
+            self.on_press()
+    
+    def hide_notification(self):
+        self.notify_icon.Visible = False
+
+
+        
 
 class SystemOp():
     def __init__(self, app:App):
         super().__init__()
+        
         self.app = app
+        
+        self.app_path = self.app.paths.app
         self.data_path = self.app.paths.data
         self.config_path = self.app.paths.config
+        self.logs_path = self.app.paths.logs
+        self.cache_path = self.app.paths.cache
+        
+        
+    async def show_notification(self, title, message):
+        icon_path = os.path.join(self.app_path, "resources/app_logo.ico")
+        icon = Icon(icon_path)
+        self.notify_icon = NotifyIcon()
+        self.notify_icon.Visible = True
+        self.notify_icon.BalloonTipClicked += lambda sender, event: self.on_notification_click(message)
+        self.notify_icon.Icon = icon
+        self.notify_icon.BalloonTipTitle = title
+        self.notify_icon.BalloonTipText = message
+        self.notify_icon.ShowBalloonTip(10)
+        threading.Timer(10, self.hide_toast).start()
+    def on_notification_click(self, message):
+        print(message)
+    def hide_toast(self):
+        self.notify_icon.Visible = False
         
     
     def update_settings(self, setting_key, setting_value):
@@ -34,6 +116,7 @@ class SystemOp():
             if any(settings.get(key, False) for key in [
                 'cash_window',
                 'wallet_window',
+                'explorer_window',
                 'browser_window'
                 ]
                    ):
@@ -117,3 +200,46 @@ class SystemOp():
         y = window_height - 100
         
         return (x, y)
+    
+    
+    
+    def format_price(self, price):
+        if price > 0.00000001 and price < 0.0000001:
+            return f"{price:.10f}"
+        elif price > 0.0000001 and price < 0.000001:
+            return f"{price:.9f}"
+        elif price > 0.000001 and price < 0.00001:
+            return f"{price:.8f}"
+        elif price > 0.00001 and price < 0.0001:
+            return f"{price:.7f}"
+        elif price > 0.0001 and price < 0.001:
+            return f"{price:.6f}"
+        elif price > 0.001 and price < 0.01:
+            return f"{price:.5f}"
+        elif price > 0.01 and price < 0.1:
+            return f"{price:.4f}"
+        elif price > 0.1 and price < 1:
+            return f"{price:.3f}"
+        elif price > 1 and price < 10:
+            return f"{price:.2f}"
+        elif price > 10 and price < 100:
+            return f"{price:.1f}"
+        else:
+            return f"{price:.0f}"
+        
+        
+        
+    def format_balance(self, total):
+        formatted_total = '{:.8f}'.format(total)  
+        parts = formatted_total.split('.')  
+        integer_part = parts[0]
+        decimal_part = parts[1] 
+
+        if len(integer_part) > 4:
+            digits_to_remove = len(integer_part) - 4
+            formatted_decimal = decimal_part[:-digits_to_remove]
+        else:
+            formatted_decimal = decimal_part
+
+        formatted_balance = integer_part + '.' + formatted_decimal
+        return formatted_balance

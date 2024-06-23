@@ -2,6 +2,7 @@
 import os
 import asyncio
 import json
+import threading
 
 from toga import (
     App,
@@ -30,9 +31,9 @@ from .styles.input import InputStyle
 from .styles.container import ContainerStyle
 
 from .txlist import LastTransactions
-from ..system import SystemOp, NotificationWin
+from ..system import SystemOp
 from ..client import RPCRequest
-from ..commands import ClientCommands
+from ..command import ClientCommands
 
 
 
@@ -116,8 +117,7 @@ class CashWindow(Window):
         self.amount_input = TextInput(
             placeholder="0.00000000",
             style=InputStyle.amount_input,
-            on_lose_focus=self.verify_balances,
-            on_gain_focus=self.verify_balances,
+            on_change=self.verify_balances,
             validators=[
                 self.is_digit
             ]
@@ -298,7 +298,7 @@ class CashWindow(Window):
                 else:
                     balance = await self.command.z_getBalance(selected_address)
                 if balance is not None:
-                    amount = balance - float(self.fee_input.value)
+                    amount = float(balance) - float(self.fee_input.value)
                     self.amount_input.value = f"{amount:.8f}"
                     
         
@@ -441,15 +441,15 @@ class CashWindow(Window):
                 result = self.client.validateAddress(address)
                 is_valid = result["isvalid"]
             else:
-                result = await self.command.z_validateAddress(address)
+                result = await self.command.validateAddress(address)
                 result = json.loads(result)
                 is_valid = result.get('isvalid')
         elif selected_address != "Main Account" and address.startswith("z"):
             if os.path.exists(db_path):
-                result = self.client.validateAddress(address)
+                result = self.client.z_validateAddress(address)
                 is_valid = result["isvalid"]
             else:
-                result = await self.command.validateAddress(address)
+                result = await self.command.z_validateAddress(address)
                 result = json.loads(result)
                 is_valid = result.get('isvalid')
         else:
@@ -584,7 +584,6 @@ class CashWindow(Window):
     async def get_sending_method(self, selected_address, address, amount, comment, txfee):
         self.send_button.enabled = False
         txid = None
-        amount = float(amount)
         config_path = self.app.paths.config
         db_path = os.path.join(config_path, 'config.db')
         try:
@@ -594,7 +593,6 @@ class CashWindow(Window):
                 else:
                     operation = await self.command.sendToAddress(address, amount, comment)
                 if operation is not None:
-                    print(operation)
                     txid = operation
                     await self.clear_inputs()
                     await self.send_notification_system(amount, txid)
@@ -609,23 +607,22 @@ class CashWindow(Window):
                 else:
                     operation = await self.command.z_sendMany(selected_address, address, amount, comment, txfee)
                 if operation:
-                    print(operation)
                     if os.path.exists(db_path):
                         transaction_status = self.client.z_getOperationStatus(operation)
                     else:
                         transaction_status = await self.command.z_getOperationStatus(operation)
-                    if isinstance(transaction_status, list) and transaction_status:
-                        print(transaction_status)
+                        transaction_status = json.loads(transaction_status)
+                    if isinstance(transaction_status, list) and transaction_status: 
                         status = transaction_status[0].get('status')
-                        if status == "executing":
+                        if status == "executing" or status =="success":
                             await asyncio.sleep(1)
                             while True:
                                 if os.path.exists(db_path):
                                     transaction_result = self.client.z_getOperationResult(operation)
                                 else:
                                     transaction_result = await self.command.z_getOperationResult(operation)
+                                    transaction_result = json.loads(transaction_result)
                                 if isinstance(transaction_result, list) and transaction_result:
-                                    print(transaction_result)
                                     result = transaction_result[0].get('result', {})
                                     txid = result.get('txid')
                                     await self.clear_inputs()
@@ -659,15 +656,30 @@ class CashWindow(Window):
             
             
     async def send_notification_system(self, amount, txid):
-        notify = NotificationWin(
-            title=f"Sent : {amount} BTCZ",
-            message=f"{txid}",
-            icon=("resources/app_logo.ico"),
-            duration=10,
-            on_press=None
+        import clr
+        clr.AddReference("System.Drawing")
+        clr.AddReference("System.Windows.Forms")
+        from System.Drawing import Icon
+        from System.Windows.Forms import NotifyIcon
+        icon_path = os.path.join(self.app.paths.app, "resources/app_logo.ico")
+        icon = Icon(icon_path)
+        self.notify_icon = NotifyIcon()
+        self.notify_icon.Visible = True
+        self.notify_icon.BalloonTipClicked += lambda sender, event: self.on_notification_click(txid)
+        self.notify_icon.Icon = icon
+        self.notify_icon.BalloonTipTitle = f"Sent {amount} BTCZ"
+        self.notify_icon.BalloonTipText = txid
+        self.notify_icon.ShowBalloonTip(10)
+        threading.Timer(10, self.hide_toast).start()
+
+    def on_notification_click(self, message):
+        self.info_dialog(
+            "Transaction ID",
+            message
         )
-        notify.popup()
-        
+
+    def hide_toast(self):
+        self.notify_icon.Visible = False
     
         
     async def update_last_transaction(self):
@@ -692,11 +704,6 @@ class CashWindow(Window):
         if not amount:
             self.amount_note.text = ""
             return
-        try:
-            amount = float(amount)
-        except ValueError:
-            self.amount_note.text = "Invalid amount"
-            return
         config_path = self.app.paths.config
         db_path = os.path.join(config_path, 'config.db')
         selected_address = self.select_address.value.select_address if self.select_address.value else None
@@ -706,13 +713,12 @@ class CashWindow(Window):
             else:
                 address_balance = await self.command.z_getBalance(selected_address)
             if address_balance is not None:
-                if amount < address_balance:
+                if float(amount) < float(address_balance):
                     self.amount_note.text = ""
-                elif amount > address_balance:
+                elif float(amount) > float(address_balance):
                     self.amount_note.text = "Insufficient balance"
+                    await asyncio.sleep(1)
                     self.amount_input.value = ""
-                    await asyncio.sleep(2)
-                    self.amount_note.text = ""
         elif selected_address == "Main Account":
             if os.path.exists(db_path):
                 total_balance = self.client.z_getTotalBalance()
@@ -721,13 +727,12 @@ class CashWindow(Window):
                 total_balance = json.loads(total_balance)
             if total_balance is not None:
                 transparent_balance = total_balance.get("transparent", 0)
-                if amount < float(transparent_balance):
+                if float(amount) < float(transparent_balance):
                     self.amount_note.text = ""
-                elif amount > float(transparent_balance):
+                elif float(amount) > float(transparent_balance):
                     self.amount_note.text = "Insufficient balance"
+                    await asyncio.sleep(1)
                     self.amount_input.value = ""
-                    await asyncio.sleep(2)
-                    self.amount_note.text = ""
         else:
             self.amount_note.text = "No address selected"
                 

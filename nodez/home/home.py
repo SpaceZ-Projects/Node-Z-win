@@ -22,7 +22,7 @@ from .styles.button import ButtonStyle
 from .styles.image import ImageStyle
 
 from ..client import RPCRequest, get_btcz_price
-from ..commands import ClientCommands
+from ..command import ClientCommands
 from ..system import SystemOp
 
 from ..cash.send import CashWindow
@@ -447,10 +447,16 @@ class HomeWindow(Window):
         )
         
     def open_explorer_window(self, button):
-        self.info_dialog(
-            "Under Dev",
-            "This feature is under dev..."
+        if self.system.is_window_open('explorer_window'):
+            self.system.update_settings('explorer_window', True)
+            self.explorer_button.style.visibility = HIDDEN
+            return
+        self.explorer_button.style.visibility = HIDDEN
+        self.explorer_window = ExplorerWindow(
+            self.app,
+            self.explorer_button
         )
+        self.system.update_settings('explorer_window', True)
         
     def open_message_window(self, button):
         self.info_dialog(

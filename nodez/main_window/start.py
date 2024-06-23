@@ -18,7 +18,7 @@ from .styles.box import BoxStyle
 from .styles.label import LabelStyle
 from .styles.divider import DividerStyle
 
-from ..commands import ClientCommands
+from ..command import ClientCommands
 from ..home.home import HomeWindow
 from ..system import SystemOp
 
@@ -71,9 +71,10 @@ class StartNode(Window):
     async def start_node(self):
         data_path = self.app.paths.data
         bitcoinzd_file = os.path.join(data_path, "bitcoinzd.exe")
+        command = [bitcoinzd_file, r'-datadir=d:\BitcoinZ']
         await asyncio.sleep(1)
         await asyncio.create_subprocess_exec(
-            bitcoinzd_file,
+            *command,
             stderr=subprocess.PIPE,
             stdout=subprocess.PIPE,
             creationflags=subprocess.CREATE_NO_WINDOW

@@ -176,10 +176,10 @@ class RPCRequest():
             [address]
         )
         
-    def listTransactions(self):
+    def listTransactions(self, limit):
         return self.make_rpc_request(
             "listtransactions",
-            ["*", 25]
+            ["*", limit]
         )
         
     def getTransaction(self, txid):

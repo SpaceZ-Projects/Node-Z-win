@@ -1,96 +1,19 @@
 import os
 import json
-import threading
-from typing import Optional, Callable
-
 
 from toga import App
 
-import clr
-clr.AddReference("System.Drawing")
-clr.AddReference("System.Windows.Forms")
-from System.Drawing import Icon
-from System.Windows.Forms import NotifyIcon
-
-
-class Notification():
-    def __init__(
-        self,
-        title:str,
-        message:str,
-        icon:str,
-        duration:int,
-        on_press: Optional[Callable] = None
-    ):
-        """Create a new Notification widget.
-
-        :param title: Notification title.
-        :param message: Message content.
-        :param icon: Path to the icon file in .ico format.
-        :param duration: Duration in seconds before hiding the notification.
-        :param on_press: Handler function when the notification is clicked.
-        """
-        app = App
-        self.title = title
-        self.message = message
-        self.icon = os.path.join(app.app.paths.app, icon)
-        self.duration = duration
-        self.on_press = on_press
-        
-        self.notify_icon = NotifyIcon()
-        self.notify_icon.Icon = Icon(self.icon)
-        self.notify_icon.Visible = False
-        self.notify_icon.BalloonTipClicked += self.on_notification_click
-        
-    def popup(self):
-        self.notify_icon.Icon = Icon(self.icon)
-        self.notify_icon.BalloonTipTitle = self.title
-        self.notify_icon.BalloonTipText = self.message
-        self.notify_icon.Visible = True
-        self.notify_icon.ShowBalloonTip(self.duration * 1000)
-        threading.Timer(
-            self.duration,
-            self.hide_notification
-        ).start()
-    
-    def on_notification_click(self, sender, event):
-        if self.on_press:
-            self.on_press()
-    
-    def hide_notification(self):
-        self.notify_icon.Visible = False
-
-
-        
 
 class SystemOp():
     def __init__(self, app:App):
         super().__init__()
         
         self.app = app
-        
-        self.app_path = self.app.paths.app
+
         self.data_path = self.app.paths.data
         self.config_path = self.app.paths.config
         self.logs_path = self.app.paths.logs
         self.cache_path = self.app.paths.cache
-        
-        
-    async def show_notification(self, title, message):
-        icon_path = os.path.join(self.app_path, "resources/app_logo.ico")
-        icon = Icon(icon_path)
-        self.notify_icon = NotifyIcon()
-        self.notify_icon.Visible = True
-        self.notify_icon.BalloonTipClicked += lambda sender, event: self.on_notification_click(message)
-        self.notify_icon.Icon = icon
-        self.notify_icon.BalloonTipTitle = title
-        self.notify_icon.BalloonTipText = message
-        self.notify_icon.ShowBalloonTip(10)
-        threading.Timer(10, self.hide_toast).start()
-    def on_notification_click(self, message):
-        print(message)
-    def hide_toast(self):
-        self.notify_icon.Visible = False
         
     
     def update_settings(self, setting_key, setting_value):
@@ -122,6 +45,15 @@ class SystemOp():
                    ):
                 return True
         
+        return False
+    
+    
+    def is_window_open(self, window_name):
+        settings_path = os.path.join(self.config_path, 'settings.json')
+        if os.path.exists(settings_path):
+            with open(settings_path, 'r') as f:
+                settings = json.load(f)
+                return settings.get(window_name, False)
         return False
         
     

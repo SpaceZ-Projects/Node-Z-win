@@ -40,5 +40,5 @@ class ImageStyle():
     
     loading_icon = Pack(
         alignment = CENTER,
-        padding_top = 20
+        padding_top = 50
     )

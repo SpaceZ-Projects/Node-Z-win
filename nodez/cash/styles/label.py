@@ -103,5 +103,4 @@ class LabelStyle():
         color = WHITE,
         font_weight = BOLD,
         background_color = BLACK,
-        flex = 1
     )

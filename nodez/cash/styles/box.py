@@ -84,3 +84,14 @@ class BoxStyle():
         background_color = BLACK,
         width = 350
     )
+
+    transaction_amount_box = Pack(
+        direction = COLUMN,
+        background_color = BLACK
+    )
+
+    transaction_time_box = Pack(
+        direction = COLUMN,
+        background_color = BLACK,
+        flex = 1
+    )

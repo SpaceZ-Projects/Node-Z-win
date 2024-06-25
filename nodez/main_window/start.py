@@ -1,6 +1,7 @@
 import asyncio
 import os
 import subprocess
+import json
 
 from toga import (
     App,
@@ -8,8 +9,7 @@ from toga import (
     Box,
     Label,
     Divider,
-    ImageView,
-    platform
+    ImageView
 )
 from toga.constants import Direction
 from toga.colors import RED
@@ -24,7 +24,7 @@ from ..system import SystemOp
 
 
 class StartNode(Window):
-    def __init__(self, app:App):
+    def __init__(self, app:App, local_button):
         super().__init__(
             title="Loading...",
             size=(280, 90),
@@ -36,6 +36,8 @@ class StartNode(Window):
         self.system = SystemOp(self.app)
         position_center = self.system.windows_screen_center(self.size)
         self.position = position_center
+        self.local_button = local_button
+        self.bitcoinzd_file = os.path.join(self.app.paths.data, "bitcoinzd.exe")
         
         self.starting_txt = Label(
             "Starting Node...",
@@ -58,34 +60,97 @@ class StartNode(Window):
         )
         self.content = self.main_box
         self.app.add_background_task(
-            self.display_window
+            self.check_node_status
         )
-        
-    async def display_window(self, widget):
-        self.app.main_window.hide()
-        await asyncio.sleep(1)
-        self.show()
-        await self.start_node()
+
+
+    async def check_node_status(self, widget):
+        self.local_button.enabled = False
+        result = await self.commands.z_getTotalBalance()
+        if result:
+            self.app.main_window.hide()
+            self.local_button.enabled = True
+            await asyncio.sleep(2)
+            self.home_window = HomeWindow(self.app)
+            self.home_window.title = "MainMenu (Local)"
+        else:
+            self.local_button.enabled = True
+            await self.start_node()
     
     
     async def start_node(self):
-        data_path = self.app.paths.data
-        bitcoinzd_file = os.path.join(data_path, "bitcoinzd.exe")
-        command = [bitcoinzd_file, r'-datadir=d:\BitcoinZ']
+        settings_path = os.path.join(self.app.paths.config, 'settings.json')
+        if os.path.exists(settings_path):
+            with open(settings_path, 'r') as f:
+                settings_data = json.load(f)
+                blockchain_path = settings_data.get('blockchainpath')
+                if 'blockchainpath' not in settings_data:
+                    async def on_confirm(window, result):
+                        if result is True:
+                            await self.setup_blockchain_path()
+                        if result is False:
+                            self.system.update_settings('blockchainpath', 'default')
+                            command = [self.bitcoinzd_file]
+                            await self.run_node(command)
+                    self.question_dialog(
+                        "Blockchain path...",
+                        "Do you want to set a custom path for the blockchain index ?",
+                        on_result=on_confirm
+                    )
+                    return
+                elif blockchain_path == "default":
+                    command = [self.bitcoinzd_file]
+                elif blockchain_path is not None and blockchain_path != "default":
+                    command = [self.bitcoinzd_file, f'-datadir={blockchain_path}']
+                await self.run_node(command)
+        else:
+            async def on_confirm(window, result):
+                if result is True:
+                    await self.setup_blockchain_path()
+                if result is False:
+                    command = [self.bitcoinzd_file]
+                    await self.run_node(command)
+            self.question_dialog(
+                "Blockchain path...",
+                "Do you want to set a custom path for the blockchain index ?",
+                on_result=on_confirm
+            )
+    
+
+    async def setup_blockchain_path(self):
+        default_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
+        async def on_confirm(window, path):
+            if path:
+                blockchain_path = path
+                if isinstance(blockchain_path, os.PathLike):
+                    blockchain_path = str(blockchain_path)
+                self.system.update_settings('blockchainpath', blockchain_path)
+                command = [self.bitcoinzd_file, f'-datadir={blockchain_path}']
+                await self.run_node(command)
+        self.select_folder_dialog(
+            "Select path",
+            initial_directory=default_path,
+            on_result=on_confirm
+        )
+
+
+    async def run_node(self, command):
+        self.app.main_window.hide()
+        self.show()
         await asyncio.sleep(1)
         await asyncio.create_subprocess_exec(
-            *command,
-            stderr=subprocess.PIPE,
-            stdout=subprocess.PIPE,
-            creationflags=subprocess.CREATE_NO_WINDOW
+                *command,
+                stderr=subprocess.PIPE,
+                stdout=subprocess.PIPE,
+                creationflags=subprocess.CREATE_NO_WINDOW
         )
-        await self.check_node_status()
+        await self.waiting_node_status()
         
         
-    async def check_node_status(self):
+    async def waiting_node_status(self):
         await asyncio.sleep(1)
         while True:
-            result = await self.commands.getInfo()
+            result = await self.commands.z_getTotalBalance()
             if result:
                 self.starting_txt.text = "Starting GUI..."
                 await asyncio.sleep(2)

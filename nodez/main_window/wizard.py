@@ -236,7 +236,8 @@ class MainWizard(Box):
     
     def start_node(self, button):
         self.local_window = StartNode(
-            self.app
+            self.app,
+            self.local_button
         )
         
     def open_rpc_window(self, button):

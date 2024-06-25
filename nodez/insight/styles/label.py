@@ -1,5 +1,5 @@
 from toga.style.pack import Pack
-from toga.colors import BLACK, WHITE, RED
+from toga.colors import BLACK, WHITE, RED, GRAY, BURLYWOOD
 from toga.constants import CENTER, BOLD, RIGHT
 
 
@@ -202,4 +202,35 @@ class LabelStyle():
         font_size = 10,
         color = WHITE,
         background_color = BLACK
+    )
+
+
+    transaction_details_title = Pack(
+        padding_top = 5,
+        text_align = CENTER,
+        font_size = 15,
+        font_weight = BOLD,
+        color = BLACK,
+        background_color = GRAY
+    )
+
+    transaction_confirmations = Pack(
+        text_align = CENTER,
+        font_size = 10,
+        padding_top = 10,
+        padding_bottom = 10,
+        padding_left = 460,
+        color = BLACK,
+        font_weight = BOLD
+    )
+
+    transaction_value = Pack(
+        text_align = CENTER,
+        font_size = 10,
+        padding_top = 10,
+        padding_bottom = 10,
+        padding_left = 5,
+        color = BLACK,
+        font_weight = BOLD,
+        background_color = BURLYWOOD
     )

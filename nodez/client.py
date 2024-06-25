@@ -240,3 +240,16 @@ class RPCRequest():
             "z_getoperationresult",
             [[f"{operation}"]]
         )
+    
+    def getBlock(self, block):
+        return self.make_rpc_request(
+            "getblock",
+            [f"{block}", 2]
+        )
+    
+
+    def getRawTransaction(self, txid):
+        return self.make_rpc_request(
+            "getrawtransaction",
+            [f"{txid}", 1]
+        )

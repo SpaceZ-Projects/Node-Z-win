@@ -1,4 +1,5 @@
 
+import os
 import json
 import asyncio
 
@@ -8,13 +9,14 @@ from toga import (
     Box,
     Label,
     TextInput,
-    Button
+    ScrollContainer
 )
 from toga.constants import VISIBLE
 
 from .styles.box import BoxStyle
 from .styles.input import InputStyle
 from .styles.label import LabelStyle
+from .styles.container import ContainerStyle
 
 from .transaction import Transaction
 
@@ -23,7 +25,7 @@ from ..command import ClientCommands
 from ..client import RPCRequest
 
 class ExplorerWindow(Window):
-    def __init__(self, app:App, window_button):
+    def __init__(self, app:App, window_button, txid):
         super().__init__(
             title="Insight Explorer",
             size=(800, 650),
@@ -37,6 +39,7 @@ class ExplorerWindow(Window):
         position_center = self.system.windows_screen_center(self.size)
         self.position = position_center
         self.window_button = window_button
+        self.txid = txid
 
         self.explorer_input = TextInput(
             placeholder="Enter an address, transaction hash, block hash or block number",
@@ -47,16 +50,23 @@ class ExplorerWindow(Window):
             "Not Found !",
             style=LabelStyle.not_found
         )
+        self.explorer_input_box = Box(
+            style=BoxStyle.explorer_menu
+        )
         self.main_box = Box(
             style=BoxStyle.explorer_main_box
         )
-        self.main_box.add(
+        self.transaction_container = ScrollContainer(
+            style=ContainerStyle.transaction_container
+        )
+        self.explorer_input_box.add(
             self.explorer_input
+        )
+        self.main_box.add(
+            self.explorer_input_box
         )
 
         self.content = self.main_box
-        
-        self.show()
 
 
     async def verify_input(self, input):
@@ -73,9 +83,15 @@ class ExplorerWindow(Window):
 
 
     async def get_block_height(self, blockheight):
-        result = await self.command.getBlock(blockheight)
-        result = json.loads(result)
-        if result:
+        config_path = self.app.paths.config
+        db_path = os.path.join(config_path, 'config.db')
+        if os.path.exists(db_path):
+            result = self.client.getBlock(blockheight)
+        else:
+            result = await self.command.getBlock(blockheight)
+            if result is not None:
+                result = json.loads(result)
+        if result is not None:
             print("ok")
 
     async def get_address_txids(self, address):
@@ -83,7 +99,14 @@ class ExplorerWindow(Window):
 
     
     async def get_txid_info(self, txid):
-        result = await self.command.getRawTransaction(txid)
+        config_path = self.app.paths.config
+        db_path = os.path.join(config_path, 'config.db')
+        if os.path.exists(db_path):
+            result = self.client.getRawTransaction(txid)
+        else:
+            result = await self.command.getRawTransaction(txid)
+            if result is not None:
+                result = json.loads(result)
         if result is None:
             self.explorer_input.value = ""
             self.main_box.add(
@@ -94,14 +117,13 @@ class ExplorerWindow(Window):
                 self.not_found
             )
         else:
-            result = json.loads(result)
-            self.transaction_box = Transaction(
+            self.explorer_input.value = ""
+            self.transaction_container.content = Transaction(
                 self.app,
                 result
             )
-            self.explorer_input.value = ""
             self.main_box.add(
-                self.transaction_box
+                self.transaction_container
             )
 
 

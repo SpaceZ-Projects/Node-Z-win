@@ -3,6 +3,8 @@ import os
 import asyncio
 import json
 import threading
+from datetime import datetime
+import operator
 
 from toga import (
     App,
@@ -30,7 +32,7 @@ from .styles.label import LabelStyle
 from .styles.input import InputStyle
 from .styles.container import ContainerStyle
 
-from .txlist import LastTransactions
+from ..insight.explorer import ExplorerWindow
 from ..system import SystemOp
 from ..client import RPCRequest
 from ..command import ClientCommands
@@ -38,7 +40,7 @@ from ..command import ClientCommands
 
 
 class CashWindow(Window):
-    def __init__(self, app:App, window_button):
+    def __init__(self, app:App, window_button, explorer_button):
         super().__init__(
             title="Cash Out",
             size=(800, 650),
@@ -52,6 +54,7 @@ class CashWindow(Window):
         position_center = self.system.windows_screen_center(self.size)
         self.position = position_center
         self.window_button = window_button
+        self.explorer_button = explorer_button
         
         self.loading_icon = ImageView(
             ("icones/loading_tx.gif"),
@@ -189,6 +192,9 @@ class CashWindow(Window):
         self.buttons_box = Box(
             style=BoxStyle.buttons_box
         )
+        self.last_transaction_box = Box(
+            style=BoxStyle.cash_transaction_box
+        )
         self.last_transaction_list = ScrollContainer(
             style=ContainerStyle.last_taransactions_list
         )
@@ -248,10 +254,91 @@ class CashWindow(Window):
         self.select_address.items = transparent_address
         
         await self.get_transactions_list()
-        
-        
+
+
     async def get_transactions_list(self):
-        self.last_transaction_list.content = LastTransactions(self.app)
+        config_path = self.app.paths.config
+        db_path = os.path.join(config_path, 'config.db')
+        transctions_limit = 25
+        if os.path.exists(db_path):
+            transactions_data = self.client.listTransactions(transctions_limit)
+        else:
+            transactions_data = await self.command.listTransactions(transctions_limit)
+            if isinstance(transactions_data, str):
+                transactions_data = json.loads(transactions_data)
+        if transactions_data is not None:
+            sorted_transactions = sorted(
+                transactions_data,
+                key=operator.itemgetter('timereceived'),
+                reverse=True
+            )
+            for data in sorted_transactions:
+                address = data.get("address", "Shielded")
+                category = data["category"]
+                amount = self.system.format_balance(data["amount"])
+                timereceived = data["timereceived"]
+                formatted_date_time = datetime.fromtimestamp(timereceived).strftime("%Y-%m-%d %H:%M:%S")
+                txid = data["txid"]
+                if category == "send":
+                    cash_icone = ImageView(
+                        "icones/cashout.png",
+                        style=ImageStyle.cash_icon
+                    )
+                else:
+                    cash_icone = ImageView(
+                        "icones/cashin.png",
+                        style=ImageStyle.cash_icon
+                    )
+                transaction_address = Label(
+                    address,
+                    style=LabelStyle.transaction_address
+                )
+                transaction_amount = Label(
+                    f"{amount} BTCZ",
+                    style=LabelStyle.transaction_amount
+                )
+                time_received = Label(
+                    formatted_date_time,
+                    style=LabelStyle.time_received
+                )
+                explorer_button = Button(
+                    icon=Icon("icones/explorer_txid"),
+                    style=ButtonStyle.explorer_button,
+                    enabled=True,
+                    on_press=lambda widget, txid=txid: asyncio.create_task(self.transaction_window(txid))
+                )
+                transaction_address_box = Box(
+                    style=BoxStyle.transaction_address_box
+                )
+                transaction_box = Box(
+                    style=BoxStyle.transaction_box
+                )
+                amount_box = Box(
+                    style=BoxStyle.transaction_amount_box
+                )
+                timereceived_box = Box(
+                    style=BoxStyle.transaction_time_box
+                )
+                transaction_address_box.add(
+                    transaction_address
+                )
+                amount_box.add(
+                    transaction_amount
+                )
+                timereceived_box.add(
+                    time_received
+                )
+                transaction_box.add(
+                    cash_icone,
+                    transaction_address_box,
+                    amount_box,
+                    timereceived_box,
+                    explorer_button
+                )
+                self.last_transaction_box.add(
+                    transaction_box
+                )
+        self.last_transaction_list.content = self.last_transaction_box
         self.main_box.add(
             self.last_transaction_list
         )
@@ -274,6 +361,25 @@ class CashWindow(Window):
             self.txfee_info_txt
         )
         self.show()
+
+
+
+    async def transaction_window(self, txid):
+        print(txid)
+        active_windows = list(self.app.windows)
+        for explorer_window in active_windows:
+            if explorer_window.title.startswith("Insight Explorer"):
+                explorer_window.close()
+
+        self.explorer_button.style.visibility = HIDDEN
+        self.explorer_window = ExplorerWindow(
+            self.app,
+            self.explorer_button,
+            txid
+        )
+        self.explorer_window.explorer_input.value = txid
+        await self.explorer_window.verify_input(txid)
+        self.explorer_window.show()
         
         
     async def set_max_amount(self, button):
@@ -596,6 +702,7 @@ class CashWindow(Window):
                     txid = operation
                     await self.clear_inputs()
                     await self.send_notification_system(amount, txid)
+                    await asyncio.sleep(1)
                     await self.update_last_transaction()
                 else:
                     self.send_button.enabled = True
@@ -612,7 +719,7 @@ class CashWindow(Window):
                     else:
                         transaction_status = await self.command.z_getOperationStatus(operation)
                         transaction_status = json.loads(transaction_status)
-                    if isinstance(transaction_status, list) and transaction_status: 
+                    if isinstance(transaction_status, list) and transaction_status:
                         status = transaction_status[0].get('status')
                         if status == "executing" or status =="success":
                             await asyncio.sleep(1)
@@ -627,6 +734,7 @@ class CashWindow(Window):
                                     txid = result.get('txid')
                                     await self.clear_inputs()
                                     await self.send_notification_system(amount, txid)
+                                    await asyncio.sleep(1)
                                     await self.update_last_transaction()
                                     return
                                 await asyncio.sleep(3)
@@ -665,32 +773,113 @@ class CashWindow(Window):
         icon = Icon(icon_path)
         self.notify_icon = NotifyIcon()
         self.notify_icon.Visible = True
-        self.notify_icon.BalloonTipClicked += lambda sender, event: self.on_notification_click(txid)
+        self.notify_icon.BalloonTipClicked += lambda sender, event: asyncio.create_task(self.on_notification_click(txid))
         self.notify_icon.Icon = icon
         self.notify_icon.BalloonTipTitle = f"Sent {amount} BTCZ"
         self.notify_icon.BalloonTipText = txid
         self.notify_icon.ShowBalloonTip(10)
         threading.Timer(10, self.hide_toast).start()
 
-    def on_notification_click(self, message):
-        self.info_dialog(
-            "Transaction ID",
-            message
-        )
+
+    async def on_notification_click(self, txid):
+        await self.transaction_window(txid)
+
 
     def hide_toast(self):
         self.notify_icon.Visible = False
     
         
     async def update_last_transaction(self):
+        self.last_transaction_list.content.clear()
         self.main_box.remove(
             self.last_transaction_list
         )
-        self.last_transaction_list.content = LastTransactions(self.app)
         self.main_box.add(
             self.loading_box
         )
-        await asyncio.sleep(4)
+        config_path = self.app.paths.config
+        db_path = os.path.join(config_path, 'config.db')
+        transctions_limit = 25
+        if os.path.exists(db_path):
+            transactions_data = self.client.listTransactions(transctions_limit)
+        else:
+            transactions_data = await self.command.listTransactions(transctions_limit)
+            if isinstance(transactions_data, str):
+                transactions_data = json.loads(transactions_data)
+        if transactions_data is not None:
+            sorted_transactions = sorted(
+                transactions_data,
+                key=operator.itemgetter('timereceived'),
+                reverse=True
+            )
+            for data in sorted_transactions:
+                address = data.get("address", "Shielded")
+                category = data["category"]
+                amount = self.system.format_balance(data["amount"])
+                timereceived = data["timereceived"]
+                formatted_date_time = datetime.fromtimestamp(timereceived).strftime("%Y-%m-%d %H:%M:%S")
+                txid = data["txid"]
+                if category == "send":
+                    cash_icone = ImageView(
+                        "icones/cashout.png",
+                        style=ImageStyle.cash_icon
+                    )
+                else:
+                    cash_icone = ImageView(
+                        "icones/cashin.png",
+                        style=ImageStyle.cash_icon
+                    )
+                transaction_address = Label(
+                    address,
+                    style=LabelStyle.transaction_address
+                )
+                transaction_amount = Label(
+                    f"{amount} BTCZ",
+                    style=LabelStyle.transaction_amount
+                )
+                time_received = Label(
+                    formatted_date_time,
+                    style=LabelStyle.time_received
+                )
+                explorer_button = Button(
+                    icon=Icon("icones/explorer_txid"),
+                    style=ButtonStyle.explorer_button,
+                    enabled=True,
+                    on_press=lambda widget, txid=txid: asyncio.create_task(self.transaction_window(txid))
+                )
+                transaction_address_box = Box(
+                    style=BoxStyle.transaction_address_box
+                )
+                transaction_box = Box(
+                    style=BoxStyle.transaction_box
+                )
+                amount_box = Box(
+                    style=BoxStyle.transaction_amount_box
+                )
+                timereceived_box = Box(
+                    style=BoxStyle.transaction_time_box
+                )
+                transaction_address_box.add(
+                    transaction_address
+                )
+                amount_box.add(
+                    transaction_amount
+                )
+                timereceived_box.add(
+                    time_received
+                )
+                transaction_box.add(
+                    cash_icone,
+                    transaction_address_box,
+                    amount_box,
+                    timereceived_box,
+                    explorer_button
+                )
+                self.last_transaction_box.add(
+                    transaction_box
+                )
+        self.last_transaction_list.content = self.last_transaction_box
+        await asyncio.sleep(3)
         self.main_box.remove(
             self.loading_box
         )

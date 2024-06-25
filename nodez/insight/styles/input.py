@@ -12,6 +12,7 @@ class InputStyle():
         padding_top = 20,
         padding_left = 100,
         padding_right = 100,
+        padding_bottom = 5,
         font_size = 11,
         flex = 1
     )

@@ -1,4 +1,5 @@
-import json
+
+import asyncio
 from datetime import datetime
 from typing import Iterable
 
@@ -14,12 +15,14 @@ from toga import (
 )
 from toga.widgets.base import Widget
 from toga.constants import Direction
+from toga.colors import RED, GREEN
 
 from .styles.box import BoxStyle
 from .styles.label import LabelStyle
 from .styles.divider import DividerStyle
 
 from ..command import ClientCommands
+from ..system import SystemOp
 
 
 class Transaction(Box):
@@ -36,6 +39,7 @@ class Transaction(Box):
         self.app = app
         self.result = result
         self.command = ClientCommands(self.app)
+        self.system = SystemOp(self.app)
 
         self.transaction_title = Label(
             "Transaction",
@@ -144,6 +148,9 @@ class Transaction(Box):
         self.coinbase_box = Box(
             style=BoxStyle.transaction_info_box
         )
+        self.transaction_details_box = Box(
+            style=BoxStyle.transaction_details_box
+        )
         self.transaction_id_box.add(
             self.transaction_id_txt
         )
@@ -184,6 +191,7 @@ class Transaction(Box):
             self.expiryheight_box,
             self.coinbase_box,
             self.transaction_divider,
+            self.transaction_details_box
         )
 
         self.app.add_background_task(
@@ -193,24 +201,27 @@ class Transaction(Box):
     async def get_txid_info(self, widget):
         txid = self.result.get('txid')
         received = self.result.get('time')
+        if received is not None:
+            formatted_received = datetime.fromtimestamp(received).strftime("%Y-%m-%d %H:%M:%S")
+            self.received_time.text = formatted_received
         blocktime = self.result.get('blocktime')
-        formatted_received = datetime.fromtimestamp(received).strftime("%Y-%m-%d %H:%M:%S")
-        formatted_blocktime = datetime.fromtimestamp(blocktime).strftime("%Y-%m-%d %H:%M:%S")
+        if blocktime is not None:
+            formatted_blocktime = datetime.fromtimestamp(blocktime).strftime("%Y-%m-%d %H:%M:%S")
+            self.mined_time.text = formatted_blocktime
         blockhash = self.result.get('blockhash')
         version = self.result.get('version')
         overwintered = self.result.get('overwintered')
         versiongroupid = self.result.get('versiongroupid')
         expiryheight = self.result.get('expiryheight')
-        coinbase = self.result.get('vin', [])[0].get('coinbase')
+        coinbase = self.result.get('vin', [])[0].get('coinbase', None)
+        if coinbase is not None:
+            self.coinbase.text = f"{coinbase[:60]}..."
         self.transaction_id.text = txid
-        self.received_time.text = formatted_received
-        self.mined_time.text = formatted_blocktime
         self.blockhash.text = blockhash
         self.version.text = version
         self.overwintered.text = overwintered
         self.versiongroupid.text = f"0x{versiongroupid}"
         self.expiryheight.text = expiryheight
-        self.coinbase.text = f"{coinbase[:60]}..."
         self.transaction_id_box.add(
             self.transaction_id
         )
@@ -236,7 +247,60 @@ class Transaction(Box):
             self.expiryheight
         )
         self.coinbase_box.add(
-            self.coinbase
+                self.coinbase
+            )
+        await self.get_txid_details()
+
+
+    async def get_txid_details(self):
+        await asyncio.sleep(1)
+        self.transaction_deatils_txt = Label(
+            "Transaction Details",
+            style=LabelStyle.transaction_details_title
+        )
+        self.vin_address = Label(
+            ""
+        )
+        self.confirmations = Label(
+            "",
+            style=LabelStyle.transaction_confirmations
+        )
+        self.value = Label(
+            "",
+            style=LabelStyle.transaction_value
+        )
+        self.confirmations_box = Box(
+            style=BoxStyle.confirmations_box
+        )
+        vin = self.result.get('vin', [])
+        for data in vin:
+            vin_value = data.get('value')
+            vin_address = data.get('address')
+        vout = self.result.get('vout', [])
+        for data in vout:
+            vout_value = data.get('value')
+            vout_address = data.get('address')
+        confirmations = self.result.get('confirmations', '0')
+        self.vin_address.text = vin_address
+        if confirmations == "0" or confirmations is None:
+            background_color = RED
+            self.confirmations.text = f"Unconfirmed Tx"
+        else:
+            background_color = GREEN
+            self.confirmations.text = f"Confirmations : {confirmations}"
+        if vin_value:
+            self.value.text = f"{self.system.format_balance(vin_value)} BTCZ"
+        else:
+            self.value.text = "6250 BTCZ"
+        self.confirmations.style.background_color = background_color
+        self.confirmations_box.add(
+            self.confirmations,
+            self.value
+        )
+        self.transaction_details_box.add(
+            self.transaction_deatils_txt,
+            self.vin_address,
+            self.confirmations_box
         )
 
 

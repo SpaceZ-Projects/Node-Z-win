@@ -171,3 +171,7 @@ class ClientCommands():
     async def getRawTransaction(self, txid):
         command = f'{self.bitcoinz_cli_file} getrawtransaction "{txid}" 1'
         return await self._run_command(command)
+    
+    async def z_listOperationIds(self):
+        command = f'{self.bitcoinz_cli_file} z_listoperationids'
+        return await self._run_command(command)

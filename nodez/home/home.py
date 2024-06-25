@@ -436,7 +436,8 @@ class HomeWindow(Window):
         self.cash_button.style.visibility = HIDDEN
         self.cash_window = CashWindow(
             self.app,
-            self.cash_button
+            self.cash_button,
+            self.explorer_button
         )
         self.system.update_settings('cash_window', True)
         
@@ -447,16 +448,14 @@ class HomeWindow(Window):
         )
         
     def open_explorer_window(self, button):
-        if self.system.is_window_open('explorer_window'):
-            self.system.update_settings('explorer_window', True)
-            self.explorer_button.style.visibility = HIDDEN
-            return
         self.explorer_button.style.visibility = HIDDEN
         self.explorer_window = ExplorerWindow(
             self.app,
-            self.explorer_button
+            self.explorer_button,
+            None
         )
         self.system.update_settings('explorer_window', True)
+        self.explorer_window.show()
         
     def open_message_window(self, button):
         self.info_dialog(

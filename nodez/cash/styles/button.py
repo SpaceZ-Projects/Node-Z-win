@@ -40,7 +40,7 @@ class ButtonStyle():
     send_button = Pack(
         padding_top = 25,
         padding_left = 145,
-        padding_right = 450,
+        padding_right = 500,
         background_color = YELLOW,
         font_size = 10,
         font_weight = BOLD,
@@ -50,9 +50,7 @@ class ButtonStyle():
 
     explorer_button = Pack(
         padding_top = 2,
-        padding_left = 25,
-        padding_right = 25,
-        flex = 1,
+        padding_right = 3,
         background_color = BLACK,
         color = YELLOW
     )

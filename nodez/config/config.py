@@ -12,7 +12,7 @@ from toga import (
 from .options.network import NetConfig
 from .options.rpc import RPCConfig
 from .options.txfee import FeeConfig
-from .options.explorer import insightConfig
+from .options.index import insightConfig
 from .options.divers import DiversConfig
 
 from ..system import SystemOp

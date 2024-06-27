@@ -30,6 +30,17 @@ class BoxStyle():
         background_color = BLACK
     )
 
+    block_info = Pack(
+        direction = COLUMN,
+        background_color = BLACK,
+        flex = 1
+    )
+
+    blockhash_box = Pack(
+        direction = ROW,
+        background_color = BLACK
+    )
+
 
     transaction_details_box = Pack(
         direction = COLUMN,
@@ -39,5 +50,47 @@ class BoxStyle():
 
     confirmations_box = Pack(
         direction = ROW,
+        background_color = GRAY
+    )
+
+    addresses_box = Pack(
+        direction = ROW,
+        background_color = BLACK
+    )
+
+    transaction_address_box = Pack(
+        direction = COLUMN,
+        background_color = BLACK,
+        flex=1
+    )
+
+    block_details_box = Pack(
+        direction = ROW,
+        background_color = BLACK,
+        flex = 1
+    )
+
+    block_details_right_box = Pack(
+        direction = COLUMN,
+        background_color = BLACK,
+        flex = 1
+    )
+
+
+    block_details_left_box = Pack(
+        direction = COLUMN,
+        background_color = BLACK,
+        flex = 1
+    )
+
+
+    block_lines_box = Pack(
+        direction = ROW,
+        background_color = BLACK
+    )
+
+    block_txids_box = Pack(
+        direction = COLUMN,
+        padding = 5,
         background_color = GRAY
     )

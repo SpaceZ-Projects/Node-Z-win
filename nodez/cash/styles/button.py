@@ -27,6 +27,15 @@ class ButtonStyle():
         color = CYAN,
         flex = 1
     )
+
+    lisunspent_button = Pack(
+        padding_left = 10,
+        padding_right = 30,
+        padding_top = 12,
+        color = YELLOW,
+        background_color = BLACK,
+        flex = 1
+    )
     
     
     max_button = Pack(

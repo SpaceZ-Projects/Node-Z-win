@@ -47,11 +47,11 @@ class Transaction(Box):
         )
         self.transaction_id_txt = Label(
             "Transaction ID :",
-            style=LabelStyle.transcation_id_txt
+            style=LabelStyle.transaction_id_txt
         )
         self.transaction_id = Label(
             "",
-            style=LabelStyle.transcation_id
+            style=LabelStyle.transaction_id
         )
         self.transaction_id_box = Box(
             style=BoxStyle.transaction_info_box
@@ -62,88 +62,88 @@ class Transaction(Box):
         )
         self.received_time_txt = Label(
             "Received :",
-            style=LabelStyle.received_time_txt
+            style=LabelStyle.transaction_received_time_txt
         )
         self.received_time = Label(
             "",
-            style=LabelStyle.received_time
+            style=LabelStyle.transaction_received_time
         )
         self.received_time_box = Box(
             style=BoxStyle.transaction_info_box
         )
         self.mined_time_txt = Label(
             "Mined :",
-            style=LabelStyle.mined_time_txt
+            style=LabelStyle.transaction_mined_time_txt
         )
         self.mined_time = Label(
             "",
-            style=LabelStyle.mined_time
+            style=LabelStyle.transaction_mined_time
         )
         self.mined_time_box = Box(
             style=BoxStyle.transaction_info_box
         )
         self.blockhash_txt = Label(
             "In Block :",
-            style=LabelStyle.blockhash_txt
+            style=LabelStyle.transaction_blockhash_txt
         )
         self.blockhash = Label(
             "",
-            style=LabelStyle.blockhash
+            style=LabelStyle.transaction_blockhash
         )
         self.blockhash_box = Box(
             style=BoxStyle.transaction_info_box
         )
         self.version_txt = Label(
             "Version :",
-            style=LabelStyle.version_txt
+            style=LabelStyle.transaction_version_txt
         )
         self.version = Label(
             "",
-            style=LabelStyle.version
+            style=LabelStyle.transaction_version
         )
         self.version_box = Box(
             style=BoxStyle.transaction_info_box
         )
         self.overwintered_txt = Label(
             "Overwintered :",
-            style=LabelStyle.overwintered_txt
+            style=LabelStyle.transaction_overwintered_txt
         )
         self.overwintered = Label(
             "",
-            style=LabelStyle.overwintered
+            style=LabelStyle.transaction_overwintered
         )
         self.overwintered_box = Box(
             style=BoxStyle.transaction_info_box
         )
         self.versiongroupid_txt = Label(
             "VersionGroupId :",
-            style=LabelStyle.versiongroupid_txt
+            style=LabelStyle.transaction_versiongroupid_txt
         )
         self.versiongroupid = Label(
             "",
-            style=LabelStyle.versiongroupid
+            style=LabelStyle.transaction_versiongroupid
         )
         self.versiongroupid_box = Box(
             style=BoxStyle.transaction_info_box
         )
         self.expiryheight_txt = Label(
             "Expiry Height :",
-            style=LabelStyle.expiryheight_txt
+            style=LabelStyle.transaction_expiryheight_txt
         )
         self.expiryheight = Label(
             "",
-            style=LabelStyle.expiryheight
+            style=LabelStyle.transaction_expiryheight
         )
         self.expiryheight_box = Box(
             style=BoxStyle.transaction_info_box
         )
         self.coinbase_txt = Label(
             "Coinbase :",
-            style=LabelStyle.coinbase_txt
+            style=LabelStyle.transaction_coinbase_txt
         )
         self.coinbase = Label(
             "",
-            style=LabelStyle.coinbase
+            style=LabelStyle.transaction_coinbase
         )
         self.coinbase_box = Box(
             style=BoxStyle.transaction_info_box
@@ -258,9 +258,6 @@ class Transaction(Box):
             "Transaction Details",
             style=LabelStyle.transaction_details_title
         )
-        self.vin_address = Label(
-            ""
-        )
         self.confirmations = Label(
             "",
             style=LabelStyle.transaction_confirmations
@@ -269,6 +266,15 @@ class Transaction(Box):
             "",
             style=LabelStyle.transaction_value
         )
+        self.addresses_box = Box(
+            style=BoxStyle.addresses_box
+        )
+        self.vin_address_box = Box(
+            style=BoxStyle.transaction_address_box
+        )
+        self.vout_address_box = Box(
+            style=BoxStyle.transaction_address_box
+        )
         self.confirmations_box = Box(
             style=BoxStyle.confirmations_box
         )
@@ -276,12 +282,34 @@ class Transaction(Box):
         for data in vin:
             vin_value = data.get('value')
             vin_address = data.get('address')
+            if vin_value and vin_address:
+                self.vin_address = Label(
+                    f"{vin_address}  {self.system.format_balance(vin_value)} BTCZ",
+                    style=LabelStyle.transaction_vin_address
+                )
+            else:
+                self.vin_address = Label(
+                    "No Inputs (Newly Generated Coins)",
+                    style=LabelStyle.transaction_vin_address
+                )
+            self.vin_address_box.add(
+                self.vin_address
+            )
         vout = self.result.get('vout', [])
         for data in vout:
+            script_pubkey = data.get('scriptPubKey', {})
             vout_value = data.get('value')
-            vout_address = data.get('address')
+            vout_addresses = script_pubkey.get('addresses', [])
+            if isinstance(vout_addresses, list) and len(vout_addresses) == 1:
+                vout_address = vout_addresses[0]
+            else:
+                vout_address = ', '.join(vout_addresses) if vout_addresses else 'Unknown'
+            self.vout_address = Label(
+                f"{vout_address}  {self.system.format_balance(vout_value)} BTCZ",
+                style=LabelStyle.transaction_vout_address
+            )
+            self.vout_address_box.add(self.vout_address)
         confirmations = self.result.get('confirmations', '0')
-        self.vin_address.text = vin_address
         if confirmations == "0" or confirmations is None:
             background_color = RED
             self.confirmations.text = f"Unconfirmed Tx"
@@ -297,9 +325,13 @@ class Transaction(Box):
             self.confirmations,
             self.value
         )
+        self.addresses_box.add(
+            self.vin_address_box,
+            self.vout_address_box
+        )
         self.transaction_details_box.add(
             self.transaction_deatils_txt,
-            self.vin_address,
+            self.addresses_box,
             self.confirmations_box
         )
 

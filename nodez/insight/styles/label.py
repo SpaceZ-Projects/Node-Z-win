@@ -1,6 +1,6 @@
 from toga.style.pack import Pack
 from toga.colors import BLACK, WHITE, RED, GRAY, BURLYWOOD
-from toga.constants import CENTER, BOLD, RIGHT
+from toga.constants import CENTER, BOLD, RIGHT, LEFT
 
 
 class LabelStyle():
@@ -24,7 +24,7 @@ class LabelStyle():
     )
 
 
-    transcation_id_txt = Pack(
+    transaction_id_txt = Pack(
         padding_top = 10,
         padding_left = 15,
         font_size = 11,
@@ -35,7 +35,7 @@ class LabelStyle():
     )
 
     
-    transcation_id = Pack(
+    transaction_id = Pack(
         text_align = RIGHT,
         padding_top = 11,
         padding_right = 15,
@@ -45,7 +45,7 @@ class LabelStyle():
     )
 
 
-    received_time_txt = Pack(
+    transaction_received_time_txt = Pack(
         padding_top = 5,
         padding_left = 15,
         font_size = 11,
@@ -56,7 +56,7 @@ class LabelStyle():
     )
 
 
-    received_time = Pack(
+    transaction_received_time = Pack(
         text_align = RIGHT,
         padding_top = 6,
         padding_right = 15,
@@ -66,7 +66,7 @@ class LabelStyle():
     )
 
 
-    mined_time_txt = Pack(
+    transaction_mined_time_txt = Pack(
         padding_top = 5,
         padding_left = 15,
         font_size = 11,
@@ -76,7 +76,7 @@ class LabelStyle():
         flex = 1
     )
 
-    mined_time = Pack(
+    transaction_mined_time = Pack(
         text_align = RIGHT,
         padding_top = 6,
         padding_right = 15,
@@ -86,7 +86,7 @@ class LabelStyle():
     )
 
 
-    blockhash_txt = Pack(
+    transaction_blockhash_txt = Pack(
         padding_top = 5,
         padding_left = 15,
         font_size = 11,
@@ -97,7 +97,7 @@ class LabelStyle():
     )
 
 
-    blockhash = Pack(
+    transaction_blockhash = Pack(
         text_align = RIGHT,
         padding_top = 6,
         padding_right = 15,
@@ -107,7 +107,7 @@ class LabelStyle():
     )
 
 
-    version_txt = Pack(
+    transaction_version_txt = Pack(
         padding_top = 5,
         padding_left = 15,
         font_size = 11,
@@ -117,7 +117,7 @@ class LabelStyle():
         flex = 1
     )
 
-    version = Pack(
+    transaction_version = Pack(
         text_align = RIGHT,
         padding_top = 7,
         padding_right = 15,
@@ -127,7 +127,7 @@ class LabelStyle():
     )
 
 
-    overwintered_txt = Pack(
+    transaction_overwintered_txt = Pack(
         padding_top = 5,
         padding_left = 15,
         font_size = 11,
@@ -137,7 +137,7 @@ class LabelStyle():
         flex = 1
     )
 
-    overwintered = Pack(
+    transaction_overwintered = Pack(
         text_align = RIGHT,
         padding_top = 6,
         padding_right = 15,
@@ -147,7 +147,7 @@ class LabelStyle():
     )
 
 
-    versiongroupid_txt = Pack(
+    transaction_versiongroupid_txt = Pack(
         padding_top = 5,
         padding_left = 15,
         font_size = 11,
@@ -157,7 +157,7 @@ class LabelStyle():
         flex = 1
     )
 
-    versiongroupid = Pack(
+    transaction_versiongroupid = Pack(
         text_align = RIGHT,
         padding_top = 6,
         padding_right = 15,
@@ -166,7 +166,7 @@ class LabelStyle():
         background_color = BLACK
     )
 
-    expiryheight_txt = Pack(
+    transaction_expiryheight_txt = Pack(
         padding_top = 5,
         padding_left = 15,
         font_size = 11,
@@ -176,7 +176,7 @@ class LabelStyle():
         flex = 1
     )
 
-    expiryheight = Pack(
+    transaction_expiryheight = Pack(
         text_align = RIGHT,
         padding_top = 7,
         padding_right = 15,
@@ -185,7 +185,7 @@ class LabelStyle():
         background_color = BLACK
     )
 
-    coinbase_txt = Pack(
+    transaction_coinbase_txt = Pack(
         padding_top = 5,
         padding_left = 15,
         font_size = 11,
@@ -195,7 +195,7 @@ class LabelStyle():
         flex = 1
     )
 
-    coinbase = Pack(
+    transaction_coinbase = Pack(
         text_align = RIGHT,
         padding_top = 6,
         padding_right = 15,
@@ -233,4 +233,310 @@ class LabelStyle():
         color = BLACK,
         font_weight = BOLD,
         background_color = BURLYWOOD
+    )
+
+    transaction_vin_address = Pack(
+        text_align = CENTER,
+        background_color = BLACK,
+        color = WHITE,
+        padding_top = 5
+    )
+
+    transaction_vout_address = Pack(
+        text_align = CENTER,
+        background_color = BLACK,
+        color = WHITE,
+        padding_top = 5,
+        padding_bottom = 5
+    )
+
+
+    blocks_title = Pack(
+        padding_top = 15,
+        text_align = CENTER,
+        font_size = 18,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+
+    block_blockhash_txt = Pack(
+        padding_top = 10,
+        padding_left = 15,
+        font_size = 11,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK,
+        flex= 1
+    )
+
+    block_blockhash = Pack(
+        text_align = RIGHT,
+        padding_top = 11,
+        padding_right = 15,
+        font_size = 10,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+    summary_title = Pack(
+        padding_top = 5,
+        text_align = CENTER,
+        font_size = 15,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+    block_number_txids_txt = Pack(
+        text_align = LEFT,
+        padding_top = 10,
+        padding_left = 10,
+        font_size = 11,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK,
+        flex= 1
+    )
+
+    block_number_txids = Pack(
+        text_align = RIGHT,
+        padding_top = 12,
+        padding_right = 10,
+        font_size = 10,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+    block_height_txt = Pack(
+        text_align = LEFT,
+        padding_top = 5,
+        padding_left = 10,
+        font_size = 11,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK,
+        flex= 1
+    )
+
+
+    block_height = Pack(
+        text_align = RIGHT,
+        padding_top = 6,
+        padding_right = 10,
+        font_size = 10,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+    block_reward_txt = Pack(
+        text_align = LEFT,
+        padding_top = 5,
+        padding_left = 10,
+        font_size = 11,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK,
+        flex= 1
+    )
+
+    block_reward = Pack(
+        text_align = RIGHT,
+        padding_top = 6,
+        padding_right = 10,
+        font_size = 10,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+    block_timestamp_txt = Pack(
+        text_align = LEFT,
+        padding_top = 5,
+        padding_left = 10,
+        font_size = 11,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK,
+        flex= 1
+    )
+
+    block_timestamp = Pack(
+        text_align = RIGHT,
+        padding_top = 6,
+        padding_right = 10,
+        font_size = 10,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+
+    block_merkleroot_txt = Pack(
+        text_align = LEFT,
+        padding_top = 5,
+        padding_left = 10,
+        font_size = 11,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK,
+        flex= 1
+    )
+
+    block_merkleroot = Pack(
+        text_align = RIGHT,
+        padding_top = 6,
+        padding_right = 10,
+        font_size = 10,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+    block_coinbase_txt = Pack(
+        text_align = LEFT,
+        padding_top = 5,
+        padding_left = 10,
+        font_size = 11,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK,
+        flex= 1
+    )
+
+    block_coinbase = Pack(
+        text_align = RIGHT,
+        padding_top = 6,
+        padding_right = 10,
+        font_size = 10,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+
+    block_difficulty_txt = Pack(
+        text_align = LEFT,
+        padding_top = 10,
+        padding_left = 10,
+        font_size = 11,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK,
+        flex= 1
+    )
+
+    block_difficulty = Pack(
+        text_align = RIGHT,
+        padding_top = 12,
+        padding_right = 10,
+        font_size = 10,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+    block_bits_txt = Pack(
+        text_align = LEFT,
+        padding_top = 5,
+        padding_left = 10,
+        font_size = 11,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK,
+        flex= 1
+    )
+
+    block_bits = Pack(
+        text_align = RIGHT,
+        padding_top = 6,
+        padding_right = 10,
+        font_size = 10,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+    block_size_txt = Pack(
+        text_align = LEFT,
+        padding_top = 5,
+        padding_left = 10,
+        font_size = 11,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK,
+        flex= 1
+    )
+
+    block_size = Pack(
+        text_align = RIGHT,
+        padding_top = 6,
+        padding_right = 10,
+        font_size = 10,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+    block_version_txt = Pack(
+        text_align = LEFT,
+        padding_top = 5,
+        padding_left = 10,
+        font_size = 11,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK,
+        flex= 1
+    )
+
+    block_version = Pack(
+        text_align = RIGHT,
+        padding_top = 6,
+        padding_right = 10,
+        font_size = 10,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+    block_nonce_txt = Pack(
+        text_align = LEFT,
+        padding_top = 5,
+        padding_left = 10,
+        font_size = 11,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK,
+        flex= 1
+    )
+
+    block_nonce = Pack(
+        text_align = RIGHT,
+        padding_top = 6,
+        padding_right = 10,
+        font_size = 10,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+    block_solution_txt = Pack(
+        text_align = LEFT,
+        padding_top = 5,
+        padding_left = 10,
+        font_size = 11,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK,
+        flex= 1
+    )
+
+    block_solution = Pack(
+        text_align = RIGHT,
+        padding_top = 6,
+        padding_right = 10,
+        font_size = 10,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+    block_transaction_id = Pack(
+        text_align = LEFT,
+        padding = 10,
+        font_size = 10,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK,
     )

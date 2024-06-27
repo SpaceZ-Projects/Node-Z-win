@@ -97,6 +97,12 @@ class CashWindow(Window):
             "",
             style=LabelStyle.address_balance
         )
+        self.listunspent_button = Button(
+            "Unspent",
+            enabled=True,
+            style=ButtonStyle.lisunspent_button,
+            on_press=self.display_listunspent
+        )
         self.to_address_txt = Label(
             "To :",
             style=LabelStyle.to_address_txt
@@ -354,7 +360,8 @@ class CashWindow(Window):
         )
         self.select_address_box.add(
             self.select_address,
-            self.address_balance
+            self.address_balance,
+            self.listunspent_button
         )
         self.txfee_box.add(
             self.fee_input,
@@ -363,9 +370,44 @@ class CashWindow(Window):
         self.show()
 
 
+    async def display_listunspent(self, button):
+        if not self.select_address.value.select_address:
+            return
+        address = self.select_address.value.select_address
+        result = None
+        if address.startswith("z"):
+            result = await self.command.z_listUnspent(address)
+        elif address.startswith("t"):
+            result = await self.command.listUnspent(address)
+        if result:
+            result = json.loads(result)
+            formatted_result = ""
+            for data in result:
+                txid = data['txid']
+                outindex = data['outindex']
+                confirmations = data['confirmations']
+                spendable = data['spendable']
+                address = data['address']
+                amount = data['amount']
+                change = data['change']
+
+                formatted_result += (
+                    f"Txid: {txid}\n"
+                    f"Outindex: {outindex}\n"
+                    f"Confirmations: {confirmations}\n"
+                    f"Spendable: {spendable}\n"
+                    f"Address: {address}\n"
+                    f"Amount: {amount}\n"
+                    f"Change: {change}\n\n"
+                )
+            
+            self.info_dialog("List unspent", formatted_result)
+        else:
+            self.info_dialog("List unspent", "No unspent outputs found.")
+
+        
 
     async def transaction_window(self, txid):
-        print(txid)
         active_windows = list(self.app.windows)
         for explorer_window in active_windows:
             if explorer_window.title.startswith("Insight Explorer"):

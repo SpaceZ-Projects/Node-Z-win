@@ -175,3 +175,11 @@ class ClientCommands():
     async def z_listOperationIds(self):
         command = f'{self.bitcoinz_cli_file} z_listoperationids'
         return await self._run_command(command)
+    
+    async def listUnspent(self, address):
+        command = f'{self.bitcoinz_cli_file} listunspent 6 9999999 "[\\"{address}\\"]"'
+        return await self._run_command(command)
+    
+    async def z_listUnspent(self, address):
+        command = f'{self.bitcoinz_cli_file} z_listunspent 6 9999999 false "[\\"{address}\\"]"'
+        return await self._run_command(command)

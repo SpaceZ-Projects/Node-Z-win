@@ -19,6 +19,7 @@ from .styles.label import LabelStyle
 from .styles.container import ContainerStyle
 
 from .transaction import Transaction
+from .block import BlockIndex
 
 from ..system import SystemOp
 from ..command import ClientCommands
@@ -28,7 +29,7 @@ class ExplorerWindow(Window):
     def __init__(self, app:App, window_button, txid):
         super().__init__(
             title="Insight Explorer",
-            size=(800, 650),
+            size=(800, 500),
             resizable=False,
             minimizable=False,
             on_close=self.close_window
@@ -56,7 +57,7 @@ class ExplorerWindow(Window):
         self.main_box = Box(
             style=BoxStyle.explorer_main_box
         )
-        self.transaction_container = ScrollContainer(
+        self.details_container = ScrollContainer(
             style=ContainerStyle.transaction_container
         )
         self.explorer_input_box.add(
@@ -74,7 +75,7 @@ class ExplorerWindow(Window):
             self.main_box.remove(self.main_box.children[1])
         inputs = self.explorer_input.value
         inputs = inputs.replace(" ", "")
-        if inputs.isdigit() or inputs.startswith("0000"):
+        if inputs.isdigit() or inputs.startswith("000"):
             await self.get_block_height(inputs)
         elif inputs.startswith("t"):
             await self.get_address_info(inputs)
@@ -91,8 +92,24 @@ class ExplorerWindow(Window):
             result = await self.command.getBlock(blockheight)
             if result is not None:
                 result = json.loads(result)
-        if result is not None:
-            print("ok")
+        if result is None:
+            self.explorer_input.value = ""
+            self.main_box.add(
+                self.not_found
+            )
+            await asyncio.sleep(2)
+            self.main_box.remove(
+                self.not_found
+            )
+        else:
+            self.details_container.content = BlockIndex(
+                self.app,
+                result
+            )
+            self.explorer_input.value = ""
+            self.main_box.add(
+                self.details_container
+            )
 
     async def get_address_txids(self, address):
         pass
@@ -118,12 +135,12 @@ class ExplorerWindow(Window):
             )
         else:
             self.explorer_input.value = ""
-            self.transaction_container.content = Transaction(
+            self.details_container.content = Transaction(
                 self.app,
                 result
             )
             self.main_box.add(
-                self.transaction_container
+                self.details_container
             )
 
 

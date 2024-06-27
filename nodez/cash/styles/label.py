@@ -22,8 +22,7 @@ class LabelStyle():
         background_color = BLACK,
         padding_top = 15,
         padding_left = 20,
-        font_size = 9,
-        flex = 1
+        font_size = 9
     )
     
     to_address_txt = Pack(

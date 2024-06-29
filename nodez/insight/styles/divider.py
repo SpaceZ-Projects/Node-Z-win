@@ -21,3 +21,8 @@ class DividerStyle():
         padding_bottom = 5,
         height = 155
     )
+
+    address_divider = Pack(
+        padding_left = 10,
+        padding_right = 10
+    )

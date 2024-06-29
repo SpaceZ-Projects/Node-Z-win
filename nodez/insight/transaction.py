@@ -42,7 +42,7 @@ class Transaction(Box):
         self.system = SystemOp(self.app)
 
         self.transaction_title = Label(
-            "Transaction",
+            "- Transaction -",
             style=LabelStyle.transaction_title
         )
         self.transaction_id_txt = Label(
@@ -211,7 +211,9 @@ class Transaction(Box):
         blockhash = self.result.get('blockhash')
         version = self.result.get('version')
         overwintered = self.result.get('overwintered')
-        versiongroupid = self.result.get('versiongroupid')
+        versiongroupid = self.result.get('versiongroupid', None)
+        if versiongroupid is not None:
+            self.versiongroupid.text = f"0x{versiongroupid}"
         expiryheight = self.result.get('expiryheight')
         coinbase = self.result.get('vin', [])[0].get('coinbase', None)
         if coinbase is not None:
@@ -220,7 +222,6 @@ class Transaction(Box):
         self.blockhash.text = blockhash
         self.version.text = version
         self.overwintered.text = overwintered
-        self.versiongroupid.text = f"0x{versiongroupid}"
         self.expiryheight.text = expiryheight
         self.transaction_id_box.add(
             self.transaction_id
@@ -296,6 +297,7 @@ class Transaction(Box):
                 self.vin_address
             )
         vout = self.result.get('vout', [])
+        total_value = sum(vout_data.get('value', 0) for vout_data in vout)
         for data in vout:
             script_pubkey = data.get('scriptPubKey', {})
             vout_value = data.get('value')
@@ -316,10 +318,7 @@ class Transaction(Box):
         else:
             background_color = GREEN
             self.confirmations.text = f"Confirmations : {confirmations}"
-        if vin_value:
-            self.value.text = f"{self.system.format_balance(vin_value)} BTCZ"
-        else:
-            self.value.text = "6250 BTCZ"
+        self.value.text = f"{self.system.format_balance(total_value)} BTCZ"
         self.confirmations.style.background_color = background_color
         self.confirmations_box.add(
             self.confirmations,

@@ -11,7 +11,7 @@ from toga import (
     TextInput,
     ScrollContainer
 )
-from toga.constants import VISIBLE
+from toga.constants import VISIBLE, HIDDEN
 
 from .styles.box import BoxStyle
 from .styles.input import InputStyle
@@ -20,6 +20,7 @@ from .styles.container import ContainerStyle
 
 from .transaction import Transaction
 from .block import BlockIndex
+from .address import AddressIndex
 
 from ..system import SystemOp
 from ..command import ClientCommands
@@ -78,7 +79,7 @@ class ExplorerWindow(Window):
         if inputs.isdigit() or inputs.startswith("000"):
             await self.get_block_height(inputs)
         elif inputs.startswith("t"):
-            await self.get_address_info(inputs)
+            await self.get_address_txids(inputs)
         else:
             await self.get_txid_info(inputs)
 
@@ -102,17 +103,55 @@ class ExplorerWindow(Window):
                 self.not_found
             )
         else:
+            self.explorer_input.value = ""
+            self.explorer_input.readonly = True
             self.details_container.content = BlockIndex(
                 self.app,
                 result
             )
-            self.explorer_input.value = ""
+            self.details_container.style.visibility = HIDDEN
             self.main_box.add(
                 self.details_container
             )
+            await asyncio.sleep(1)
+            self.explorer_input.readonly = False
+            self.details_container.style.visibility = VISIBLE
+
 
     async def get_address_txids(self, address):
-        pass
+        config_path = self.app.paths.config
+        db_path = os.path.join(config_path, 'config.db')
+        if os.path.exists(db_path):
+            result = self.client.getAddressBalance(address)
+        else:
+            result = await self.command.getAddressBalance(address)
+            if result is not None:
+                result = json.loads(result)
+        if result is None:
+            self.explorer_input.value = ""
+            self.main_box.add(
+                self.not_found
+            )
+            await asyncio.sleep(2)
+            self.main_box.remove(
+                self.not_found
+            )
+        else:
+            self.explorer_input.value = ""
+            self.explorer_input.readonly = True
+            self.details_container.content = AddressIndex(
+                self.app,
+                address,
+                result,
+                self.details_container.on_scroll
+            )
+            self.details_container.style.visibility = HIDDEN
+            self.main_box.add(
+                self.details_container
+            )
+            await asyncio.sleep(1)
+            self.explorer_input.readonly = False
+            self.details_container.style.visibility = VISIBLE
 
     
     async def get_txid_info(self, txid):
@@ -135,13 +174,18 @@ class ExplorerWindow(Window):
             )
         else:
             self.explorer_input.value = ""
+            self.explorer_input.readonly = True
             self.details_container.content = Transaction(
                 self.app,
                 result
             )
+            self.details_container.style.visibility = HIDDEN
             self.main_box.add(
                 self.details_container
             )
+            await asyncio.sleep(1)
+            self.explorer_input.readonly = False
+            self.details_container.style.visibility = VISIBLE
 
 
         

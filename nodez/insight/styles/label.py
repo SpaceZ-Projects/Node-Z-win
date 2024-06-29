@@ -219,7 +219,7 @@ class LabelStyle():
         font_size = 10,
         padding_top = 10,
         padding_bottom = 10,
-        padding_left = 460,
+        padding_left = 430,
         color = BLACK,
         font_weight = BOLD
     )
@@ -533,6 +533,113 @@ class LabelStyle():
     )
 
     block_transaction_id = Pack(
+        text_align = LEFT,
+        padding = 10,
+        font_size = 10,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK,
+    )
+
+    address_title = Pack(
+        padding_top = 15,
+        text_align = CENTER,
+        font_size = 16,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+    address_total_received_txt = Pack(
+        text_align = LEFT,
+        padding_top = 40,
+        padding_left = 20,
+        font_size = 11,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK,
+        flex= 1
+    )
+
+    address_total_received = Pack(
+        text_align = RIGHT,
+        padding_top = 42,
+        padding_right = 20,
+        font_size = 10,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+    address_total_sent_txt = Pack(
+        text_align = LEFT,
+        padding_top = 5,
+        padding_left = 20,
+        font_size = 11,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK,
+        flex= 1
+    )
+
+    address_total_sent = Pack(
+        text_align = RIGHT,
+        padding_top = 6,
+        padding_right = 20,
+        font_size = 10,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+    address_final_balance_txt = Pack(
+        text_align = LEFT,
+        padding_top = 5,
+        padding_left = 20,
+        font_size = 11,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK,
+        flex= 1
+    )
+
+    address_final_balance = Pack(
+        text_align = RIGHT,
+        padding_top = 6,
+        padding_right = 20,
+        font_size = 10,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+    address_number_transactions_txt = Pack(
+        text_align = LEFT,
+        padding_top = 5,
+        padding_left = 20,
+        font_size = 11,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK,
+        flex= 1
+    )
+
+    address_number_transactions = Pack(
+        text_align = RIGHT,
+        padding_top = 6,
+        padding_right = 20,
+        font_size = 10,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+    address_transactions_title = Pack(
+        text_align = CENTER,
+        padding_top = 10,
+        font_size = 16,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+    address_transaction_id = Pack(
         text_align = LEFT,
         padding = 10,
         font_size = 10,

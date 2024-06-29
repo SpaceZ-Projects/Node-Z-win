@@ -5,11 +5,7 @@ from typing import Iterable
 from toga import (
     App,
     Box,
-    Button,
     Label,
-    Icon,
-    ImageView,
-    TextInput,
     Divider
 )
 from toga.widgets.base import Widget
@@ -344,37 +340,107 @@ class BlockIndex(Box):
         transaction_boxes = []
         for txid_data in txids:
             txid = txid_data.get('txid')
-            transaction_id = Label(
+            self.transaction_id = Label(
                 txid,
                 style=LabelStyle.block_transaction_id
             )
-            transaction_box = Box(
+            self.transcation_confirmations = Label(
+                f"",
+                style=LabelStyle.transaction_confirmations
+            )
+            self.transcation_value = Label(
+                "",
+                style=LabelStyle.transaction_value
+            )
+            self.transaction_details_box = Box(
+                style=BoxStyle.addresses_box
+            )
+            self.confirmations_box = Box(
+                style=BoxStyle.confirmations_box
+            )
+            self.transaction_box = Box(
                 style=BoxStyle.block_txids_box
             )
-            transaction_box.add(transaction_id)
-            transaction_boxes.append(transaction_box)
+            self.inputs_box = Box(
+                style=BoxStyle.transaction_address_box
+            )
+            self.outputs_box = Box(
+                style=BoxStyle.transaction_address_box
+            )
+            self.transaction_box.add(self.transaction_id)
             vout = txid_data.get('vout', [])
-            print(vout)
-            for vout_data in vout:
-                vout_value = vout_data.get('value')
-                script_pubkey = vout_data.get('scriptPubKey', {})
-                vout_addresses = script_pubkey.get('addresses', [])
-                if isinstance(vout_addresses, list) and len(vout_addresses) == 1:
-                    vout_address = vout_addresses[0]
-                else:
-                    vout_address = ', '.join(vout_addresses) if vout_addresses else 'Unknown'
-                output_label = Label(
-                    f"Output Value: {vout_address}, Output Value: {vout_value}"
+            if vout:
+                total_value = sum(vout_data.get('value', 0) for vout_data in vout)
+                for vout_data in vout:
+                    vout_value = vout_data.get('value')
+                    script_pubkey = vout_data.get('scriptPubKey', {})
+                    vout_addresses = script_pubkey.get('addresses', [])
+                    if isinstance(vout_addresses, list) and len(vout_addresses) == 1:
+                        vout_address = vout_addresses[0]
+                    else:
+                        vout_address = ', '.join(vout_addresses) if vout_addresses else 'Unknown'
+                    self.vout_address = Label(
+                        f"{vout_address}  {self.system.format_balance(vout_value)} BTCZ",
+                        style=LabelStyle.transaction_vout_address
+                    )
+                    self.outputs_box.add(self.vout_address)
+            else:
+                total_value = 0
+                self.vout_address = Label(
+                    f"No Outputs",
+                    style=LabelStyle.transaction_vout_address
                 )
-                transaction_box.add(output_label)
+                self.outputs_box.add(self.vout_address)
             vin = txid_data.get('vin', [])
-            for vin_data in vin:
-                vin_value = vin_data.get('value')
-                vin_address = vin_data.get('address')
-                input_label = Label(
-                    f"Input Address: {vin_address}, Value: {vin_value}"
+            if vin:
+                for vin_data in vin:
+                    vin_value = vin_data.get('value')
+                    vin_address = vin_data.get('address')
+                    if vin_value and vin_address:
+                        self.vin_address = Label(
+                            f"{vin_address}  {self.system.format_balance(vin_value)} BTCZ",
+                            style=LabelStyle.transaction_vin_address
+                        )
+                    elif vin_value and vin_address is None:
+                        self.vin_address = Label(
+                            f"Unparsed address  {self.system.format_balance(vin_value)} BTCZ",
+                            style=LabelStyle.transaction_vin_address
+                        )
+                    else:
+                        self.vin_address = Label(
+                            "No Inputs (Newly Generated Coins)",
+                            style=LabelStyle.transaction_vin_address
+                        )
+                    self.inputs_box.add(self.vin_address)
+            else:
+                self.vin_address = Label(
+                    "No Inputs",
+                    style=LabelStyle.transaction_vin_address
                 )
-                transaction_box.add(input_label)
-        await asyncio.sleep(2)
+                self.inputs_box.add(self.vin_address)
+            confirmations = self.result.get('confirmations', '0')
+            if confirmations == "0" or confirmations is None:
+                background_color = RED
+                confirmations.text = f"Unconfirmed Tx"
+            else:
+                background_color = GREEN
+                self.transcation_confirmations.text = f"Confirmations : {confirmations}"
+            self.transcation_confirmations.style.background_color = background_color
+            self.transcation_value.text = f"{self.system.format_balance(total_value)} BTCZ"
+            self.confirmations_box.add(
+                self.transcation_confirmations,
+                self.transcation_value
+            )
+            self.transaction_details_box.add(
+                self.inputs_box,
+                self.outputs_box
+            )
+            self.transaction_box.add(
+                self.transaction_details_box,
+                self.confirmations_box
+            )
+            
+            transaction_boxes.append(self.transaction_box)
+        
         for box in transaction_boxes:
             self.add(box)

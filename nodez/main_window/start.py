@@ -149,16 +149,22 @@ class StartNode(Window):
         
     async def waiting_node_status(self):
         await asyncio.sleep(1)
-        while True:
-            result = await self.commands.z_getTotalBalance()
-            if result:
-                self.starting_txt.text = "Starting GUI..."
-                await asyncio.sleep(2)
-                self.home_window = HomeWindow(self.app)
-                self.home_window.title = "MainMenu (Local)"
-                self.close()
-                return
-            else:
-                self.starting_txt.text = "Loading blocks..."
+        result = await self.commands.z_getTotalBalance()
+        if result:
+            self.home_window = HomeWindow(self.app)
+            self.home_window.title = "MainMenu (Local)"
+            self.close()
+            return
+        else:
+            while True:
+                result = await self.commands.z_getTotalBalance()
+                if result:
+                    self.starting_txt.text = "Starting GUI..."
+                    self.home_window = HomeWindow(self.app)
+                    self.home_window.title = "MainMenu (Local)"
+                    self.close()
+                    return
+                else:
+                    self.starting_txt.text = "Loading blocks..."
 
-            await asyncio.sleep(4)
+                await asyncio.sleep(4)

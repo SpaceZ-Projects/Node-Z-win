@@ -1,5 +1,6 @@
 import os
 import json
+import qrcode
 
 from toga import App
 
@@ -14,6 +15,30 @@ class SystemOp():
         self.config_path = self.app.paths.config
         self.logs_path = self.app.paths.logs
         self.cache_path = self.app.paths.cache
+
+
+    def qr_generate(self, address):
+        if not os.path.exists(self.cache_path):
+            os.makedirs(self.cache_path)
+            
+        qr_filename = f"qr_{address}.png"
+        qr_path = os.path.join(self.cache_path, qr_filename)
+        if os.path.exists(qr_path):
+            return qr_path
+        
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=5,
+            border=1,
+        )
+        qr.add_data(address)
+        qr.make(fit=True)
+        qr_img = qr.make_image(fill_color="black", back_color="white")
+        with open(qr_path, 'wb') as f:
+            qr_img.save(f)
+        
+        return qr_path
         
     
     def update_settings(self, setting_key, setting_value):

@@ -100,16 +100,28 @@ class RPCRequest():
             "getinfo",
             []
         )
+    
+
     def z_getTotalBalance(self):
         return self.make_rpc_request(
             "z_gettotalbalance",
             []
         )
+    
+
+    def getAddressBalance(self, address):
+        return self.make_rpc_request(
+            "getaddressbalance",
+            [{"addresses": [address]}]
+        )
+    
     def z_getBalance(self, address):
         return self.make_rpc_request(
             "z_getbalance",
             [f"{address}"]
         )
+    
+
     def getBlockchainInfo(self):
         return self.make_rpc_request(
             "getblockchaininfo",

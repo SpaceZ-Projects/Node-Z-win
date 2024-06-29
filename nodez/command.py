@@ -45,90 +45,94 @@ class ClientCommands():
         
     
     async def getInfo(self):
-        command = f'"{self.bitcoinz_cli_file}" getinfo'
+        command = f'{self.bitcoinz_cli_file} getinfo'
         return await self._run_command(command)
     
                   
     async def z_getTotalBalance(self):
-        command = f'"{self.bitcoinz_cli_file}" z_gettotalbalance'
+        command = f'{self.bitcoinz_cli_file} z_gettotalbalance'
         return await self._run_command(command)
     
     
     async def z_getBalance(self, address):
-        command = f'"{self.bitcoinz_cli_file}" z_getbalance "{address}"'
+        command = f'{self.bitcoinz_cli_file} z_getbalance "{address}"'
+        return await self._run_command(command)
+    
+    async def getAddressBalance(self, address):
+        command = f'{self.bitcoinz_cli_file} getaddressbalance "{{\\"addresses\\": [\\"{address}\\"]}}"'
         return await self._run_command(command)
     
     
     async def getBlockchainInfo(self):
-        command = f'"{self.bitcoinz_cli_file}" getblockchaininfo'
+        command = f'{self.bitcoinz_cli_file} getblockchaininfo'
         return await self._run_command(command)
     
     
     async def getNetworkSolps(self):
-        command = f'"{self.bitcoinz_cli_file}" getnetworksolps'
+        command = f'{self.bitcoinz_cli_file} getnetworksolps'
         return await self._run_command(command)
     
     
     async def getBestblockhash(self):
-        command = f'"{self.bitcoinz_cli_file}" getbestblockhash'
+        command = f'{self.bitcoinz_cli_file} getbestblockhash'
         return await self._run_command(command)
     
     
     async def getUnconfirmedBalance(self):
-        command = f'"{self.bitcoinz_cli_file}" getunconfirmedbalance'
+        command = f'{self.bitcoinz_cli_file} getunconfirmedbalance'
         return await self._run_command(command)
     
     
     async def getDeprecationInfo(self):
-        command = f'"{self.bitcoinz_cli_file}" getdeprecationinfo'
+        command = f'{self.bitcoinz_cli_file} getdeprecationinfo'
         return await self._run_command(command)
     
     
     async def getMempoolinfo(self):
-        command = f'"{self.bitcoinz_cli_file} getmempoolinfo'
+        command = f'{self.bitcoinz_cli_file} getmempoolinfo'
         return await self._run_command(command)
     
     
     async def verifyChain(self):
-        command = f'"{self.bitcoinz_cli_file}" verifychain'
+        command = f'{self.bitcoinz_cli_file} verifychain'
         return await self._run_command(command)
     
     
     async def listAddressgroupPings(self):
-        command = f'"{self.bitcoinz_cli_file}" listaddressgroupings'
+        command = f'{self.bitcoinz_cli_file} listaddressgroupings'
         return await self._run_command(command)
     
     
     async def z_listAddresses(self):
-        command = f'"{self.bitcoinz_cli_file}" z_listaddresses'
+        command = f'{self.bitcoinz_cli_file} z_listaddresses'
         return await self._run_command(command)
     
     
     async def validateAddress(self, address):
-        command = f'"{self.bitcoinz_cli_file}" validateaddress {address}'
+        command = f'{self.bitcoinz_cli_file} validateaddress {address}'
         return await self._run_command(command)
     
     
     async def z_validateAddress(self, address):
-        command = f'"{self.bitcoinz_cli_file}" z_validateaddress {address}'
+        command = f'{self.bitcoinz_cli_file} z_validateaddress {address}'
         return await self._run_command(command)
     
     
     async def listTransactions(self, limit):
-        command = f'"{self.bitcoinz_cli_file}" listtransactions "*" {limit}'
+        command = f'{self.bitcoinz_cli_file} listtransactions "*" {limit}'
         return await self._run_command(command)
     
     
     async def getTransaction(self, txid):
-        command = f'"{self.bitcoinz_cli_file}" gettransaction {txid}'
+        command = f'{self.bitcoinz_cli_file} gettransaction {txid}'
         return await self._run_command(command)
     
     
     async def sendToAddress(self, address, amount, comment):
         if comment:
-            command = f'"{self.bitcoinz_cli_file}" sendtoaddress "{address}" {amount} "{comment}"'
+            command = f'{self.bitcoinz_cli_file} sendtoaddress "{address}" {amount} "{comment}"'
         else:
-            command = f'"{self.bitcoinz_cli_file}" sendtoaddress "{address}" {amount}'
+            command = f'{self.bitcoinz_cli_file} sendtoaddress "{address}" {amount}'
         return await self._run_command(command)
     
     
@@ -160,6 +164,18 @@ class ClientCommands():
         command = f'{self.bitcoinz_cli_file} listreceivedbyaddress 0 true'
         return await self._run_command(command)
     
+    async def getAddressTxids(self, address):
+        command = f'{self.bitcoinz_cli_file} getaddresstxids "{{\\"addresses\\": [\\"{address}\\"]}}"'
+        return await self._run_command(command)
+    
+    async def getAddressMempool(self, address):
+        command = f'{self.bitcoinz_cli_file} getaddressmempool "{{\\"addresses\\": [\\"{address}\\"]}}"'
+        return await self._run_command(command)
+    
+    async def getAddressDeltas(self, address):
+        command = f'{self.bitcoinz_cli_file} getaddressdeltas "{{\\"addresses\\": [\\"{address}\\"], \\"chainInfo\\": true}}"'
+        return await self._run_command(command)
+    
     async def getTxout(self, txid):
         command = f'{self.bitcoinz_cli_file} gettxout "{txid}" 1'
         return await self._run_command(command)
@@ -181,5 +197,5 @@ class ClientCommands():
         return await self._run_command(command)
     
     async def z_listUnspent(self, address):
-        command = f'{self.bitcoinz_cli_file} z_listunspent 6 9999999 false "[\\"{address}\\"]"'
+        command = f'{self.bitcoinz_cli_file} z_listunspent 6 9999999 true "[\\"{address}\\"]"'
         return await self._run_command(command)

@@ -94,3 +94,32 @@ class BoxStyle():
         padding = 5,
         background_color = GRAY
     )
+
+
+    address_info = Pack(
+        direction = COLUMN,
+        background_color = BLACK,
+        flex = 1
+    )
+
+    address_balances_box = Pack(
+        direction = ROW,
+        background_color = BLACK
+    )
+
+    address_balances_list_box = Pack(
+        direction = COLUMN,
+        background_color = BLACK,
+        flex = 1
+    )
+
+    address_lines_box = Pack(
+        direction = ROW,
+        background_color = BLACK
+    )
+
+    address_transaction_box = Pack(
+        direction = COLUMN,
+        padding = 5,
+        background_color = GRAY
+    )

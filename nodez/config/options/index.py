@@ -62,6 +62,27 @@ class insightConfig(Box):
                 switch, "insightexplorer"
             )
         )
+        self.addressindex_switch = Switch(
+            "addressindex",
+            style=SwitchStyle.switch,
+            on_change=lambda switch: self.update_config_switch(
+                switch, "addressindex"
+            )
+        )
+        self.timestampindex_switch = Switch(
+            "timestampindex",
+            style=SwitchStyle.switch,
+            on_change=lambda switch: self.update_config_switch(
+                switch, "timestampindex"
+            )
+        )
+        self.spentindex_switch = Switch(
+            "spentindex",
+            style=SwitchStyle.switch,
+            on_change=lambda switch: self.update_config_switch(
+                switch, "spentindex"
+            )
+        )
         self.txindex_info = Button(
             "?",
             id="txindex",
@@ -92,7 +113,10 @@ class insightConfig(Box):
         self.explorer_switch_box.add(
             self.txindex_switch,
             self.experimentalfeatures_switch,
-            self.insightexplorer_switch
+            self.insightexplorer_switch,
+            self.addressindex_switch,
+            self.timestampindex_switch,
+            self.spentindex_switch
         )
         self.explorer_button_box.add(
             self.txindex_info,
@@ -117,6 +141,7 @@ class insightConfig(Box):
         txindex = None
         experimentalfeatures = None
         insightexplorer = None
+        addressindex = None
         with open(self.file_path, 'r') as file:
             lines = file.readlines()
             for line in lines:
@@ -129,19 +154,29 @@ class insightConfig(Box):
                         experimentalfeatures = value
                     elif key == "insightexplorer":
                         insightexplorer = value
+                    elif key == "addressindex":
+                        addressindex = value
+                    elif key == "timestampindex":
+                        timestampindex = value
+                    elif key == "spentindex":
+                        spentindex = value
                         
         await self.update_values(
                     txindex, experimentalfeatures,
-                    insightexplorer
+                    insightexplorer, addressindex,
+                    timestampindex, spentindex
                 )
         
     async def update_values(
         self,
-        txindex, experimentalfeatures, insightexplorer
+        txindex, experimentalfeatures, insightexplorer, addressindex, timestampindex, spentindex
     ):
         self.txindex_switch.value = (txindex == "1")
         self.experimentalfeatures_switch.value = (experimentalfeatures == "1")
         self.insightexplorer_switch.value = (insightexplorer == "1")
+        self.addressindex_switch.value = (addressindex == "1")
+        self.timestampindex_switch.value = (timestampindex == "1")
+        self.spentindex_switch.value = (spentindex == "1")
         
         
     def update_config_switch(self, switch, key):

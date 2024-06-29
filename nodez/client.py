@@ -265,3 +265,10 @@ class RPCRequest():
             "getrawtransaction",
             [f"{txid}", 1]
         )
+    
+    
+    def getAddressDeltas(self, address):
+        return self.make_rpc_request(
+            "getaddressdeltas",
+            [{"addresses": [address]}]
+        )

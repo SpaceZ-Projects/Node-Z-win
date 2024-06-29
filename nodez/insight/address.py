@@ -1,7 +1,6 @@
 import asyncio
 import os
 import json
-from collections import Counter
 from datetime import datetime
 from typing import Iterable
 
@@ -163,9 +162,15 @@ class AddressIndex(Box):
 
 
     async def get_address_txids(self):
-        result = await self.command.getAddressDeltas(self.address)
+        config_path = self.app.paths.config
+        db_path = os.path.join(config_path, 'config.db')
+        if os.path.exists(db_path):
+            result = self.client.getAddressDeltas(self.address)
+        else:
+            result = await self.command.getAddressDeltas(self.address)
+            result = json.loads(result)
         if result is not None:
-            self.txids_result = json.loads(result)
+            self.txids_result = result
             self.total_txids = len(self.txids_result)
             self.number_transactions.text = str(self.total_txids)
             self.number_transactions_box.add(
@@ -203,7 +208,6 @@ class AddressIndex(Box):
 
                 
     async def load_more_txids(self, button):
-        transaction_boxes = []
         self.remove(
             self.loadmore_button
         )
@@ -220,10 +224,10 @@ class AddressIndex(Box):
             transaction_box.add(
                 transaction_id
             )
-            transaction_boxes.append(transaction_box)
-            
-        for box in transaction_boxes:
-            self.add(box)
+            await asyncio.sleep(1)
+            self.add(
+                transaction_box
+            )
 
         self.total_txids -= 10
         if self.total_txids > 0:

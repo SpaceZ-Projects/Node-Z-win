@@ -23,6 +23,7 @@ Git
 On Windows open PowerShell and run the following script:
 
 ```
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/ezzygarmyz/nodez-win/main/scripts/build-win.ps1" -OutFile "$env:TEMP\build-win.ps1"; Invoke-Expression -Command "$env:TEMP\build-win.ps1"
 ```
 

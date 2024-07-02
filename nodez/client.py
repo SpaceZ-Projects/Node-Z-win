@@ -102,6 +102,20 @@ class RPCRequest():
         )
     
 
+    def getNewAddress(self):
+        return self.make_rpc_request(
+            "getnewaddress",
+            []
+        )
+    
+
+    def z_getNewAddress(self):
+        return self.make_rpc_request(
+            "z_getnewaddress",
+            []
+        )
+    
+
     def z_getTotalBalance(self):
         return self.make_rpc_request(
             "z_gettotalbalance",
@@ -271,4 +285,16 @@ class RPCRequest():
         return self.make_rpc_request(
             "getaddressdeltas",
             [{"addresses": [address]}]
+        )
+    
+    def listUnspent(self, address):
+        return self.make_rpc_request(
+            "listunspent",
+            [1, 9999999, [address]]
+        )
+    
+    def z_listUnspent(self, address):
+        return self.make_rpc_request(
+            "z_listunspent",
+            [1, 9999999, True, [address]]
         )

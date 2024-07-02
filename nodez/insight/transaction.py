@@ -6,11 +6,7 @@ from typing import Iterable
 from toga import (
     App,
     Box,
-    Button,
     Label,
-    Icon,
-    ImageView,
-    TextInput,
     Divider
 )
 from toga.widgets.base import Widget

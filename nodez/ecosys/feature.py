@@ -5,8 +5,8 @@ from toga import (
     App,
     Window,
     Box,
-    ImageView,
-    Label
+    Label,
+    ImageView
 )
 from toga.constants import VISIBLE
 
@@ -19,10 +19,10 @@ from ..system import SystemOp
 
 
 
-class WalletWindow(Window):
+class EcosysWindow(Window):
     def __init__(self, app:App, window_button):
         super().__init__(
-            title="Wallet Manage",
+            title="Ecosys Features",
             size=(800, 700),
             resizable=False,
             on_close=self.close_window
@@ -41,7 +41,7 @@ class WalletWindow(Window):
             style=LabelStyle.under_dev
         )
         self.main_box = Box(
-            style=BoxStyle.wallet_main_box
+            style=BoxStyle.ecosys_main_box
         )
         self.main_box.add(
             self.under_dev,
@@ -54,5 +54,5 @@ class WalletWindow(Window):
         
     def close_window(self, window):
         self.window_button.style.visibility = VISIBLE
-        self.system.update_settings('wallet_window', False)
+        self.system.update_settings('ecosys_window', False)
         self.close()

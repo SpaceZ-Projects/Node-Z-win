@@ -6,11 +6,13 @@ from toga import (
     Window,
     Box,
     Label,
-    TextInput,
-    Button,
-    Icon
+    ImageView
 )
 from toga.constants import VISIBLE
+
+from .styles.box import BoxStyle
+from .styles.image import ImageStyle
+from .styles.label import LabelStyle
 
 from ..system import SystemOp
 
@@ -20,8 +22,8 @@ from ..system import SystemOp
 class MiningWindow(Window):
     def __init__(self, app:App, window_button):
         super().__init__(
-            title="Wallet",
-            size=(600, 600),
+            title="Mining Tools",
+            size=(800, 700),
             resizable=False,
             on_close=self.close_window
         )
@@ -29,6 +31,24 @@ class MiningWindow(Window):
         position_center = self.system.windows_screen_center(self.size)
         self.position = position_center
         self.window_button = window_button
+
+        self.under_dev = ImageView(
+            ("icones/under_dev.gif"),
+            style=ImageStyle.under_dev
+        )
+        self.under_dev_txt = Label(
+            "Under DEv...",
+            style=LabelStyle.under_dev
+        )
+        self.main_box = Box(
+            style=BoxStyle.mining_main_box
+        )
+        self.main_box.add(
+            self.under_dev,
+            self.under_dev_txt
+        )
+
+        self.content = self.main_box
         
         self.show()
         

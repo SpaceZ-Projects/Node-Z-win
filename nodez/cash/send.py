@@ -374,13 +374,22 @@ class CashWindow(Window):
         if not self.select_address.value.select_address:
             return
         address = self.select_address.value.select_address
-        result = None
         if address.startswith("z"):
-            result = await self.command.z_listUnspent(address)
+            print(address)
+            await self.get_listunspent_zaddr(address)
         elif address.startswith("t"):
-            result = await self.command.listUnspent(address)
-        if result:
+            await self.get_listunspent_taddr(address)
+
+
+    async def get_listunspent_zaddr(self, address):
+        config_path = self.app.paths.config
+        db_path = os.path.join(config_path, 'config.db')
+        if os.path.exists(db_path):
+            result = self.client.z_listUnspent(address)
+        else:
+            result = await self.command.z_listUnspent(address)
             result = json.loads(result)
+        if result is not None:
             formatted_result = ""
             for data in result:
                 txid = data['txid']
@@ -399,6 +408,43 @@ class CashWindow(Window):
                     f"Address: {address}\n"
                     f"Amount: {amount}\n"
                     f"Change: {change}\n\n"
+                )
+            
+            self.info_dialog("List unspent", formatted_result)
+        else:
+            self.info_dialog("List unspent", "No unspent outputs found.")
+
+
+    async def get_listunspent_taddr(self, address):
+        config_path = self.app.paths.config
+        db_path = os.path.join(config_path, 'config.db')
+        if os.path.exists(db_path):
+            result = self.client.listUnspent(address)
+        else:
+            result = await self.command.listUnspent(address)
+            result = json.loads(result)
+        if result is not None:
+            formatted_result = ""
+            for data in result:
+                txid = data['txid']
+                vout = data['vout']
+                generated = data['generated']
+                address = data['address']
+                scriptpubkey = data['scriptPubKey']
+                amount = data['amount']
+                confirmations = data['confirmations']
+                spendable = data['spendable']
+
+
+                formatted_result += (
+                    f"Txid: {txid}\n"
+                    f"Vout: {vout}\n"
+                    f"Confirmations: {confirmations}\n"
+                    f"Spendable: {spendable}\n"
+                    f"Address: {address}\n"
+                    f"Amount: {amount}\n"
+                    f"Generated: {generated}\n\n"
+                    f"scriptPubKey: {scriptpubkey}\n\n"
                 )
             
             self.info_dialog("List unspent", formatted_result)

@@ -28,7 +28,11 @@ from ..system import SystemOp
 from ..cash.send import CashWindow
 from ..wallet.receive import WalletWindow
 from ..insight.explorer import ExplorerWindow
+from ..message.chat import MessageWindow
+from ..ecosys.feature import EcosysWindow
+from ..mining.miner import MiningWindow
 from ..browser.navigator import BrowserWindow
+
 
 
 class HomeWindow(Window):
@@ -40,7 +44,7 @@ class HomeWindow(Window):
             on_close=self.close_window
         )
         self.client = RPCRequest(self.app)
-        self.commands = ClientCommands(self.app)
+        self.command = ClientCommands(self.app)
         self.system = SystemOp(self.app)
         
         self.cash_button = Button(
@@ -313,8 +317,8 @@ class HomeWindow(Window):
                     balances = self.client.z_getTotalBalance()
                     unconfirmed_balances = self.client.getUnconfirmedBalance()
                 else:
-                    balances = await self.commands.z_getTotalBalance()
-                    unconfirmed_balances = await self.commands.getUnconfirmedBalance()
+                    balances = await self.command.z_getTotalBalance()
+                    unconfirmed_balances = await self.command.getUnconfirmedBalance()
                 if balances is not None:
                     if isinstance(balances, str):
                         balances = json.loads(balances)
@@ -367,7 +371,7 @@ class HomeWindow(Window):
                 if os.path.exists(db_path):
                     total_balances = self.client.z_getTotalBalance()
                 else:
-                    total_balances = await self.commands.z_getTotalBalance()
+                    total_balances = await self.command.z_getTotalBalance()
                 if total_balances is not None:
                     if isinstance(total_balances, str):
                         balances = json.loads(total_balances)
@@ -404,7 +408,7 @@ class HomeWindow(Window):
                 if networksol is not None:
                     netsol = networksol
             if not os.path.exists(db_path):
-                info = await self.commands.getBlockchainInfo()
+                info = await self.command.getBlockchainInfo()
                 if isinstance(info, str):
                     info = json.loads(info)
                     if info is not None:
@@ -412,12 +416,12 @@ class HomeWindow(Window):
                         blocks = info.get('blocks')
                         sync = info.get('verificationprogress')
                         difficulty = self.system.format_balance(float(info.get("difficulty")))
-                deprecation = await self.commands.getDeprecationInfo()
+                deprecation = await self.command.getDeprecationInfo()
                 if isinstance(deprecation, str):
                     deprecation = json.loads(deprecation)
                     if deprecation is not None:
                         dep = deprecation.get('deprecationheight')
-                networksol = await self.commands.getNetworkSolps()
+                networksol = await self.command.getNetworkSolps()
                 if networksol is not None:
                     if isinstance(networksol, str):
                         networksol= json.loads(networksol)
@@ -442,10 +446,13 @@ class HomeWindow(Window):
         self.system.update_settings('cash_window', True)
         
     def open_wallet_window(self, button):
-        self.info_dialog(
-            "Under Dev",
-            "This feature is under dev..."
+        self.wallet_button.style.visibility = HIDDEN
+        self.wallet_window = WalletWindow(
+            self.app,
+            self.wallet_button
         )
+        self.system.update_settings('wallet_window', True)
+        self.wallet_window.show()
         
     def open_explorer_window(self, button):
         self.explorer_button.style.visibility = HIDDEN
@@ -456,24 +463,37 @@ class HomeWindow(Window):
         )
         self.system.update_settings('explorer_window', True)
         self.explorer_window.show()
+
         
     def open_message_window(self, button):
-        self.info_dialog(
-            "Under Dev",
-            "This feature is under dev..."
+        self.message_button.style.visibility = HIDDEN
+        self.message_window = MessageWindow(
+            self.app,
+            self.message_button
         )
+        self.system.update_settings('message_window', True)
+        self.message_window.show()
+
         
     def open_mining_window(self, button):
-        self.info_dialog(
-            "Under Dev",
-            "This feature is under dev..."
+        self.mining_button.style.visibility = HIDDEN
+        self.mining_window = MiningWindow(
+            self.app,
+            self.mining_button
         )
+        self.system.update_settings('mining_window', True)
+        self.mining_window.show()
+
     
     def open_ecosys_window(self, button):
-        self.info_dialog(
-            "Under Dev",
-            "This feature is under dev..."
+        self.ecosys_button.style.visisbility = HIDDEN
+        self.ecosys_window = EcosysWindow(
+            self.app,
+            self.ecosys_button
         )
+        self.system.update_settings('ecosys_window', True)
+        self.ecosys_window.show()
+        
         
     def open_browser_window(self, button):
         self.browser_button.style.visibility = HIDDEN
@@ -487,13 +507,57 @@ class HomeWindow(Window):
     async def close_window(self, window):
         if self.system.check_window_is_open():
             return
+        if self.title == "MainMenu (Local)":
+            await self.ask_stopping_node()
+        else:
+            await self.close_rpc_window()
 
+
+
+    async def ask_stopping_node(self):
+        async def on_confirm(window, result):
+            if result is False:
+                await self.skip_node_and_close()
+            if result is True:
+                await self.stop_node()
+        self.question_dialog(
+            "Exit GUI...",
+            "You are about to exit and return to the main wizard, do you want to stop node ?",
+            on_result=on_confirm
+        )
+
+
+    async def skip_node_and_close(self):
+        try:
+            tasks = [task for task in (
+                self.update_price_task,
+                self.update_balance_task,
+                self.update_info_task
+            ) if not task.done()]
+            for task in tasks:
+                task.cancel()
+
+            await asyncio.gather(*tasks, return_exceptions=True)
+            
+        except asyncio.CancelledError:
+            pass
+        self.system.clean_config_path()
+        self.close()
+        await asyncio.sleep(1)
+        self.app.main_window.show()
+
+
+    async def close_rpc_window(self):
         async def on_confirm(window, result):
             if result is False:
                 return
             if result is True:
                 try:
-                    tasks = [task for task in (self.update_price_task, self.update_balance_task, self.update_info_task) if not task.done()]
+                    tasks = [task for task in (
+                        self.update_price_task,
+                        self.update_balance_task,
+                        self.update_info_task
+                    ) if not task.done()]
                     for task in tasks:
                         task.cancel()
 
@@ -510,13 +574,41 @@ class HomeWindow(Window):
             "You are about to exit and return to the main wizard, are you sure?",
             on_result=on_confirm
         )
-        
+
+    
+    async def stop_node(self):
+        try:
+            tasks = [task for task in (
+                self.update_price_task,
+                self.update_balance_task,
+                self.update_info_task
+            ) if not task.done()]
+            for task in tasks:
+                task.cancel()
+
+            await asyncio.gather(*tasks, return_exceptions=True)
+            self.close()
+            result = await self.command.stopNode()
+            if result:
+                await asyncio.sleep(10)
+
+        except asyncio.CancelledError:
+            pass
+        self.system.clean_config_path()
+        await asyncio.sleep(1)
+        self.app.main_window.show()
+
+
 
     async def close_all_windows(self):
         async def on_confirm(window, result):
             if result is None:
                 try:
-                    tasks = [task for task in (self.update_price_task, self.update_balance_task, self.update_info_task) if not task.done()]
+                    tasks = [task for task in (
+                        self.update_price_task,
+                        self.update_balance_task,
+                        self.update_info_task
+                    ) if not task.done()]
                     for task in tasks:
                         task.cancel()
 

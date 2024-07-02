@@ -55,7 +55,8 @@ class BoxStyle():
 
     addresses_box = Pack(
         direction = ROW,
-        background_color = BLACK
+        background_color = BLACK,
+        flex = 1
     )
 
     transaction_address_box = Pack(

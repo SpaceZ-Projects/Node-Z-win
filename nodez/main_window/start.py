@@ -70,7 +70,7 @@ class StartNode(Window):
         if result:
             self.app.main_window.hide()
             self.local_button.enabled = True
-            await asyncio.sleep(2)
+            await asyncio.sleep(1)
             self.home_window = HomeWindow(self.app)
             self.home_window.title = "MainMenu (Local)"
         else:

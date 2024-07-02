@@ -90,7 +90,6 @@ class BrowserWindow(Window):
         if not parsed_url.scheme:
             url = "https://" + url
         try:
-            # Validate URL
             parsed_url = urlparse(url)
             url = urlunparse(parsed_url)
             self.url_input.value = url
@@ -107,11 +106,14 @@ class BrowserWindow(Window):
         
         
     async def close_window(self, window):
-        self.window_button.style.visibility = 'visible'  # Use string 'visible' assuming VISIBLE is a string constant
+        self.window_button.style.visibility = VISIBLE
         self.system.update_settings('browser_window', False)
         self.close()
 
         cache_path = self.app.paths.cache
         if os.path.exists(cache_path):
-            await asyncio.sleep(5)
-            shutil.rmtree(cache_path)
+            try:
+                await asyncio.sleep(10)
+                shutil.rmtree(cache_path)
+            except OSError as e:
+                print(f"Error deleting cache: {e}")

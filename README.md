@@ -16,6 +16,7 @@ Node-Z is a GUI interface designed to manage BitcoinZ nodes through RPC connecti
 
 ### Requirements :
 Python 3.8 or higher
+Git
 
 ### Build App :
 

@@ -41,11 +41,25 @@ class ClientCommands():
         except Exception as e:
             print(f"An error occurred while running command {command}: {e}")
             return None
-           
+        
+    
+    async def stopNode(self):
+        command = f'{self.bitcoinz_cli_file} stop'
+        return await self._run_command(command)       
         
     
     async def getInfo(self):
         command = f'{self.bitcoinz_cli_file} getinfo'
+        return await self._run_command(command)
+    
+
+    async def getNewAddress(self):
+        command = f'{self.bitcoinz_cli_file} getnewaddress'
+        return await self._run_command(command)
+    
+
+    async def z_getNewAddress(self):
+        command = f'{self.bitcoinz_cli_file} z_getnewaddress'
         return await self._run_command(command)
     
                   
@@ -160,42 +174,52 @@ class ClientCommands():
         command = f'{self.bitcoinz_cli_file} getblock "{block}" 2'
         return await self._run_command(command)
     
+    
     async def listReceivedByAddress(self):
         command = f'{self.bitcoinz_cli_file} listreceivedbyaddress 0 true'
         return await self._run_command(command)
+    
     
     async def getAddressTxids(self, address):
         command = f'{self.bitcoinz_cli_file} getaddresstxids "{{\\"addresses\\": [\\"{address}\\"]}}"'
         return await self._run_command(command)
     
+    
     async def getAddressMempool(self, address):
         command = f'{self.bitcoinz_cli_file} getaddressmempool "{{\\"addresses\\": [\\"{address}\\"]}}"'
         return await self._run_command(command)
+    
     
     async def getAddressDeltas(self, address):
         command = f'{self.bitcoinz_cli_file} getaddressdeltas "{{\\"addresses\\": [\\"{address}\\"], \\"chainInfo\\": true}}"'
         return await self._run_command(command)
     
+    
     async def getTxout(self, txid):
         command = f'{self.bitcoinz_cli_file} gettxout "{txid}" 1'
         return await self._run_command(command)
+    
     
     async def getSpentInfo(self, txid):
         command = f'{self.bitcoinz_cli_file} getspentinfo "{{\\"txid\\": \\"{txid}\\", \\"index\\": 4}}"'
         return await self._run_command(command)
     
+    
     async def getRawTransaction(self, txid):
         command = f'{self.bitcoinz_cli_file} getrawtransaction "{txid}" 1'
         return await self._run_command(command)
+    
     
     async def z_listOperationIds(self):
         command = f'{self.bitcoinz_cli_file} z_listoperationids'
         return await self._run_command(command)
     
+    
     async def listUnspent(self, address):
-        command = f'{self.bitcoinz_cli_file} listunspent 6 9999999 "[\\"{address}\\"]"'
+        command = f'{self.bitcoinz_cli_file} listunspent 1 9999999 "[\\"{address}\\"]"'
         return await self._run_command(command)
     
+    
     async def z_listUnspent(self, address):
-        command = f'{self.bitcoinz_cli_file} z_listunspent 6 9999999 true "[\\"{address}\\"]"'
+        command = f'{self.bitcoinz_cli_file} z_listunspent 1 9999999 true "[\\"{address}\\"]"'
         return await self._run_command(command)

@@ -65,6 +65,9 @@ class SystemOp():
                 'cash_window',
                 'wallet_window',
                 'explorer_window',
+                'message_window',
+                'ecosys_window',
+                'mining_window',
                 'browser_window'
                 ]
                    ):

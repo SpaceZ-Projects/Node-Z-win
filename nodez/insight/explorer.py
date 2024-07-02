@@ -149,7 +149,7 @@ class ExplorerWindow(Window):
             self.main_box.add(
                 self.details_container
             )
-            await asyncio.sleep(2)
+            await asyncio.sleep(5)
             self.explorer_input.readonly = False
             self.details_container.style.visibility = VISIBLE
 

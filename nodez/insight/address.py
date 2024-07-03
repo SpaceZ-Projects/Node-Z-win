@@ -179,7 +179,8 @@ class AddressIndex(Box):
                 self.number_transactions_box
             )
             start_index = max(self.total_txids - 10, 0)
-            for item in reversed(self.txids_result[start_index:]):
+            print(start_index)
+            for item in reversed(self.txids_result[start_index:self.total_txids]):
                 txid = item["txid"]
                 transaction_id_label = Label(
                     txid,
@@ -272,30 +273,103 @@ class AddressIndex(Box):
                 on_press=self.load_more_txids
             )
             self.add(self.loadmore_button)
+        self.total_txids -= 10
 
                 
     async def load_more_txids(self, button):
-        self.remove(
-            self.loadmore_button
-        )
+        config_path = self.app.paths.config
+        db_path = os.path.join(config_path, 'config.db')
+        self.remove(self.loadmore_button)
         start_index = max(self.total_txids - 20, 0)
         for item in reversed(self.txids_result[start_index:self.total_txids]):
             txid = item["txid"]
-            transaction_id = Label(
-                txid,
-                style=LabelStyle.address_transaction_id
-            )
-            transaction_box = Box(
-                style=BoxStyle.address_transaction_box
-            )
-            transaction_box.add(
-                transaction_id
-            )
-            await asyncio.sleep(1)
-            self.add(
-                transaction_box
-            )
-
+            if os.path.exists(db_path):
+                txid_details = self.client.getRawTransaction(txid)
+            else:
+                txid_details = await self.command.getRawTransaction(txid)
+                txid_details = json.loads(txid_details)
+            if txid_details:
+                vin_address_box = Box(
+                    style=BoxStyle.transaction_address_box
+                )
+                vout_address_box = Box(
+                    style=BoxStyle.transaction_address_box
+                )
+                addresses_box = Box(
+                    style=BoxStyle.addresses_box
+                )
+                confirmations = Label(
+                    "",
+                    style=LabelStyle.transaction_confirmations
+                )
+                value = Label(
+                    "",
+                    style=LabelStyle.transaction_value
+                )
+                confirmations_box = Box(
+                    style=BoxStyle.confirmations_box
+                )
+                
+                vin = txid_details.get('vin', [])
+                for data in vin:
+                    vin_value = data.get('value')
+                    vin_address = data.get('address')
+                    if vin_value and vin_address:
+                        vin_address_label = Label(
+                            f"{vin_address}  {self.system.format_balance(vin_value)} BTCZ",
+                            style=LabelStyle.transaction_vin_address
+                        )
+                    else:
+                        vin_address_label = Label(
+                            "No Inputs (Newly Generated Coins)",
+                            style=LabelStyle.transaction_vin_address
+                        )
+                    vin_address_box.add(vin_address_label)
+                
+                vout = txid_details.get('vout', [])
+                total_value = sum(vout_data.get('value', 0) for vout_data in vout)
+                for data in vout:
+                    script_pubkey = data.get('scriptPubKey', {})
+                    vout_value = data.get('value')
+                    vout_addresses = script_pubkey.get('addresses', [])
+                    if isinstance(vout_addresses, list) and len(vout_addresses) == 1:
+                        vout_address = vout_addresses[0]
+                    else:
+                        vout_address = ', '.join(vout_addresses) if vout_addresses else 'Unknown'
+                    vout_address_label = Label(
+                        f"{vout_address}  {self.system.format_balance(vout_value)} BTCZ",
+                        style=LabelStyle.transaction_vout_address
+                    )
+                    vout_address_box.add(
+                        vout_address_label
+                    )
+                confirmations_result = txid_details.get('confirmations', '0')
+                confirmations.text = f"Confirmations : {confirmations_result}"
+                confirmations.style.background_color = GREEN
+                value.text = f"{self.system.format_balance(total_value)} BTCZ"
+                addresses_box.add(
+                    vin_address_box,
+                    vout_address_box
+                )
+                confirmations_box.add(
+                    confirmations,
+                    value
+                )
+                transaction_id_label = Label(
+                    txid,
+                    style=LabelStyle.address_transaction_id
+                )
+                transaction_box = Box(
+                    style=BoxStyle.address_transaction_box
+                )
+                transaction_box.add(
+                    transaction_id_label,
+                    addresses_box,
+                    confirmations_box)
+                self.add(transaction_box)
+            
+            await asyncio.sleep(0.1)
+        
         self.total_txids -= 10
-        if self.total_txids > 0:
+        if self.total_txids > 10:
             self.add(self.loadmore_button)        

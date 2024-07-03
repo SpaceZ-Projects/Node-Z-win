@@ -38,7 +38,7 @@ from ..browser.navigator import BrowserWindow
 class HomeWindow(Window):
     def __init__(self, app:App):
         super().__init__(
-            size=(835, 130),
+            size=(925, 130),
             position=(0, 5),
             resizable=False,
             on_close=self.close_window
@@ -81,6 +81,11 @@ class HomeWindow(Window):
             icon=Icon("icones/browser"),
             style=ButtonStyle.menu_button,
             on_press=self.open_browser_window
+        )
+        self.stop_button = Button(
+            icon=Icon("icones/stop_node"),
+            style=ButtonStyle.menu_button,
+            on_press=self.ask_stopping_node
         )
         self.divider_menu = Divider(
             direction=Direction.HORIZONTAL,
@@ -262,7 +267,8 @@ class HomeWindow(Window):
             self.message_button,
             self.ecosys_button,
             self.mining_button,
-            self.browser_button
+            self.browser_button,
+            self.stop_button
         )
         self.blockchain_info_box.add(
             self.chain_txt,
@@ -507,24 +513,34 @@ class HomeWindow(Window):
     async def close_window(self, window):
         if self.system.check_window_is_open():
             return
-        if self.title == "MainMenu (Local)":
-            await self.ask_stopping_node()
-        else:
-            await self.close_rpc_window()
-
-
-
-    async def ask_stopping_node(self):
         async def on_confirm(window, result):
             if result is False:
-                await self.skip_node_and_close()
+                return
             if result is True:
-                await self.stop_node()
+                await self.skip_node_and_close()
         self.question_dialog(
             "Exit GUI...",
-            "You are about to exit and return to the main wizard, do you want to stop node ?",
+            "You are about to exit and return to the main wizard, are you sure?",
             on_result=on_confirm
         )
+
+
+    async def ask_stopping_node(self, window):
+        if self.system.check_window_is_open():
+            return
+        if self.title == "MainMenu (Local)":
+            async def on_confirm(window, result):
+                if result is False:
+                    return
+                if result is True:
+                    await self.stopping_node()
+            self.question_dialog(
+                "Stopping Node...",
+                "You are about to stop the node and return to the wizard, are you sure?",
+                on_result=on_confirm
+            )
+        else:
+            self.stop_button.enabled = False
 
 
     async def skip_node_and_close(self):
@@ -546,37 +562,8 @@ class HomeWindow(Window):
         await asyncio.sleep(1)
         self.app.main_window.show()
 
-
-    async def close_rpc_window(self):
-        async def on_confirm(window, result):
-            if result is False:
-                return
-            if result is True:
-                try:
-                    tasks = [task for task in (
-                        self.update_price_task,
-                        self.update_balance_task,
-                        self.update_info_task
-                    ) if not task.done()]
-                    for task in tasks:
-                        task.cancel()
-
-                    await asyncio.gather(*tasks, return_exceptions=True)
-                except asyncio.CancelledError:
-                    pass
-                self.system.clean_config_path()
-                self.close()
-                await asyncio.sleep(1)
-                self.app.main_window.show()
-
-        self.question_dialog(
-            "Exit GUI...",
-            "You are about to exit and return to the main wizard, are you sure?",
-            on_result=on_confirm
-        )
-
     
-    async def stop_node(self):
+    async def stopping_node(self):
         try:
             tasks = [task for task in (
                 self.update_price_task,

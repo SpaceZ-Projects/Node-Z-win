@@ -456,7 +456,7 @@ class CashWindow(Window):
     async def transaction_window(self, txid):
         active_windows = list(self.app.windows)
         for explorer_window in active_windows:
-            if explorer_window.title.startswith("Insight Explorer"):
+            if explorer_window.title == "Insight Explorer":
                 explorer_window.close()
 
         self.explorer_button.style.visibility = HIDDEN
@@ -887,11 +887,11 @@ class CashWindow(Window):
         )
         config_path = self.app.paths.config
         db_path = os.path.join(config_path, 'config.db')
-        transctions_limit = 25
+        transactions_limit = 25
         if os.path.exists(db_path):
-            transactions_data = self.client.listTransactions(transctions_limit)
+            transactions_data = self.client.listTransactions(transactions_limit)
         else:
-            transactions_data = await self.command.listTransactions(transctions_limit)
+            transactions_data = await self.command.listTransactions(transactions_limit)
             if isinstance(transactions_data, str):
                 transactions_data = json.loads(transactions_data)
         if transactions_data is not None:

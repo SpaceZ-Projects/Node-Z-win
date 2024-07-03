@@ -20,6 +20,11 @@ Node-Z is a GUI interface designed to manage BitcoinZ nodes through RPC connecti
 - Git
 
 ### DEV Mode (Shell)
+Clone the Repository:
+```
+git clone https://github.com/ezzygarmyz/nodez-win.git
+cd nodez-win
+```
 Create and activate a virtual environment :
 ```
 python -m venv env
@@ -32,11 +37,6 @@ pip install briefcase
 Install Requirements Packages :
 ```
 pip install -U -r requirements.txt
-```
-Clone the Repository:
-```
-git clone https://github.com/ezzygarmyz/nodez-win.git
-cd nodez-win
 ```
 Run the App
 ```

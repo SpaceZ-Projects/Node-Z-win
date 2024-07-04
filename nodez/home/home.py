@@ -194,6 +194,14 @@ class HomeWindow(Window):
             "NaN",
             style=LabelStyle.home_difficulty_value 
         )
+        self.connected_node_txt = Label(
+            "Conn :",
+            style=LabelStyle.home_connected_node_txt
+        )
+        self.connected_node_value = Label(
+            "NaN",
+            style=LabelStyle.home_connected_node_value
+        )
         self.buttons_box = Box(
             style=BoxStyle.home_buttons_box
         )
@@ -282,7 +290,9 @@ class HomeWindow(Window):
             self.networksol_txt,
             self.networksol_value,
             self.difficulty_txt,
-            self.difficulty_value
+            self.difficulty_value,
+            self.connected_node_txt,
+            self.connected_node_value
         )
         self.menu_box.add(
             self.buttons_box,
@@ -402,36 +412,33 @@ class HomeWindow(Window):
             db_path = os.path.join(config_path, 'config.db')
             if os.path.exists(db_path):
                 info = self.client.getBlockchainInfo()
-                if info is not None:
-                    chain = info["chain"]
-                    blocks = info["blocks"]
-                    sync = info["verificationprogress"]
-                    difficulty = self.system.format_balance(float(info["difficulty"]))
                 deprecation = self.client.getDeprecationInfo()
-                if deprecation is not None:
-                    dep = deprecation["deprecationheight"]
                 networksol = self.client.getNetworkSolps()
-                if networksol is not None:
-                    netsol = networksol
-            if not os.path.exists(db_path):
+                connectioncount = self.client.getConnectionCount()
+            else:
                 info = await self.command.getBlockchainInfo()
                 if isinstance(info, str):
                     info = json.loads(info)
-                    if info is not None:
-                        chain = info.get('chain')
-                        blocks = info.get('blocks')
-                        sync = info.get('verificationprogress')
-                        difficulty = self.system.format_balance(float(info.get("difficulty")))
                 deprecation = await self.command.getDeprecationInfo()
                 if isinstance(deprecation, str):
                     deprecation = json.loads(deprecation)
-                    if deprecation is not None:
-                        dep = deprecation.get('deprecationheight')
                 networksol = await self.command.getNetworkSolps()
-                if networksol is not None:
-                    if isinstance(networksol, str):
-                        networksol= json.loads(networksol)
-                        netsol = networksol
+                if isinstance(networksol, str):
+                    networksol = json.loads(networksol)
+                connectioncount = await self.command.getConnectionCount()
+                if isinstance(connectioncount, str):
+                    connectioncount = json.loads(connectioncount)
+            if info is not None:
+                chain = info.get('chain')
+                blocks = info.get('blocks')
+                sync = info.get('verificationprogress')
+                difficulty = self.system.format_balance(float(info.get('difficulty')))
+            else:
+                chain = blocks = sync = difficulty = "N/A"
+            dep = deprecation.get('deprecationheight') if deprecation else "N/A"
+            netsol = networksol if networksol is not None else "N/A"
+            connections = connectioncount if connectioncount is not None else "N/A"
+
             sync_percentage = sync * 100
             self.chain_value.text = f"{chain}"
             self.blocks_value.text = f"{blocks}"
@@ -439,6 +446,8 @@ class HomeWindow(Window):
             self.dep_value.text = f"{dep}"
             self.networksol_value.text = f"{netsol} Sol/s"
             self.difficulty_value.text = f"{difficulty}"
+            self.connected_node_value.text = f"{connections}/8"
+
             await asyncio.sleep(5)
             
     

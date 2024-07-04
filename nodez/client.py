@@ -95,9 +95,17 @@ class RPCRequest():
             print(e)
             return None
         
+        
     def getInfo(self):
         return self.make_rpc_request(
             "getinfo",
+            []
+        )
+    
+
+    def getConnectionCount(self):
+        return self.make_rpc_request(
+            "getconnectioncount",
             []
         )
     

@@ -76,11 +76,11 @@ class CashWindow(Window):
             on_press=self.switch_to_shielded
         )
         self.transparent_icon = ImageView(
-            "icones/transparent.png",
+            "icones/transparent_txt.png",
             style=ImageStyle.transparent_icon
         )
         self.shielded_icon = ImageView(
-            "icones/shield.png",
+            "icones/shielded_txt.png",
             style=ImageStyle.shielded_icon
         )
         self.select_address_txt = Label(
@@ -265,11 +265,11 @@ class CashWindow(Window):
     async def get_transactions_list(self):
         config_path = self.app.paths.config
         db_path = os.path.join(config_path, 'config.db')
-        transctions_limit = 25
+        transactions_limit = 25
         if os.path.exists(db_path):
-            transactions_data = self.client.listTransactions(transctions_limit)
+            transactions_data = self.client.listTransactions(transactions_limit)
         else:
-            transactions_data = await self.command.listTransactions(transctions_limit)
+            transactions_data = await self.command.listTransactions(transactions_limit)
             if isinstance(transactions_data, str):
                 transactions_data = json.loads(transactions_data)
         if transactions_data is not None:
@@ -503,6 +503,7 @@ class CashWindow(Window):
         self.select_address.items.clear()
         self.select_address.style.color = YELLOW
         self.select_address.items = transparent_address
+        self.send_button.style.background_color = YELLOW
         self.switch_button_box.remove(
             self.transparent_button,
             self.shielded_icon
@@ -518,6 +519,7 @@ class CashWindow(Window):
         self.select_address.items.clear()
         self.select_address.style.color = CYAN
         self.select_address.items = shielded_address
+        self.send_button.style.background_color = CYAN
         self.switch_button_box.remove(
             self.transparent_icon,
             self.shielded_button

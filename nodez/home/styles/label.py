@@ -1,5 +1,5 @@
 from toga.style.pack import Pack
-from toga.colors import YELLOW, BLUE, WHITE, BLACK, RED, CYAN
+from toga.colors import YELLOW, WHITE, BLACK, RED, CYAN
 from toga.constants import BOLD, MONOSPACE, CENTER, HIDDEN
 
 
@@ -55,7 +55,7 @@ class LabelStyle():
     home_private_balance= Pack(
         font_family = MONOSPACE,
         font_weight = BOLD,
-        color= BLUE,
+        color= CYAN,
         background_color = BLACK,
         padding_right = 20,
         flex = 1
@@ -194,6 +194,20 @@ class LabelStyle():
     )
     
     home_difficulty_value = Pack(
+        background_color = WHITE,
+        padding_top = 5,
+        padding_right = 5,
+        padding_bottom = 3
+    )
+
+    home_connected_node_txt = Pack(
+        color= WHITE,
+        background_color = BLACK,
+        padding_top = 5,
+        padding_bottom = 3
+    )
+
+    home_connected_node_value = Pack(
         background_color = WHITE,
         padding_top = 5,
         padding_right = 5,

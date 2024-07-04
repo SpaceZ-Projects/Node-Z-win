@@ -37,7 +37,7 @@ class BoxStyle():
     
     switch_button_box = Pack(
         direction = ROW,
-        background_color = BLACK
+        background_color = GREY
     )
     
     select_address_box = Pack(

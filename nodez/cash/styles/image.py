@@ -1,5 +1,5 @@
 from toga.style.pack import Pack
-from toga.colors import BLACK, TRANSPARENT
+from toga.colors import BLACK, GRAY
 from toga.constants import HIDDEN, CENTER
 
 
@@ -8,12 +8,12 @@ class ImageStyle():
     
     transparent_icon = Pack(
         padding = 10,
-        background_color = BLACK
+        background_color = GRAY
     )
     
     shielded_icon = Pack(
         padding = 10,
-        background_color = BLACK
+        background_color = GRAY
     )
     
     verified_icon = Pack(

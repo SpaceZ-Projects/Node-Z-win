@@ -375,7 +375,6 @@ class CashWindow(Window):
             return
         address = self.select_address.value.select_address
         if address.startswith("z"):
-            print(address)
             await self.get_listunspent_zaddr(address)
         elif address.startswith("t"):
             await self.get_listunspent_taddr(address)

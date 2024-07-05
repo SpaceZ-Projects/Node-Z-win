@@ -2,3 +2,4 @@ toga-winforms
 requests
 aiohttp
 qrcode
+pyperclip

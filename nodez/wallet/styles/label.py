@@ -7,8 +7,10 @@ from toga.colors import BLACK, WHITE
 class LabelStyle():
 
 
-    under_dev = Pack(
-        text_align = CENTER,
+    select_address_txt = Pack(
+        padding_top = 13,
+        padding_left = 55,
+        font_size = 10,
         font_weight = BOLD,
         color = WHITE,
         background_color = BLACK

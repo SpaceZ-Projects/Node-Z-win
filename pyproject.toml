@@ -1,7 +1,7 @@
 [tool.briefcase]
 project_name = "Node-Z"
 bundle = "com.nodez"
-version = "1.0.2"
+version = "1.0.3"
 url = "https://www.getbtcz.com"
 license.file = "LICENSE"
 author = "BTCZCommunity"
@@ -31,7 +31,8 @@ requires = [
     "toga-winforms",
     "requests",
     "aiohttp",
-    "qrcode"
+    "qrcode",
+    "pyperclip"
 ]
 
 use_full_install_path = false

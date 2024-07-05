@@ -1,13 +1,26 @@
 from toga.style.pack import Pack
 from toga.constants import CENTER
-from toga.colors import BLACK
+from toga.colors import BLACK, GRAY
 
 
 class ImageStyle():
 
 
-    under_dev = Pack(
-        padding_top = 260,
-        padding_left = 330,
+    loading_icon = Pack(
+        alignment = CENTER
+    )
+
+    transparent_icon = Pack(
+        padding = 10,
+        background_color = GRAY
+    )
+    
+    shielded_icon = Pack(
+        padding = 10,
+        background_color = GRAY
+    )
+
+    qr_code_img = Pack(
+        padding = 20,
         background_color = BLACK
     )

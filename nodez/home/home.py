@@ -464,7 +464,8 @@ class HomeWindow(Window):
         self.wallet_button.style.visibility = HIDDEN
         self.wallet_window = WalletWindow(
             self.app,
-            self.wallet_button
+            self.wallet_button,
+            self.explorer_button
         )
         self.system.update_settings('wallet_window', True)
         self.wallet_window.show()

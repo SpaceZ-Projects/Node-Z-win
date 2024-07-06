@@ -1,6 +1,7 @@
 
 import os
 import json
+import asyncio
 
 from toga import (
     App,
@@ -9,7 +10,10 @@ from toga import (
     ImageView,
     Button,
     Label,
-    Selection
+    Selection,
+    Icon,
+    OptionContainer,
+    OptionItem
 )
 from toga.colors import YELLOW, CYAN
 from toga.constants import VISIBLE
@@ -19,8 +23,10 @@ from .styles.image import ImageStyle
 from .styles.label import LabelStyle
 from .styles.button import ButtonStyle
 from .styles.selection import SelectionStyle
+from .styles.container import ContainerStyle
 
-from .address_info import AddressInfo
+from .manage import AddressInfo
+from .txids_list import AllTransactions
 
 from ..system import SystemOp
 from ..command import ClientCommands
@@ -34,6 +40,7 @@ class WalletWindow(Window):
             title="Wallet Manage",
             size=(800, 700),
             resizable=False,
+            minimizable=False,
             on_close=self.close_window
         )
         self.system = SystemOp(self.app)
@@ -75,7 +82,7 @@ class WalletWindow(Window):
             style=BoxStyle.switch_button_box
         )
         self.select_address_txt = Label(
-            "Address :",
+            "Select Address :",
             style=LabelStyle.select_address_txt
         )
         self.select_address = Selection(
@@ -85,7 +92,7 @@ class WalletWindow(Window):
             on_change=self.display_address_info
         )
         self.new_address_button = Button(
-            "New Address",
+            icon=Icon("icones/new_addr"),
             enabled=True,
             style=ButtonStyle.new_address_button,
             on_press=self.generate_new_address
@@ -97,15 +104,31 @@ class WalletWindow(Window):
             style=BoxStyle.address_manage_box
         )
 
-        self.main_box = Box(
+        self.wallet_manage_box = Box(
             style=BoxStyle.wallet_main_box
         )
-        self.main_box.add(
-            self.switch_button_box,
-            self.select_address_box
+        self.wallet_manage_option = OptionItem(
+            text="Address Manage",
+            enabled=True,
+            content=self.wallet_manage_box
+        )
+        self.transactions_list_option = OptionItem(
+            text="Transactions List",
+            enabled=True,
+            content=AllTransactions(
+                self.app,
+                self.explorer_button
+            )
+        )
+        self.wallet_container = OptionContainer(
+            content=[
+                self.wallet_manage_option,
+                self.transactions_list_option
+            ],
+            style=ContainerStyle.wallet_container
         )
 
-        self.content = self.main_box
+        self.content = self.wallet_container
         
         self.app.add_background_task(
             self.get_addresses_list
@@ -118,10 +141,15 @@ class WalletWindow(Window):
         transparent_address = await self.get_transparent_addresses()
         self.select_address.items = transparent_address
 
-        self.display_window()
+        await self.get_transactions_list()
+
+    async def get_transactions_list(self):
 
 
-    def display_window(self):
+        await self.display_window()
+
+
+    async def display_window(self):
         self.switch_button_box.add(
             self.transparent_icon,
             self.shielded_button
@@ -131,6 +159,11 @@ class WalletWindow(Window):
             self.select_address,
             self.new_address_button
         )
+        self.wallet_manage_box.add(
+            self.switch_button_box,
+            self.select_address_box
+        )
+        await asyncio.sleep(1)
         self.show()
         
 
@@ -180,11 +213,11 @@ class WalletWindow(Window):
                 reverse=True
             )
             if len(sorted_addresses) == 1:
-                address_items = [("Main Account", ""), (sorted_addresses[0][0], sorted_addresses[0][0])]
+                address_items = [(sorted_addresses[0][0], sorted_addresses[0][0])]
             else:
-                address_items = [("Main Account", "")] + [(address_info[0], address_info[0]) for address_info in sorted_addresses]
+                address_items = [(address_info[0], address_info[0]) for address_info in sorted_addresses]
         else:
-            address_items = [("Main Account", "")]
+            address_items = []
         return address_items
     
 
@@ -258,10 +291,6 @@ class WalletWindow(Window):
             return
         
         address = self.select_address.value.select_address
-        if address == "Main Account":
-            if len(self.address_manage_box.children) > 0:
-                self.address_manage_box.remove(self.address_manage_box.children[0])
-            return
         
         if len(self.address_manage_box.children) > 0:
             self.address_manage_box.remove(self.address_manage_box.children[0])
@@ -273,7 +302,7 @@ class WalletWindow(Window):
                 self.transaction_mode
             )
         )
-        self.main_box.add(
+        self.wallet_manage_box.add(
             self.address_manage_box
         )
         

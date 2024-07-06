@@ -30,18 +30,35 @@ class ButtonStyle():
     )
 
     new_address_button = Pack(
-        padding_left = 10,
-        padding_right = 30,
+        padding_left = 30,
         padding_top = 12,
-        color = YELLOW,
-        background_color = BLACK,
-        flex = 1
+        background_color = BLACK
     )
 
 
     address_buttons = Pack(
-        color = BLACK,
-        font_weight = BOLD,
-        padding_top = 20,
+        background_color = BLACK,
+        padding_top = 40,
+        padding_right = 20
+    )
+
+    explorer_button = Pack(
+        padding_top = 2,
+        padding_right = 3,
+        background_color = BLACK,
+        color = YELLOW
+    )
+
+    previous_button = Pack(
+        color = YELLOW,
+        background_color = BLACK,
+        padding_top = 10,
         padding_right = 10
+    )
+
+    next_button = Pack(
+        color = YELLOW,
+        background_color = BLACK,
+        padding_top = 10,
+        padding_left = 10
     )

@@ -50,8 +50,53 @@ class BoxStyle():
         flex = 1
     )
 
+
+    address_balance_box = Pack(
+        direction = COLUMN,
+        background_color = BLACK,
+        padding_top = 20,
+        padding_right = 5,
+        padding_left = 5,
+        flex = 1
+    )
+
+
     address_buttons_box = Pack(
         direction = COLUMN,
-        background_color = GRAY,
+        background_color = GRAY
+    )
+
+    transaction_box = Pack(
+        direction = ROW,
+        padding = 2,
+        background_color = BLACK
+    )
+
+    transaction_address_box = Pack(
+        direction = COLUMN,
+        background_color = BLACK,
+        width = 350
+    )
+
+    transaction_amount_box = Pack(
+        direction = COLUMN,
+        background_color = BLACK
+    )
+
+    transaction_time_box = Pack(
+        direction = COLUMN,
+        background_color = BLACK,
         flex = 1
+    )
+
+    navigation_box = Pack(
+        direction =COLUMN,
+        background_color = GRAY,
+        alignment = CENTER,
+        flex = 1
+    )
+
+    navigation_buttons_box = Pack(
+        direction = ROW,
+        background_color = GRAY
     )

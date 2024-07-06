@@ -137,8 +137,8 @@ class ClientCommands():
         return await self._run_command(command)
     
     
-    async def listTransactions(self, limit):
-        command = f'{self.bitcoinz_cli_file} listtransactions "*" {limit}'
+    async def listTransactions(self, count, tx_from):
+        command = f'{self.bitcoinz_cli_file} listtransactions "*" {count} {tx_from}'
         return await self._run_command(command)
     
     

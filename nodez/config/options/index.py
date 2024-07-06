@@ -101,6 +101,24 @@ class insightConfig(Box):
             style=ButtonStyle.switch_info_button,
             on_press=self.display_info
         )
+        self.addressindex_info = Button(
+            "?",
+            id="addressindex",
+            style=ButtonStyle.switch_info_button,
+            on_press=self.display_info
+        )
+        self.timestampindex_info = Button(
+            "?",
+            id="timestampindex",
+            style=ButtonStyle.switch_info_button,
+            on_press=self.display_info
+        )
+        self.spentindex_info = Button(
+            "?",
+            id="spentindex",
+            style=ButtonStyle.switch_info_button,
+            on_press=self.display_info
+        )
         self.explorer_switch_box = Box(
             style=BoxStyle.explorer_switch_box
         )
@@ -121,7 +139,10 @@ class insightConfig(Box):
         self.explorer_button_box.add(
             self.txindex_info,
             self.experimentalfeatures_info,
-            self.insightexplorer_info
+            self.insightexplorer_info,
+            self.addressindex_info,
+            self.timestampindex_info,
+            self.spentindex_info
         )
         self.explorer_row_box.add(
             self.explorer_switch_box,
@@ -213,7 +234,13 @@ class insightConfig(Box):
             ]
             info_message = "".join(info_message_str)
         elif button.id == "insightexplorer":
-            info_message = "the insightexplorer option enables the Insight API, allowing applications to query detailed blockchain data, including blocks, transactions, and addresses"
+            info_message = "the insightexplorer option enables the Insight API, allowing applications to query detailed blockchain data, including blocks, transactions, and addresses."
+        elif button.id == "addressindex":
+            info_message = "Enables the node to maintain a searchable index of addresses and their associated transactions, allowing for efficient querying and retrieval of transaction histories for specific addresses."
+        elif button.id == "timestampindex":
+            info_message = "Enables the node to maintain an index of block timestamps, facilitating efficient retrieval and querying of blocks and transactions based on their timestamps."
+        elif button.id == "spentindex":
+            info_message = "Maintains an index of spent transaction outputs. This index facilitates efficient verification of spent outputs, enhancing performance when querying transaction status and history."
         self.app.main_window.info_dialog(
             "Info",
             info_message

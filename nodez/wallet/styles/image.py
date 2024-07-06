@@ -21,6 +21,13 @@ class ImageStyle():
     )
 
     qr_code_img = Pack(
+        width = 155,
+        height = 155,
         padding = 20,
+        background_color = BLACK
+    )
+
+    cash_icon = Pack(
+        padding = 5,
         background_color = BLACK
     )

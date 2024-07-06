@@ -1,3 +1,7 @@
+
+[build-system]
+requires = ["briefcase"]
+
 [tool.briefcase]
 project_name = "Node-Z"
 bundle = "com.nodez"
@@ -10,18 +14,20 @@ author_email = "dragkhai@gmail.com"
 [tool.briefcase.app.nodez]
 formal_name = "Node-Z"
 description = "Full NodeZ"
-long_description = """More details about the app should go here.
-"""
 icon = "nodez/resources/app_logo"
+
 sources = [
     "nodez",
 ]
+
 test_sources = [
     "tests",
 ]
 
 requires = [
+    "toga-core"
 ]
+
 test_requires = [
     "pytest",
 ]
@@ -31,8 +37,7 @@ requires = [
     "toga-winforms",
     "requests",
     "aiohttp",
-    "qrcode",
-    "pyperclip"
+    "qrcode"
 ]
 
 use_full_install_path = false

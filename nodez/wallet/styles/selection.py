@@ -6,8 +6,8 @@ class SelectionStyle():
     
     
     select_address = Pack(
-        padding_top = 10,
-        padding_left = 78,
+        padding_top = 15,
+        padding_left = 60,
         width = 350,
         font_size = 11,
         color = YELLOW,

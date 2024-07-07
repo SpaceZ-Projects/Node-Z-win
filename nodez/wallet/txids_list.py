@@ -46,7 +46,7 @@ class AllTransactions(Box):
         self.command = ClientCommands(self.app)
         self.system = SystemOp(self.app)
 
-        self.transactions_count = 0
+        self.transactions_count = 18
         self.transactions_from = 0
 
         self.config_path = self.app.paths.config
@@ -58,8 +58,6 @@ class AllTransactions(Box):
     
     async def get_transactions_list(self, widget):
         db_path = os.path.join(self.config_path, 'config.db')
-        self.transactions_count = 18
-        self.transactions_from = 0
         if os.path.exists(db_path):
             transactions_data = self.client.listTransactions(
                 self.transactions_count,
@@ -152,11 +150,13 @@ class AllTransactions(Box):
     async def add_navigation_buttons(self):
         self.previous_button = Button(
             "<",
-            style=ButtonStyle.previous_button
+            style=ButtonStyle.previous_button,
+            on_press=self.previous_page
         )
         self.next_button = Button(
             ">",
-            style=ButtonStyle.next_button
+            style=ButtonStyle.next_button,
+            on_press=self.next_page
         )
         self.navigation_buttons_box = Box(
             style=BoxStyle.navigation_buttons_box
@@ -174,6 +174,20 @@ class AllTransactions(Box):
         self.add(
             self.navigation_box
         )
+
+
+    async def next_page(self, button):
+        self.transactions_from = self.transactions_from + self.transactions_count
+        self.clear()
+        await self.get_transactions_list(None)
+
+
+    async def previous_page(self, button):
+        if self.transactions_from <= 0:
+            return
+        self.transactions_from = self.transactions_from - self.transactions_count
+        self.clear()
+        await self.get_transactions_list(None)
 
 
     async def transaction_window(self, txid):

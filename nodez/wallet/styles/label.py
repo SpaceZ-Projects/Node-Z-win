@@ -54,3 +54,10 @@ class LabelStyle():
         font_weight = BOLD,
         background_color = BLACK,
     )
+
+    private_key_txt = Pack(
+        padding = 5,
+        font_weight = BOLD,
+        background_color = BLACK,
+        color = WHITE
+    )

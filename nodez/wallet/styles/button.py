@@ -29,6 +29,20 @@ class ButtonStyle():
         flex = 1
     )
 
+    import_key_button = Pack(
+        background_color = BLACK,
+        padding_left = 50,
+        padding_top = 10,
+        padding_bottom = 20
+    )
+
+    confirm_key_button = Pack(
+        background_color = BLACK,
+        color = YELLOW,
+        padding_left = 100,
+        padding_right = 100
+    )
+
     new_address_button = Pack(
         padding_left = 30,
         padding_top = 12,
@@ -61,4 +75,11 @@ class ButtonStyle():
         background_color = BLACK,
         padding_top = 10,
         padding_left = 10
+    )
+
+    copy_button = Pack(
+        background_color = BLACK,
+        color = YELLOW,
+        padding_left = 150,
+        padding_right = 150
     )

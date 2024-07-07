@@ -26,6 +26,11 @@ class BoxStyle():
         padding = 3
     )
 
+    buttons_box = Pack(
+        direction = ROW,
+        background_color = BLACK
+    )
+
 
     select_address_box = Pack(
         direction = ROW,
@@ -99,4 +104,10 @@ class BoxStyle():
     navigation_buttons_box = Pack(
         direction = ROW,
         background_color = GRAY
+    )
+
+    import_box = Pack(
+        direction = COLUMN,
+        background_color = BLACK,
+        flex = 1
     )

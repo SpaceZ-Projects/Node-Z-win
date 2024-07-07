@@ -306,3 +306,15 @@ class RPCRequest():
             "z_listunspent",
             [1, 9999999, True, [address]]
         )
+    
+    def DumpPrivKey(self, address):
+        return self.make_rpc_request(
+            "dumpprivkey",
+            [f"{address}"]
+        )
+
+    def z_ExportKey(self, address):
+        return self.make_rpc_request(
+            "z_exportkey",
+            [f"{address}"]
+        )

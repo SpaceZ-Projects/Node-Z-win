@@ -13,7 +13,9 @@ from toga import (
     Selection,
     Icon,
     OptionContainer,
-    OptionItem
+    OptionItem,
+    TextInput,
+    PasswordInput
 )
 from toga.colors import YELLOW, CYAN
 from toga.constants import VISIBLE
@@ -24,6 +26,7 @@ from .styles.label import LabelStyle
 from .styles.button import ButtonStyle
 from .styles.selection import SelectionStyle
 from .styles.container import ContainerStyle
+from .styles.input import InputStyle
 
 from .manage import AddressInfo
 from .txids_list import AllTransactions
@@ -80,6 +83,21 @@ class WalletWindow(Window):
         )
         self.switch_button_box = Box(
             style=BoxStyle.switch_button_box
+        )
+        self.view_key_button = Button(
+            icon=Icon("icones/view_key"),
+            style=ButtonStyle.import_key_button,
+            enabled=True,
+            on_press=self.display_private_key
+        )
+        self.import_key_button = Button(
+            icon=Icon("icones/import_key"),
+            style=ButtonStyle.import_key_button,
+            enabled=True,
+            on_press=self.display_import_window
+        )
+        self.buttons_box = Box(
+            style=BoxStyle.buttons_box
         )
         self.select_address_txt = Label(
             "Select Address :",
@@ -141,11 +159,6 @@ class WalletWindow(Window):
         transparent_address = await self.get_transparent_addresses()
         self.select_address.items = transparent_address
 
-        await self.get_transactions_list()
-
-    async def get_transactions_list(self):
-
-
         await self.display_window()
 
 
@@ -154,6 +167,10 @@ class WalletWindow(Window):
             self.transparent_icon,
             self.shielded_button
         )
+        self.buttons_box.add(
+            self.view_key_button,
+            self.import_key_button
+        )
         self.select_address_box.add(
             self.select_address_txt,
             self.select_address,
@@ -161,6 +178,7 @@ class WalletWindow(Window):
         )
         self.wallet_manage_box.add(
             self.switch_button_box,
+            self.buttons_box,
             self.select_address_box
         )
         await asyncio.sleep(1)
@@ -196,6 +214,100 @@ class WalletWindow(Window):
             self.transparent_button,
             self.shielded_icon
         )
+
+
+    async def display_private_key(self, button):
+        active_windows = list(self.app.windows)
+        for import_window in active_windows:
+            if import_window.title == "Import Key":
+                return
+        if not self.select_address.value:
+            return
+        address = self.select_address.value.select_address
+        config_path = self.app.paths.config
+        db_path = os.path.join(config_path, 'config.db')
+        if self.transaction_mode == "transparent":
+            if os.path.exists(db_path):
+                result = self.client.DumpPrivKey(address)
+            else:
+                result = await self.command.DumpPrivKey(address)
+        elif self.transaction_mode == "shielded":
+            if os.path.exists(db_path):
+                result = self.client.z_ExportKey(address)
+            else:
+                result = await self.command.z_ExportKey(address)
+        if result is not None:
+            self.view_key_txt = Label(
+                "Private Key :",
+                style=LabelStyle.private_key_txt
+            )
+            self.view_key_input = TextInput(
+                    value=result,
+                    style=InputStyle.private_key_input
+            )
+            self.copy_button = Button(
+                "Copy",
+                style=ButtonStyle.copy_button,
+                enabled=True,
+                on_press=self.copy_address_clipboard
+            )
+            self.view_box = Box(
+                style=BoxStyle.import_box
+            )
+            self.view_box.add(
+                self.view_key_txt,
+                self.view_key_input,
+                self.copy_button
+            )
+            self.view_window = Window(
+                title="Key View",
+                size=(400, 100),
+                minimizable=False,
+                resizable=False
+            )
+            position_center = self.system.windows_screen_center(self.view_window.size)
+            self.view_window.position = position_center
+            self.view_window.content = self.view_box
+            self.view_window.show()
+
+
+    async def display_import_window(self, button):
+        active_windows = list(self.app.windows)
+        for import_window in active_windows:
+            if import_window.title == "Key View":
+                return
+        self.import_key_txt = Label(
+            "Private Key :",
+            style=LabelStyle.private_key_txt
+        )
+        self.import_key_input = PasswordInput(
+            placeholder="Paste your private key",
+            style=InputStyle.private_key_input
+        )
+        self.confirm_key_button = Button(
+            "Import",
+            style=ButtonStyle.confirm_key_button,
+            enabled=True
+        )
+        self.import_box = Box(
+            style=BoxStyle.import_box
+        )
+        self.import_box.add(
+            self.import_key_txt,
+            self.import_key_input,
+            self.confirm_key_button
+        )
+        self.import_window = Window(
+            title="Import Key",
+            size=(400, 100),
+            minimizable=False,
+            resizable=False
+        )
+        position_center = self.system.windows_screen_center(self.import_window.size)
+        self.import_window.position = position_center
+        self.import_window.content = self.import_box
+        self.import_window.show()
+
 
 
     async def get_transparent_addresses(self):
@@ -285,11 +397,7 @@ class WalletWindow(Window):
 
     async def display_address_info(self, selection):
         if not self.select_address.value:
-            return
-        
-        if not self.select_address.value.select_address:
-            return
-        
+            return 
         address = self.select_address.value.select_address
         
         if len(self.address_manage_box.children) > 0:
@@ -305,10 +413,27 @@ class WalletWindow(Window):
         self.wallet_manage_box.add(
             self.address_manage_box
         )
+
+
+    async def copy_address_clipboard(self, button):
+        import clr
+        clr.AddReference('System.Windows.Forms')
+        from System.Windows.Forms import Clipboard
+        Clipboard.SetText(self.view_key_input.value)
+
+        self.copy_button.enabled = False
+
+        await asyncio.sleep(1)
+
+        self.copy_button.enabled = True
         
 
 
     def close_window(self, window):
+        active_windows = list(self.app.windows)
+        for open_window in active_windows:
+            if open_window.title == "Import Key" or open_window.title == "Key View":
+                return
         self.window_button.style.visibility = VISIBLE
         self.system.update_settings('wallet_window', False)
         self.close()

@@ -31,3 +31,7 @@ class ImageStyle():
         padding = 5,
         background_color = BLACK
     )
+
+    bitcoinz_coin = Pack(
+        background_color = BLACK
+    )

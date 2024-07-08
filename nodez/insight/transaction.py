@@ -211,9 +211,11 @@ class Transaction(Box):
         if versiongroupid is not None:
             self.versiongroupid.text = f"0x{versiongroupid}"
         expiryheight = self.result.get('expiryheight')
-        coinbase = self.result.get('vin', [])[0].get('coinbase', None)
-        if coinbase is not None:
-            self.coinbase.text = f"{coinbase[:60]}..."
+        vin = self.result.get('vin', [])
+        if vin:
+            coinbase = vin[0].get('coinbase', None)
+            if coinbase is not None:
+                self.coinbase.text = f"{coinbase[:60]}..."
         self.transaction_id.text = txid
         self.blockhash.text = blockhash
         self.version.text = version

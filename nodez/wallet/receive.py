@@ -15,10 +15,11 @@ from toga import (
     OptionContainer,
     OptionItem,
     TextInput,
-    PasswordInput
+    PasswordInput,
+    Switch
 )
 from toga.colors import YELLOW, CYAN
-from toga.constants import VISIBLE
+from toga.constants import VISIBLE, HIDDEN
 
 from .styles.box import BoxStyle
 from .styles.image import ImageStyle
@@ -27,6 +28,7 @@ from .styles.button import ButtonStyle
 from .styles.selection import SelectionStyle
 from .styles.container import ContainerStyle
 from .styles.input import InputStyle
+from .styles.switch import SwitchStyle
 
 from .manage import AddressInfo
 from .txids_list import AllTransactions
@@ -54,12 +56,9 @@ class WalletWindow(Window):
         self.window_button = window_button
         self.explorer_button = explorer_button
 
-        self.loading_icon = ImageView(
-            ("icones/loading_tx.gif"),
-            style=ImageStyle.loading_icon
-        )
-        self.loading_box = Box(
-            style=BoxStyle.loading_box
+        self.bitcoinz_coin = ImageView(
+            ("resources/btcz_coin1.gif"),
+            style=ImageStyle.bitcoinz_coin
         )
         self.transparent_button = Button(
             "Transparent",
@@ -218,8 +217,12 @@ class WalletWindow(Window):
 
     async def display_private_key(self, button):
         active_windows = list(self.app.windows)
-        for import_window in active_windows:
-            if import_window.title == "Import Key":
+        for view_window in active_windows:
+            if view_window.title == "Import Key":
+                self.app.current_window = self.import_window
+                return
+            elif view_window.title == "Key View":
+                self.app.current_window = self.view_window
                 return
         if not self.select_address.value:
             return
@@ -238,7 +241,7 @@ class WalletWindow(Window):
                 result = await self.command.z_ExportKey(address)
         if result is not None:
             self.view_key_txt = Label(
-                "Private Key :",
+                "Private Key for selected address :",
                 style=LabelStyle.private_key_txt
             )
             self.view_key_input = TextInput(
@@ -249,7 +252,7 @@ class WalletWindow(Window):
                 "Copy",
                 style=ButtonStyle.copy_button,
                 enabled=True,
-                on_press=self.copy_address_clipboard
+                on_press=self.copy_key_clipboard
             )
             self.view_box = Box(
                 style=BoxStyle.import_box
@@ -275,6 +278,10 @@ class WalletWindow(Window):
         active_windows = list(self.app.windows)
         for import_window in active_windows:
             if import_window.title == "Key View":
+                self.app.current_window = self.view_window
+                return
+            elif import_window.title == "Import Key":
+                self.app.current_window = self.import_window
                 return
         self.import_key_txt = Label(
             "Private Key :",
@@ -284,22 +291,34 @@ class WalletWindow(Window):
             placeholder="Paste your private key",
             style=InputStyle.private_key_input
         )
+        self.rescan_option = Switch(
+            "rescan transactions (This can take minutes to complete)",
+            style=SwitchStyle.rescan_option
+        )
         self.confirm_key_button = Button(
             "Import",
             style=ButtonStyle.confirm_key_button,
-            enabled=True
+            enabled=True,
+            on_press=self.import_private_key
+        )
+        self.import_button_box = Box(
+            style=BoxStyle.import_button_box
         )
         self.import_box = Box(
             style=BoxStyle.import_box
         )
+        self.import_button_box.add(
+            self.confirm_key_button
+        )
         self.import_box.add(
             self.import_key_txt,
             self.import_key_input,
-            self.confirm_key_button
+            self.rescan_option,
+            self.import_button_box
         )
         self.import_window = Window(
             title="Import Key",
-            size=(400, 100),
+            size=(400, 130),
             minimizable=False,
             resizable=False
         )
@@ -310,28 +329,98 @@ class WalletWindow(Window):
 
 
 
+    async def import_private_key(self, button):
+        if not self.import_key_input.value:
+            self.error_dialog(
+                "Empty input...",
+                "Private key is missing."
+            )
+            self.import_key_input.focus()
+            return
+        config_path = self.app.paths.config
+        db_path = os.path.join(config_path, 'config.db')
+        key = self.import_key_input.value
+        
+        self.transactions_list_option.enabled = False
+        self.transparent_button.enabled = False
+        self.shielded_button.enabled = False
+        self.select_address.enabled = False
+        self.new_address_button.enabled =False
+        self.import_window.on_close = self.disable_closing_window
+        self.import_key_input.readonly = True
+        self.rescan_option.enabled = False
+        self.import_button_box.remove(
+            self.confirm_key_button
+        )
+        self.import_button_box.add(
+            self.bitcoinz_coin
+        )
+
+        if self.rescan_option.value is True:
+
+            rescan = True
+        else:
+            rescan = False
+
+        if self.transaction_mode == 'transparent':
+            if os.path.exists(db_path):
+                result = self.client.ImportPrivKey(key, rescan)
+            else:
+                result = await self.command.ImportPrivKey(key, rescan)
+        elif self.transaction_mode == "shielded":
+            if os.path.exists(db_path):
+                result = self.client.z_ImportKey(key, rescan)
+            else:
+                result = await self.command.z_ImportKey(key, rescan)
+
+        if result is not None:
+            await self.update_import_window()  
+        else:
+            self.error_dialog(
+                "Error...",
+                "Invalid private key encoding"
+            )
+            await self.update_import_window()
+
+    
+    async def update_import_window(self):
+        self.transactions_list_option.enabled = True
+        self.transparent_button.enabled = True
+        self.shielded_button.enabled = True
+        self.select_address.enabled = True
+        self.new_address_button.enabled =True
+        self.import_window.on_close = None
+        self.import_key_input.readonly = False
+        self.import_key_input.value = ""
+        self.rescan_option.enabled = True
+        self.import_button_box.remove(
+            self.bitcoinz_coin
+        )
+        self.import_button_box.add(
+            self.confirm_key_button
+        )
+
+        await self.update_addresses_list(None)
+
+            
+
     async def get_transparent_addresses(self):
         config_path = self.app.paths.config
         db_path = os.path.join(config_path, 'config.db')
+        
         if os.path.exists(db_path):
-            addresses_data = self.client.listAddressgroupPings()
+            addresses_data = self.client.getAddressesByAccount()
         else:
-            addresses_data = await self.command.listAddressgroupPings()
+            addresses_data = await self.command.getAddressesByAccount()
             addresses_data = json.loads(addresses_data)
+        
         if addresses_data is not None:
-            sorted_addresses = sorted(
-                [address_info for address_info_list in addresses_data for address_info in address_info_list],
-                key=lambda x: x[1],
-                reverse=True
-            )
-            if len(sorted_addresses) == 1:
-                address_items = [(sorted_addresses[0][0], sorted_addresses[0][0])]
-            else:
-                address_items = [(address_info[0], address_info[0]) for address_info in sorted_addresses]
+            address_items = [(address_info, address_info) for address_info in addresses_data]
         else:
             address_items = []
+        
         return address_items
-    
+        
 
     async def get_shielded_addresses(self):
         config_path = self.app.paths.config
@@ -390,8 +479,8 @@ class WalletWindow(Window):
             shielded_address = await self.get_shielded_addresses()
             self.select_address.style.color = CYAN
             self.select_address.items = shielded_address
-            
-        self.select_address.value = self.select_address.items.find(address)
+        if address is not None:  
+            self.select_address.value = self.select_address.items.find(address)
 
     
 
@@ -415,7 +504,7 @@ class WalletWindow(Window):
         )
 
 
-    async def copy_address_clipboard(self, button):
+    async def copy_key_clipboard(self, button):
         import clr
         clr.AddReference('System.Windows.Forms')
         from System.Windows.Forms import Clipboard
@@ -426,13 +515,21 @@ class WalletWindow(Window):
         await asyncio.sleep(1)
 
         self.copy_button.enabled = True
+
+
+    def disable_closing_window(self, window):
+        return
         
 
 
     def close_window(self, window):
         active_windows = list(self.app.windows)
         for open_window in active_windows:
-            if open_window.title == "Import Key" or open_window.title == "Key View":
+            if open_window.title == "Import Key":
+                self.app.current_window = self.import_window
+                return
+            elif open_window.title == "Key View":
+                self.app.current_window = self.view_window
                 return
         self.window_button.style.visibility = VISIBLE
         self.system.update_settings('wallet_window', False)

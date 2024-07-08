@@ -35,9 +35,8 @@ class InputStyle():
     comment_memo_input = Pack(
         padding_top = 16,
         padding_left = 18,
-        padding_right = 100,
         font_size = 11,
+        width = 300,
         color = YELLOW,
-        background_color = BLACK,
-        flex = 1
+        background_color = BLACK
     )

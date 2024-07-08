@@ -10,7 +10,6 @@ from toga import (
     Label,
     TextInput,
     PasswordInput,
-    NumberInput,
     Button,
     Icon
 )
@@ -18,7 +17,10 @@ from toga import (
 from .styles.box import BoxStyle
 from .styles.label import LabelStyle
 from .styles.input import InputStyle
-from toga.colors import RED, GREEN, BLACK
+from .styles.button import ButtonStyle
+from .styles.divider import DividerStyle
+
+from toga.colors import RED, GREEN, WHITE, YELLOW
 
 from ..home.home import HomeWindow
 from ..system import SystemOp
@@ -29,7 +31,7 @@ class WindowRPC(Window):
     def __init__(self, app:App):
         super().__init__(
             title="RPC Connect",
-            size=(280, 200),
+            size=(350, 350),
             resizable=False,
             minimizable=False,
             on_close=self.close_window
@@ -40,35 +42,45 @@ class WindowRPC(Window):
         
         self.rpcuser_txt = Label(
             "rpcuser :",
-            style=LabelStyle.rpcuser_txt
+            style=LabelStyle.rpc_txt
         )
         self.rpcuser_input = TextInput(
-            style=InputStyle.rpcuser_input
+            style=InputStyle.rpc_input,
+            on_gain_focus=self.update_status
         )
         self.rpcpassword_txt = Label(
             "rpcpassword :",
-            style=LabelStyle.rpcpassword_txt
+            style=LabelStyle.rpc_txt
         )
         self.rpcpassword_input = PasswordInput(
-            style=InputStyle.rpcpassword_input
+            style=InputStyle.rpc_input,
+            on_gain_focus=self.update_status
         )
         self.rpchost_txt = Label(
             "rpchost :",
-            style=LabelStyle.rpchost_txt
+            style=LabelStyle.rpc_txt
         )
         self.rpchost_input = TextInput(
-            style=InputStyle.rpchost_input
+            style=InputStyle.rpc_input,
+            on_gain_focus=self.update_status
         )
         self.rpcport_txt = Label(
             "rpcport :",
-            style=LabelStyle.rpcport_txt
+            style=LabelStyle.rpc_txt
         )
-        self.rpcport_input = NumberInput(
-            style=InputStyle.rpcport_input
+        self.rpcport_input = TextInput(
+            style=InputStyle.rpc_input,
+            on_gain_focus=self.update_status,
+            validators=[
+                self.is_digit
+            ]
         )
-        self.divider = Divider()
+        self.rpc_divider = Divider(
+            style=DividerStyle.rpc_divider
+        )
         self.connect_button = Button(
             icon=Icon("icones/connect"),
+            style=ButtonStyle.connect_button,
             on_press=self.check_inputs
         )
         self.button_box = Box(
@@ -89,7 +101,7 @@ class WindowRPC(Window):
             self.rpchost_input,
             self.rpcport_txt,
             self.rpcport_input,
-            self.divider,
+            self.rpc_divider,
             self.button_box
         )
         self.content = self.main_box
@@ -226,12 +238,23 @@ class WindowRPC(Window):
     async def start_the_gui(self):
         await asyncio.sleep(1)
         self.status_txt.text = "starting GUI..."
-        self.status_txt.style.color = BLACK
+        self.status_txt.style.color = WHITE
         await asyncio.sleep(2)
         self.home_window = HomeWindow(self.app)
         self.home_window.title = "MainMenu (RPC)"
         self.close()
+
     
+    def update_status(self, input):
+        self.rpcuser_txt.style.color = YELLOW
+        self.rpcpassword_txt.style.color = YELLOW
+        self.rpchost_txt.style.color = YELLOW
+        self.rpcport_txt.style.color = YELLOW
+
+
+    def is_digit(self, value):
+        if not value.isdigit():
+            self.rpcport_input.value = ""
         
         
     async def close_window(self, widget):

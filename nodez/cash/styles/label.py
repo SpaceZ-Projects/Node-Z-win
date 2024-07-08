@@ -73,7 +73,7 @@ class LabelStyle():
     )
     
     comment_memo_txt = Pack(
-        padding_top = 19,
+        padding_top = 20,
         padding_left = 18,
         font_size = 9,
         font_weight = BOLD,
@@ -102,4 +102,12 @@ class LabelStyle():
         color = WHITE,
         font_weight = BOLD,
         background_color = BLACK,
+    )
+
+    comment_calculate = Pack(
+        padding_top = 20,
+        padding_left = 10,
+        color = WHITE,
+        background_color = BLACK,
+        flex = 1
     )

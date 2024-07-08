@@ -191,6 +191,13 @@ class RPCRequest():
             "listaddressgroupings",
             []
         )
+    
+    def getAddressesByAccount(self):
+        return self.make_rpc_request(
+            "getaddressesbyaccount",
+            [""]
+        )
+
         
     def z_listAddresses(self):
         return self.make_rpc_request(
@@ -318,3 +325,27 @@ class RPCRequest():
             "z_exportkey",
             [f"{address}"]
         )
+    
+    def ImportPrivKey(self, key, rescan):
+        if rescan is True:
+            return self.make_rpc_request(
+                "importprivkey",
+                [f"{key}", True]
+            )
+        else:
+            return self.make_rpc_request(
+                "importprivkey",
+                [f"{key}", False]
+            )
+        
+    def z_ImportKey(self, key, rescan):
+        if rescan is True:
+            return self.make_rpc_request(
+                "z_importkey",
+                [f"{key}", "yes"]
+            )
+        else:
+            return self.make_rpc_request(
+                "z_importkey",
+                [f"{key}", "no"]
+            )

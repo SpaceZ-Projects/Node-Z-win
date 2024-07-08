@@ -51,6 +51,14 @@ class AllTransactions(Box):
 
         self.config_path = self.app.paths.config
 
+        self.loading_icon = ImageView(
+            ("icones/loading_tx.gif"),
+            style=ImageStyle.loading_icon
+        )
+        self.loading_box = Box(
+            style=BoxStyle.loading_box
+        )
+
         self.app.add_background_task(
             self.get_transactions_list
         )

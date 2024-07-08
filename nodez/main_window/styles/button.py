@@ -26,3 +26,10 @@ class ButtonStyle():
     social_button = Pack(
         background_color = BLACK
     )
+
+
+    connect_button = Pack(
+        padding_top = 15,
+        background_color = BLACK,
+        width = 116
+    )

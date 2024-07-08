@@ -121,6 +121,11 @@ class ClientCommands():
         command = f'{self.bitcoinz_cli_file} listaddressgroupings'
         return await self._run_command(command)
     
+
+    async def getAddressesByAccount(self):
+        command = f'{self.bitcoinz_cli_file} getaddressesbyaccount ""'
+        return await self._run_command(command)
+    
     
     async def z_listAddresses(self):
         command = f'{self.bitcoinz_cli_file} z_listaddresses'
@@ -237,4 +242,20 @@ class ClientCommands():
     
     async def z_ExportKey(self, address):
         command = f'{self.bitcoinz_cli_file} z_exportkey "{address}"'
+        return await self._run_command(command)
+    
+
+    async def ImportPrivKey(self, key, rescan):
+        if rescan is True:
+            command = f'{self.bitcoinz_cli_file} importprivkey "{key}" true'
+        else:
+            command = f'{self.bitcoinz_cli_file} importprivkey "{key}" false'
+        return await self._run_command(command)
+    
+
+    async def z_ImportKey(self, key, rescan):
+        if rescan is True:
+            command = f'{self.bitcoinz_cli_file} z_importkey "{key}" yes'
+        else:
+            command = f'{self.bitcoinz_cli_file} z_importkey "{key}" no'
         return await self._run_command(command)

@@ -39,8 +39,8 @@ class ButtonStyle():
     confirm_key_button = Pack(
         background_color = BLACK,
         color = YELLOW,
-        padding_left = 100,
-        padding_right = 100
+        padding_left = 150,
+        padding_right = 150
     )
 
     new_address_button = Pack(

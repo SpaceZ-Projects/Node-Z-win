@@ -91,7 +91,7 @@ def main():
     app.app_id = "com.nodez"
     app.home_page = "https://www.getbtcz.com"
     app.author = "BTCZCommunity"
-    app.version = "1.0.3"
+    app.version = "1.0.4"
     return app
 
 

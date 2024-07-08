@@ -111,3 +111,11 @@ class BoxStyle():
         background_color = BLACK,
         flex = 1
     )
+
+
+    import_button_box = Pack(
+        alignment = CENTER,
+        direction = COLUMN,
+        background_color = BLACK,
+        flex = 1
+    )

@@ -5,6 +5,7 @@ import json
 import threading
 from datetime import datetime
 import operator
+import sys
 
 from toga import (
     App,
@@ -21,7 +22,7 @@ from toga import (
     ImageView
 )
 
-from toga.colors import CYAN, YELLOW
+from toga.colors import CYAN, YELLOW, RED, WHITE
 from toga.constants import VISIBLE, HIDDEN, Direction
 
 from .styles.box import BoxStyle
@@ -159,11 +160,16 @@ class CashWindow(Window):
         )
         self.comment_memo_input = TextInput(
             style=InputStyle.comment_memo_input,
-            on_gain_focus=self.check_comments
+            on_gain_focus=self.check_comments,
+            on_change=self.calculate_bytes
         )
         self.comment_memo_txt = Label(
             "Comment/Memo :",
             style=LabelStyle.comment_memo_txt
+        )
+        self.comment_calculate = Label(
+            "0 / 512 bytes",
+            style=LabelStyle.comment_calculate
         )
         self.send_button = Button(
             "Send",
@@ -192,7 +198,7 @@ class CashWindow(Window):
         self.txfee_box = Box(
             style=BoxStyle.txfee_box
         )
-        self.commen_menmo_box = Box(
+        self.comment_menmo_box = Box(
             style=BoxStyle.comment_memo_box
         )
         self.buttons_box = Box(
@@ -227,9 +233,10 @@ class CashWindow(Window):
         self.txfee_box.add(
             self.fee_txt
         )
-        self.commen_menmo_box.add(
+        self.comment_menmo_box.add(
             self.comment_memo_txt,
-            self.comment_memo_input
+            self.comment_memo_input,
+            self.comment_calculate
         )
         self.buttons_box.add(
             self.send_button
@@ -240,7 +247,7 @@ class CashWindow(Window):
             self.to_address_box,
             self.amount_box,
             self.txfee_box,
-            self.commen_menmo_box,
+            self.comment_menmo_box,
             self.buttons_box
         )
         self.main_box.add(
@@ -727,6 +734,8 @@ class CashWindow(Window):
         amount = self.amount_input.value
         txfee = self.fee_input.value
         comment = self.comment_memo_input.value
+        byte_size = sys.getsizeof(comment)
+        print(byte_size)
         if selected_address is None:
             async def on_confirm(result, window):
                 if result:
@@ -754,6 +763,16 @@ class CashWindow(Window):
             self.error_dialog(
                 "No amount",
                 "The amount was not entred",
+                on_result=on_confirm
+            )
+            return
+        elif byte_size > 512:
+            async def on_confirm(result, window):
+                if result:
+                    self.comment_memo_input.focus()
+            self.error_dialog(
+                "Size limit",
+                "The size of comment/memo higher than 512 bytes",
                 on_result=on_confirm
             )
             return
@@ -850,6 +869,7 @@ class CashWindow(Window):
         self.to_address_input.value = ""
         self.amount_input.value = ""
         self.comment_memo_input.value = ""
+        self.comment_calculate.style.color = WHITE
         self.send_button.enabled = True
             
             
@@ -1026,6 +1046,21 @@ class CashWindow(Window):
     def is_digit(self, value):
         if not value.replace('.', '', 1).isdigit():
             self.amount_input.value = ""
+
+
+    def calculate_bytes(self, input):
+        value =  self.comment_memo_input.value
+        if not value:
+            self.comment_calculate.text = "0 / 512 bytes"
+        else:
+            byte_size = sys.getsizeof(value)
+            self.comment_calculate.text = f"{byte_size} / 512 bytes"
+            if byte_size > 512:
+                self.comment_memo_input.style.color = RED
+                self.comment_calculate.style.color = RED
+            elif byte_size >= 512:
+                self.comment_memo_input.style.color = YELLOW
+                self.comment_calculate.style.color = WHITE
                 
         
     def close_window(self, window):

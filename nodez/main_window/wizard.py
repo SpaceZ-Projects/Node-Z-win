@@ -90,7 +90,7 @@ class MainWizard(Box):
         )
         self.divider_top = Divider(
             direction=Direction.HORIZONTAL,
-            style=DividerStyle.wizard_divider_top
+            style=DividerStyle.wizard_divider
         )
         self.divider_center = Divider(
             direction=Direction.HORIZONTAL,
@@ -98,7 +98,7 @@ class MainWizard(Box):
         )
         self.divider_bottom = Divider(
             direction=Direction.HORIZONTAL,
-            style=DividerStyle.wizard_divider_bottom
+            style=DividerStyle.wizard_divider
         )
         self.local_divider_1 = Divider(
             direction=Direction.VERTICAL,

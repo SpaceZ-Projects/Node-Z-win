@@ -8,12 +8,15 @@ class BoxStyle():
     connect_main_box = Pack(
         direction = COLUMN,
         alignment = CENTER,
-        padding = 5
+        padding = 5,
+        background_color = BLACK
     )
     
     connect_button_box = Pack(
-        direction = ROW,
-        padding_top = 5
+        direction = COLUMN,
+        alignment = CENTER,
+        padding_top = 5,
+        background_color = BLACK
     )
     
     social_main_box = Pack(

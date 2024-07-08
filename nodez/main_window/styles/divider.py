@@ -11,11 +11,7 @@ class DividerStyle():
         padding_bottom = 5
     )
     
-    wizard_divider_top = Pack(
-        width = 550
-    )
-    
-    wizard_divider_bottom = Pack(
+    wizard_divider = Pack(
         width = 550
     )
     
@@ -27,4 +23,8 @@ class DividerStyle():
         height = 40,
         padding_top = 28,
         padding_left = 5
+    )
+
+    rpc_divider = Pack(
+        padding_top = 10
     )

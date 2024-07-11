@@ -200,6 +200,7 @@ class MainWizard(Box):
         else:
             self.local_button.enabled = False   
         self.app.main_window.show()
+        self.app.current_window = self.app.main_window
         
         
     def download_node_files(self, button):

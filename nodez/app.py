@@ -1,4 +1,8 @@
 
+import os
+import clr
+import threading
+import time
 
 from toga import (
     App,
@@ -6,7 +10,13 @@ from toga import (
 )
 
 from .main_window.wizard import MainWizard
+
 from .system import SystemOp
+
+clr.AddReference("System.Drawing")
+clr.AddReference("System.Windows.Forms")
+import System.Drawing as Drawing
+import System.Windows.Forms as Forms
 
 
 class NodeZ(App):
@@ -57,17 +67,43 @@ class NodeZ(App):
     def startup(self):
         self.system = SystemOp(self.app)
 
-        self.main_window = MainWindow(
-            title=self.formal_name,
-            size=(550 ,400),
-            resizable=False
-        )
-        position_center = self.system.windows_screen_center(
-            self.main_window.size
-        )
-        self.main_window.position = position_center
-        self.main_window.content = MainWizard(self.app)
-        self.on_exit = self.prevent_close
+        splash_image_path = os.path.join(self.app.paths.app, 'resources/splash.png')
+        icon_path = os.path.join(self.app.paths.app, 'resources/app_logo.ico')
+
+        splash_image = Drawing.Image.FromFile(splash_image_path)
+        splash_form = Forms.Form()
+        splash_form.Icon = Drawing.Icon(icon_path)
+        splash_form.StartPosition = Forms.FormStartPosition.CenterScreen
+        splash_form.ClientSize = Drawing.Size(400, 150)
+        splash_form.FormBorderStyle = Forms.FormBorderStyle(0)
+        splash_form.TransparencyKey = Drawing.Color.Black
+        splash_form.BackgroundImage = splash_image
+        splash_form.BackgroundImageLayout = Forms.ImageLayout.Zoom
+
+        def show_splash():
+            Forms.Application.Run(splash_form)
+
+        splash_thread = threading.Thread(target=show_splash)
+        splash_thread.start()
+
+        time.sleep(5)
+
+        def on_loading_done():
+            splash_form.Close()
+
+            self.main_window = MainWindow(
+                title=self.formal_name,
+                size=(550 ,400),
+                resizable=False
+            )
+            position_center = self.system.windows_screen_center(
+                self.main_window.size
+            )
+            self.main_window.position = position_center
+            self.main_window.content = MainWizard(self.app)
+            self.on_exit = self.prevent_close
+
+        on_loading_done()
         
         
     async def prevent_close(self, window):

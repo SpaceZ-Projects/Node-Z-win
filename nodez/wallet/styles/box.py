@@ -71,6 +71,12 @@ class BoxStyle():
         background_color = GRAY
     )
 
+    txids_list_box = Pack(
+        direction = COLUMN,
+        background_color = BLACK,
+        flex = 1
+    )
+
     transaction_box = Pack(
         direction = ROW,
         padding = 2,
@@ -97,8 +103,7 @@ class BoxStyle():
     navigation_box = Pack(
         direction =COLUMN,
         background_color = GRAY,
-        alignment = CENTER,
-        flex = 1
+        alignment = CENTER
     )
 
     navigation_buttons_box = Pack(

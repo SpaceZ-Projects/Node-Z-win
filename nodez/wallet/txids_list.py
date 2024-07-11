@@ -58,9 +58,15 @@ class AllTransactions(Box):
         self.loading_box = Box(
             style=BoxStyle.loading_box
         )
+        self.txids_list_box = Box(
+            style=BoxStyle.txids_list_box
+        )
 
         self.app.add_background_task(
             self.get_transactions_list
+        )
+        self.app.add_background_task(
+            self.add_navigation_buttons
         )
 
     
@@ -147,15 +153,16 @@ class AllTransactions(Box):
                     timereceived_box,
                     explorer_button
                 )
-                self.add(
+                self.txids_list_box.add(
                     transaction_box
                 )
-
-            await asyncio.sleep(1)
-            await self.add_navigation_buttons()
+                self.add(
+                    self.txids_list_box
+                )
 
     
-    async def add_navigation_buttons(self):
+    async def add_navigation_buttons(self, widget):
+        await asyncio.sleep(1)
         self.previous_button = Button(
             "<",
             style=ButtonStyle.previous_button,
@@ -185,17 +192,28 @@ class AllTransactions(Box):
 
 
     async def next_page(self, button):
+        self.previous_button.enabled = False
+        self.next_button.enabled = False
         self.transactions_from = self.transactions_from + self.transactions_count
-        self.clear()
+        self.txids_list_box.clear()
         await self.get_transactions_list(None)
+        if self.transactions_from >= 0:
+            self.previous_button.enabled = True
+        self.next_button.enabled = True
 
 
     async def previous_page(self, button):
+        self.previous_button.enabled = False
+        self.next_button.enabled = False
         if self.transactions_from <= 0:
+            self.previous_button.enabled = False
+            self.next_button.enabled = True
             return
         self.transactions_from = self.transactions_from - self.transactions_count
-        self.clear()
+        self.txids_list_box.clear()
         await self.get_transactions_list(None)
+        self.previous_button.enabled = True
+        self.next_button.enabled = True
 
 
     async def transaction_window(self, txid):

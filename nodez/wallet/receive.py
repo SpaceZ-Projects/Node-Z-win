@@ -19,7 +19,7 @@ from toga import (
     Switch
 )
 from toga.colors import YELLOW, CYAN
-from toga.constants import VISIBLE, HIDDEN
+from toga.constants import VISIBLE
 
 from .styles.box import BoxStyle
 from .styles.image import ImageStyle
@@ -413,7 +413,6 @@ class WalletWindow(Window):
         else:
             addresses_data = await self.command.getAddressesByAccount()
             addresses_data = json.loads(addresses_data)
-        
         if addresses_data is not None:
             address_items = [(address_info, address_info) for address_info in addresses_data]
         else:
@@ -431,10 +430,7 @@ class WalletWindow(Window):
             addresses_data = await self.command.z_listAddresses()
             addresses_data = json.loads(addresses_data)
         if addresses_data is not None:
-            if len(addresses_data) == 1:
-                address_items = [(addresses_data[0], addresses_data[0])]
-            else:
-                address_items = [(address, address) for address in addresses_data]
+            address_items = [(address, address) for address in addresses_data]
         else:
             address_items = []
         return address_items

@@ -10,8 +10,7 @@ from toga import (
     Label,
     ProgressBar,
     Divider,
-    ImageView,
-    platform
+    ImageView
 )
 from toga.constants import Direction
 from toga.colors import RED

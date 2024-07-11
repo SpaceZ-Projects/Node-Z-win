@@ -735,7 +735,6 @@ class CashWindow(Window):
         txfee = self.fee_input.value
         comment = self.comment_memo_input.value
         byte_size = sys.getsizeof(comment)
-        print(byte_size)
         if selected_address is None:
             async def on_confirm(result, window):
                 if result:
@@ -1058,7 +1057,7 @@ class CashWindow(Window):
             if byte_size > 512:
                 self.comment_memo_input.style.color = RED
                 self.comment_calculate.style.color = RED
-            elif byte_size >= 512:
+            elif byte_size <= 512:
                 self.comment_memo_input.style.color = YELLOW
                 self.comment_calculate.style.color = WHITE
                 

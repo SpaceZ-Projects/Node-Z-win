@@ -67,6 +67,7 @@ class ButtonStyle():
         color = YELLOW,
         background_color = BLACK,
         padding_top = 10,
+        padding_bottom = 10,
         padding_right = 10
     )
 
@@ -74,6 +75,7 @@ class ButtonStyle():
         color = YELLOW,
         background_color = BLACK,
         padding_top = 10,
+        padding_bottom = 10,
         padding_left = 10
     )
 

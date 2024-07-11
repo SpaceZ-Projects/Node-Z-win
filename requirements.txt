@@ -1,4 +1,3 @@
 toga-winforms
-requests
 aiohttp
 qrcode

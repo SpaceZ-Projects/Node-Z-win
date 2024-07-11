@@ -35,7 +35,6 @@ test_requires = [
 [tool.briefcase.app.nodez.windows]
 requires = [
     "toga-winforms",
-    "requests",
     "aiohttp",
     "qrcode"
 ]
@@ -47,7 +46,6 @@ universal_build = true
 requires = [
     "toga-cocoa",
     "std-nslog",
-    "requests",
     "aiohttp"
 ]
 

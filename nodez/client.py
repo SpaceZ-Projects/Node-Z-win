@@ -1,52 +1,65 @@
 import os
-import requests
-import aiohttp
+import asyncio
+import urllib.request
 import json
 import sqlite3
 import binascii
+import http.client
+import base64
 
 from toga import App
 
     
 def rpc_test(rpcuser, rpcpassword, rpchost, rpcport):
     try:
-        url = f"http://{rpchost}:{rpcport}"
-        headers = {"content-type": "text/plain"}
+        conn = http.client.HTTPConnection(rpchost, rpcport)
         payload = {
             "jsonrpc": "1.0",
             "id": "curltest",
             "method": "getinfo",
             "params": [],
         }
-        response = requests.post(
-            url,
-            data=json.dumps(payload),
-            headers=headers,
-            auth=(rpcuser, rpcpassword),
-        )
-        if response.status_code == 200:
+        headers = {
+            "Content-type": "application/json",
+            "Authorization": "Basic " + base64.b64encode(f"{rpcuser}:{rpcpassword}".encode()).decode(),
+        }
+        conn.request("POST", "/", json.dumps(payload), headers)
+        response = conn.getresponse()
+        
+        if response.status == 200:
             return True
-    except (requests.exceptions.ConnectionError, requests.exceptions.HTTPError) as e:
+        else:
+            return False
+    
+    except http.client.HTTPException as e:
         return False
     
+    finally:
+        conn.close()
+
 
 async def get_btcz_price():
     api_url = "https://api.coinpaprika.com/v1/tickers/btcz-bitcoinz"
     try:
-        async with aiohttp.ClientSession() as session:
-            async with session.get(api_url) as response:
-                if response.status == 200:
-                    data = await response.json()
-                    quotes = data.get('quotes', None)
-                    btcz_usd = quotes.get('USD', None)
-                    price = btcz_usd.get('price', None)
-                    return price
-                else:
-                    print(f"Failed to fetch data. Status code: {response.status}")
-    except aiohttp.ClientError as e:
-        return None
+        response = await fetch_url(api_url)
+        if response:
+            data = json.loads(response)
+            quotes = data.get('quotes', None)
+            btcz_usd = quotes.get('USD', None)
+            price = btcz_usd.get('price', None)
+            return price
+        else:
+            print("Failed to fetch data.")
     except Exception as e:
+        print(f"Error occurred: {e}")
         return None
+    
+
+async def fetch_url(url):
+    loop = asyncio.get_running_loop()
+    future = loop.run_in_executor(None, urllib.request.urlopen, url)
+    response = await future
+    return response.read()
     
     
 class RPCRequest():
@@ -71,29 +84,41 @@ class RPCRequest():
         rpcuser, rpcpassword, rpchost, rpcport = result
         return rpcuser, rpcpassword, rpchost, rpcport
     
+    
     def make_rpc_request(self, method, params):
         rpcuser, rpcpassword, rpchost, rpcport = self.rpc_config()
-        url = f"http://{rpchost}:{rpcport}"
-        headers = {"content-type": "text/plain"}
         payload = {
             "jsonrpc": "1.0",
             "id": "curltest",
             "method": method,
             "params": params,
         }
+        payload_json = json.dumps(payload)
+
+        conn = http.client.HTTPConnection(rpchost, rpcport)
         try:
-            response = requests.post(
-                url,
-                data=json.dumps(payload),
-                headers=headers,
-                auth=(rpcuser, rpcpassword),
-            )
-            response.raise_for_status()
-            data = response.json()["result"]
-            return data
+            credentials = f"{rpcuser}:{rpcpassword}"
+            encoded_credentials = base64.b64encode(credentials.encode('utf-8')).decode('utf-8')
+            auth_header = f"Basic {encoded_credentials}"
+
+            conn.request("POST", "/", payload_json, {
+                "Content-type": "text/plain",
+                "Authorization": auth_header,
+            })
+            response = conn.getresponse()
+            data = json.loads(response.read().decode())
+            if "result" in data:
+                return data["result"]
+            else:
+                print("RPC request failed:", data.get("error"))
+                return None
+
         except Exception as e:
-            print(e)
+            print("Exception during RPC request:", e)
             return None
+        
+        finally:
+            conn.close()
         
         
     def getInfo(self):

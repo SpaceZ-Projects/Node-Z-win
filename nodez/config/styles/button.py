@@ -92,3 +92,15 @@ class ButtonStyle():
         color = YELLOW,
         background_color = BLACK
     )
+
+
+    exportdir_button = Pack(
+        width = 24,
+        height = 21,
+        padding_top = 3,
+        padding_bottom = 1,
+        padding_left = 5,
+        padding_right = 5,
+        color = YELLOW,
+        background_color = BLACK
+    )

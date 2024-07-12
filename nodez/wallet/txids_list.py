@@ -61,6 +61,13 @@ class AllTransactions(Box):
         self.txids_list_box = Box(
             style=BoxStyle.txids_list_box
         )
+        self.loading_box.add(
+            self.loading_icon
+        )
+        self.no_transactions_txt = Label(
+            "No Transactions !",
+            style=LabelStyle.no_transactions_txt
+        )
 
         self.app.add_background_task(
             self.get_transactions_list
@@ -196,6 +203,11 @@ class AllTransactions(Box):
         self.next_button.enabled = False
         self.transactions_from = self.transactions_from + self.transactions_count
         self.txids_list_box.clear()
+        self.txids_list_box.add(
+            self.loading_box
+        )
+        await asyncio.sleep(1.5)
+        self.txids_list_box.clear()
         await self.get_transactions_list(None)
         if self.transactions_from >= 0:
             self.previous_button.enabled = True
@@ -210,6 +222,11 @@ class AllTransactions(Box):
             self.next_button.enabled = True
             return
         self.transactions_from = self.transactions_from - self.transactions_count
+        self.txids_list_box.clear()
+        self.txids_list_box.add(
+            self.loading_box
+        )
+        await asyncio.sleep(1.5)
         self.txids_list_box.clear()
         await self.get_transactions_list(None)
         self.previous_button.enabled = True

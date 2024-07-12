@@ -105,3 +105,9 @@ class InputStyle():
         color = WHITE,
         background_color = BLACK
     )
+
+    exportdir_input = Pack(
+        padding_top = 2,
+        color = WHITE,
+        background_color = BLACK
+    )

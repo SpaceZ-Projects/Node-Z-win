@@ -1,7 +1,9 @@
+
 import asyncio
 import os
 import subprocess
 import json
+import shutil
 
 from toga import (
     App,
@@ -12,7 +14,6 @@ from toga import (
     ImageView
 )
 from toga.constants import Direction
-from toga.colors import RED
 
 from .styles.box import BoxStyle
 from .styles.label import LabelStyle
@@ -89,7 +90,6 @@ class StartNode(Window):
                         if result is True:
                             await self.setup_blockchain_path()
                         if result is False:
-                            self.system.update_settings('blockchainpath', 'default')
                             command = [self.bitcoinzd_file]
                             await self.run_node(command)
                     self.question_dialog(
@@ -98,9 +98,7 @@ class StartNode(Window):
                         on_result=on_confirm
                     )
                     return
-                elif blockchain_path == "default":
-                    command = [self.bitcoinzd_file]
-                elif blockchain_path is not None and blockchain_path != "default":
+                elif blockchain_path is not None:
                     command = [self.bitcoinzd_file, f'-datadir={blockchain_path}']
                 await self.run_node(command)
         else:
@@ -118,18 +116,23 @@ class StartNode(Window):
     
 
     async def setup_blockchain_path(self):
-        default_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
+        config_file = "bitcoinz.conf"
+        config_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
+        file_path = os.path.join(config_path, config_file)
         async def on_confirm(window, path):
             if path:
                 blockchain_path = path
                 if isinstance(blockchain_path, os.PathLike):
                     blockchain_path = str(blockchain_path)
                 self.system.update_settings('blockchainpath', blockchain_path)
-                command = [self.bitcoinzd_file, f'-datadir={blockchain_path}']
+                command = [self.bitcoinzd_file, f'-datadir={blockchain_path}']     
+                target_file_path = os.path.join(blockchain_path, config_file)
+                shutil.copyfile(file_path, target_file_path)
+                await asyncio.sleep(1)
                 await self.run_node(command)
         self.select_folder_dialog(
             "Select path",
-            initial_directory=default_path,
+            initial_directory=self.app.paths.data,
             on_result=on_confirm
         )
 

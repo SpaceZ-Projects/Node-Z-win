@@ -16,7 +16,6 @@ class LabelStyle():
     )
     
     title_txt = Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         text_align = CENTER,
         font_size = 10,
@@ -27,7 +26,6 @@ class LabelStyle():
     )
     
     rpcuser_txt = Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         font_size = 9,
         color = WHITE,
@@ -37,7 +35,6 @@ class LabelStyle():
     )
     
     rpcpassword_txt = Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         font_size = 9,
         color = WHITE,
@@ -47,7 +44,6 @@ class LabelStyle():
     )
     
     rpcport_txt = Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         font_size = 9,
         color = WHITE,
@@ -57,7 +53,6 @@ class LabelStyle():
     )
     
     rpcbind_txt = Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         font_size = 9,
         color = WHITE,
@@ -67,7 +62,6 @@ class LabelStyle():
     )
     
     rpcclienttimeout_txt = Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         font_size = 9,
         color = WHITE,
@@ -77,7 +71,6 @@ class LabelStyle():
     )
     
     rpcallowip_txt = Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         font_size = 9,
         color = WHITE,
@@ -87,7 +80,6 @@ class LabelStyle():
     )
     
     rpcconnect_txt = Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         font_size = 9,
         color = WHITE,
@@ -97,7 +89,6 @@ class LabelStyle():
     )
     
     proxy_txt = Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         font_size = 9,
         color = WHITE,
@@ -107,7 +98,6 @@ class LabelStyle():
     )
     
     bind_txt = Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         font_size = 9,
         color = WHITE,
@@ -117,7 +107,6 @@ class LabelStyle():
     )
     
     whitebind_txt = Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         font_size = 9,
         color = WHITE,
@@ -127,7 +116,6 @@ class LabelStyle():
     )
     
     maxconnections_txt = Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         font_size = 9,
         color = WHITE,
@@ -137,7 +125,6 @@ class LabelStyle():
     )
     
     addnode_txt = Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         font_size = 9,
         color = WHITE,
@@ -147,7 +134,6 @@ class LabelStyle():
     )
     
     connect_txt = Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         font_size = 9,
         color = WHITE,
@@ -157,7 +143,6 @@ class LabelStyle():
     )
     
     paytxfee_txt = Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         font_size = 9,
         color = WHITE,
@@ -167,7 +152,6 @@ class LabelStyle():
     )
     
     genproclimit_txt = Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         font_size = 9,
         color = WHITE,
@@ -177,7 +161,6 @@ class LabelStyle():
     )
     
     equihashsolver_txt = Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         font_size = 9,
         color = WHITE,
@@ -187,11 +170,20 @@ class LabelStyle():
     )
     
     keypool_txt = Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         font_size = 9,
         color = WHITE,
         background_color = GREY,
-        padding_top = 8,
+        padding_top = 9,
+        padding_left = 5
+    )
+
+
+    exportdir_txt = Pack(
+        font_weight = BOLD,
+        font_size = 9,
+        color = WHITE,
+        background_color = GREY,
+        padding_top = 9,
         padding_left = 5
     )

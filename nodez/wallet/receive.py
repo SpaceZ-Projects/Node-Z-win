@@ -2,6 +2,7 @@
 import os
 import json
 import asyncio
+from datetime import datetime
 
 from toga import (
     App,
@@ -85,15 +86,27 @@ class WalletWindow(Window):
         )
         self.view_key_button = Button(
             icon=Icon("icones/view_key"),
-            style=ButtonStyle.import_key_button,
+            style=ButtonStyle.wallet_manage_buttons,
             enabled=True,
             on_press=self.display_private_key
         )
         self.import_key_button = Button(
             icon=Icon("icones/import_key"),
-            style=ButtonStyle.import_key_button,
+            style=ButtonStyle.wallet_manage_buttons,
             enabled=True,
             on_press=self.display_import_window
+        )
+        self.import_wallet_button = Button(
+            icon=Icon("icones/import_wallet"),
+            style=ButtonStyle.wallet_manage_buttons,
+            enabled=True,
+            on_press=self.import_wallet_file
+        )
+        self.new_address_button = Button(
+            icon=Icon("icones/new_addr"),
+            enabled=True,
+            style=ButtonStyle.wallet_manage_buttons,
+            on_press=self.generate_new_address
         )
         self.buttons_box = Box(
             style=BoxStyle.buttons_box
@@ -107,12 +120,6 @@ class WalletWindow(Window):
             enabled=True,
             style=SelectionStyle.select_address,
             on_change=self.display_address_info
-        )
-        self.new_address_button = Button(
-            icon=Icon("icones/new_addr"),
-            enabled=True,
-            style=ButtonStyle.new_address_button,
-            on_press=self.generate_new_address
         )
         self.select_address_box = Box(
             style=BoxStyle.select_address_box
@@ -168,12 +175,13 @@ class WalletWindow(Window):
         )
         self.buttons_box.add(
             self.view_key_button,
-            self.import_key_button
+            self.import_key_button,
+            self.import_wallet_button,
+            self.new_address_button
         )
         self.select_address_box.add(
             self.select_address_txt,
-            self.select_address,
-            self.new_address_button
+            self.select_address
         )
         self.wallet_manage_box.add(
             self.switch_button_box,
@@ -401,6 +409,45 @@ class WalletWindow(Window):
         )
 
         await self.update_addresses_list(None)
+
+
+    
+    async def import_wallet_file(self, button):
+        config_path = self.app.paths.config
+        db_path = os.path.join(config_path, 'config.db')
+        async def on_confirm(window, path):
+            if path:
+                selected_file = str(path)
+                backup_name = f"wallet{datetime.today().strftime('%d%m%Y%H%M%S')}"
+                if os.path.exists(db_path):
+                #Exports all wallet keys, for taddr and zaddr, in a human-readable format.
+                    backup = self.client.z_exportWallet(backup_name)
+                else:
+                    backup = await self.command.z_exportWallet(backup_name)
+                if backup:
+                    self.info_dialog(
+                        "Impoting wallet...",
+                        "This operation may take minutes to complete, please wait..."
+                    )
+                    if os.path.exists(db_path):
+                        #Imports taddr and zaddr keys from a wallet export file
+                        self.client.z_importWallet(selected_file)
+                    else:
+                        await self.command.z_importWallet(selected_file)
+                else:
+                    self.error_dialog(
+                        "Error...",
+                        "-exportdir is not set in bitcoinz.conf file."
+                    )
+                    return
+
+        self.open_file_dialog(
+            title="Select file...",
+            file_types=["*"],
+            initial_directory=self.app.paths.data,
+            multiple_select=False,
+            on_result=on_confirm
+        )
 
             
 

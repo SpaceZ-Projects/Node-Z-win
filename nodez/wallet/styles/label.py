@@ -61,3 +61,9 @@ class LabelStyle():
         background_color = BLACK,
         color = WHITE
     )
+
+
+    no_transactions_txt = Pack(
+        color = WHITE,
+        background_color = BLACK
+    )

@@ -1,4 +1,8 @@
+
+import os
 import asyncio
+import json
+import shutil
 
 from toga import (
     App,
@@ -61,7 +65,7 @@ class EditConfig(Window):
         self.done_button = Button(
             "Done",
             style=ButtonStyle.done_button,
-            on_press=self.close_window
+            on_press=self.copy_config_datadir
         )
         self.guide_box = Box(
             style=BoxStyle.guide_box
@@ -109,12 +113,6 @@ class EditConfig(Window):
         self.show()
         
         
-    async def close_window(self, widget):
-        self.check_requirements_files()
-        self.close()
-        await asyncio.sleep(1)
-        self.app.main_window.show()
-        
         
     def check_requirements_files(self):
         config_file = self.system.load_config_file()
@@ -134,3 +132,33 @@ class EditConfig(Window):
             params_status = True
         if config_status is True and node_status is True and params_status is True:
             self.local_button.enabled = True
+    
+
+    async def copy_config_datadir(self, button):
+        settings_path = os.path.join(self.app.paths.config, 'settings.json')
+        if os.path.exists(settings_path):
+            with open(settings_path, 'r') as f:
+                settings_data = json.load(f)
+                blockchain_path = settings_data.get('blockchainpath')
+                
+                if blockchain_path in (None, "default"):
+                    await self.close_window(None)
+                else:
+                    config_file = "bitcoinz.conf"
+                    config_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
+                    file_path = os.path.join(config_path, config_file)
+                    target_file_path = os.path.join(blockchain_path, config_file)
+                    
+                    shutil.copyfile(file_path, target_file_path)
+                    
+                    await self.close_window(None)
+        else:
+            await self.close_window(None)
+
+
+
+    async def close_window(self, widget):
+        self.check_requirements_files()
+        self.close()
+        await asyncio.sleep(1)
+        self.app.main_window.show()

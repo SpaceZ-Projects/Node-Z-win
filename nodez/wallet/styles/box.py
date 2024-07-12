@@ -14,7 +14,7 @@ class BoxStyle():
     )
 
     loading_box = Pack(
-        direction = COLUMN,
+        direction = ROW,
         flex = 1,
         background_color = BLACK,
         alignment = CENTER

@@ -163,6 +163,8 @@ class insightConfig(Box):
         experimentalfeatures = None
         insightexplorer = None
         addressindex = None
+        timestampindex = None
+        spentindex = None
         with open(self.file_path, 'r') as file:
             lines = file.readlines()
             for line in lines:

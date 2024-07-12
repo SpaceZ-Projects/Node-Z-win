@@ -541,22 +541,14 @@ class CashWindow(Window):
         config_path = self.app.paths.config
         db_path = os.path.join(config_path, 'config.db')
         if os.path.exists(db_path):
-            addresses_data = self.client.listAddressgroupPings()
+            addresses_data = self.client.getAddressesByAccount()
         else:
-            addresses_data = await self.command.listAddressgroupPings()
+            addresses_data = await self.command.getAddressesByAccount()
             addresses_data = json.loads(addresses_data)
         if addresses_data is not None:
-            sorted_addresses = sorted(
-                [address_info for address_info_list in addresses_data for address_info in address_info_list],
-                key=lambda x: x[1],
-                reverse=True
-            )
-            if len(sorted_addresses) == 1:
-                address_items = [("Main Account", ""), (sorted_addresses[0][0], sorted_addresses[0][0])]
-            else:
-                address_items = [("Main Account", "")] + [(address_info[0], address_info[0]) for address_info in sorted_addresses]
+            address_items = [("Main Account")] + [(address_info, address_info) for address_info in addresses_data]
         else:
-            address_items = [("Main Account", "")]
+            address_items = [("Main Account")]
         return address_items
     
     
@@ -995,7 +987,7 @@ class CashWindow(Window):
                     transaction_box
                 )
         self.last_transaction_list.content = self.last_transaction_box
-        await asyncio.sleep(3)
+        await asyncio.sleep(1.5)
         self.main_box.remove(
             self.loading_box
         )

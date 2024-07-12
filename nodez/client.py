@@ -374,3 +374,17 @@ class RPCRequest():
                 "z_importkey",
                 [f"{key}", "no"]
             )
+        
+    
+    def z_exportWallet(self, file_name):
+        return self.make_rpc_request(
+            "z_exportwallet",
+            [f"{file_name}"]
+        )
+    
+
+    def z_importWallet(self, backup_file):
+        return self.make_rpc_request(
+            "z_importwallet",
+            [f"{backup_file}"]
+        )

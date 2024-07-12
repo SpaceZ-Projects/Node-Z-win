@@ -7,7 +7,7 @@ class ImageStyle():
 
 
     loading_icon = Pack(
-        alignment = CENTER
+        padding_left = 300
     )
 
     transparent_icon = Pack(

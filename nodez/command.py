@@ -259,3 +259,18 @@ class ClientCommands():
         else:
             command = f'{self.bitcoinz_cli_file} z_importkey "{key}" no'
         return await self._run_command(command)
+    
+
+    async def backupWallet(self, file_name):
+        command = f'{self.bitcoinz_cli_file} backupwallet "{file_name}"'
+        return await self._run_command(command)
+    
+    
+    async def z_exportWallet(self, file_name):
+        command = f'{self.bitcoinz_cli_file} z_exportwallet "{file_name}"'
+        return await self._run_command(command)
+    
+
+    async def z_importWallet(self, backup_file):
+        command = f'{self.bitcoinz_cli_file} z_importwallet "{backup_file}"'
+        return await self._run_command(command)

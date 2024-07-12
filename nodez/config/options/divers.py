@@ -64,6 +64,10 @@ class DiversConfig(Box):
             "keypool :",
             style=LabelStyle.keypool_txt
         )
+        self.exportdir_txt = Label(
+            "exportdir :",
+            style=LabelStyle.exportdir_txt
+        )
         self.genproclimit_input = NumberInput(
             step=1,
             min=-1,
@@ -85,6 +89,14 @@ class DiversConfig(Box):
             style=InputStyle.equihashsolver_input,
             on_lose_focus=lambda input: self.update_config_input(
                 input, "equihashsolver"
+            )
+        )
+        self.exportdir_input = TextInput(
+            placeholder="backup path",
+            style=InputStyle.exportdir_input,
+            readonly=True,
+            on_change=lambda input: self.update_config_input(
+                input, "exportdir"
             )
         )
         self.gen_info = Button(
@@ -110,6 +122,11 @@ class DiversConfig(Box):
             id="keypool",
             style=ButtonStyle.info_button,
             on_press=self.display_info
+        )
+        self.exportdir_button = Button(
+            "...",
+            style=ButtonStyle.exportdir_button,
+            on_press=self.select_export_path
         )
         self.divers_switch_box = Box(
             style=BoxStyle.divers_switch_box
@@ -141,12 +158,14 @@ class DiversConfig(Box):
         self.divers_button2_box.add(
             self.genproclimit_info,
             self.equihashsolver_info,
-            self.keypool_info
+            self.keypool_info,
+            self.exportdir_button
         )
         self.divers_txt_box.add(
             self.genproclimit_txt,
             self.equihashsolver_txt,
-            self.keypool_txt
+            self.keypool_txt,
+            self.exportdir_txt
         )
         self.divers_row_box.add(
             self.divers_switch_box,
@@ -173,6 +192,7 @@ class DiversConfig(Box):
         genproclimit = None
         equihashsolver = None
         keypool = None
+        exportdir = None
         with open(self.file_path, 'r') as file:
             lines = file.readlines()
             for line in lines:
@@ -186,23 +206,43 @@ class DiversConfig(Box):
                     elif key == "equihashsolver":
                         equihashsolver =value
                     elif key == "keypool":
-                        keypool = value             
+                        keypool = value
+                    elif key == "exportdir":
+                        exportdir = value             
         await self.update_values(
-            gen, genproclimit, equihashsolver, keypool
+            gen, genproclimit, equihashsolver, keypool, exportdir
         )
+
+
+    async def select_export_path(self, input):
+        async def on_confirm(window, path):
+            if path:
+                selected_path = str(path)
+                self.exportdir_input.value = selected_path
+            else:
+                self.exportdir_input.value = ""
+        self.app.main_window.select_folder_dialog(
+            title="Select path...",
+            initial_directory=self.app.paths.data,
+            multiple_select=False,
+            on_result=on_confirm
+        )
+
         
     async def update_values(
         self,
-        gen, genproclimit, equihashsolver, keypool
+        gen, genproclimit, equihashsolver, keypool, exportdir
     ):
         self.gen_switch.value = (gen == "1")
         self.genproclimit_input.value = genproclimit
         self.equihashsolver_input.value = equihashsolver
         self.keypool_input.value = keypool
+        self.exportdir_input.value = exportdir
         self.divers_input_box.add(
             self.genproclimit_input,
             self.equihashsolver_input,
-            self.keypool_input
+            self.keypool_input,
+            self.exportdir_input
         )
         
     
@@ -267,6 +307,8 @@ class DiversConfig(Box):
             info_message = "Specify a different Equihash solver (e.g. “tromp”) to try to mine BitcoinZ faster when gen=1"
         elif button.id == "keypool":
             info_message = "Pre-generate this many public/private key pairs, so wallet backups will be valid for both prior transactions and several dozen future transactions."
+        elif button.id == "exportdir":
+            info_message = ""
         self.app.main_window.info_dialog(
             "Info",
             info_message

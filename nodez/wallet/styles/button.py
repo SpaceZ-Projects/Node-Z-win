@@ -29,9 +29,9 @@ class ButtonStyle():
         flex = 1
     )
 
-    import_key_button = Pack(
+    wallet_manage_buttons = Pack(
         background_color = BLACK,
-        padding_left = 50,
+        padding_left = 60,
         padding_top = 10,
         padding_bottom = 20
     )
@@ -41,12 +41,6 @@ class ButtonStyle():
         color = YELLOW,
         padding_left = 150,
         padding_right = 150
-    )
-
-    new_address_button = Pack(
-        padding_left = 30,
-        padding_top = 12,
-        background_color = BLACK
     )
 
 

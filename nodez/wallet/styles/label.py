@@ -64,6 +64,10 @@ class LabelStyle():
 
 
     no_transactions_txt = Pack(
+        padding_top = 150,
+        font_size = 15,
+        text_align = CENTER,
         color = WHITE,
-        background_color = BLACK
+        background_color = BLACK,
+        font_weight = BOLD,
     )

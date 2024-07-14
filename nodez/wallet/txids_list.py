@@ -91,81 +91,94 @@ class AllTransactions(Box):
             )
             if isinstance(transactions_data, str):
                 transactions_data = json.loads(transactions_data)
-        if transactions_data is not None:
+        if transactions_data:
             sorted_transactions = sorted(
                 transactions_data,
                 key=operator.itemgetter('timereceived'),
                 reverse=True
             )
-            for data in sorted_transactions:
-                address = data.get("address", "Shielded")
-                category = data["category"]
-                amount = self.system.format_balance(data["amount"])
-                timereceived = data["timereceived"]
-                formatted_date_time = datetime.fromtimestamp(timereceived).strftime("%Y-%m-%d %H:%M:%S")
-                txid = data["txid"]
-                if category == "send":
-                    cash_icone = ImageView(
-                        "icones/cashout.png",
-                        style=ImageStyle.cash_icon
-                    )
-                else:
-                    cash_icone = ImageView(
-                        "icones/cashin.png",
-                        style=ImageStyle.cash_icon
-                    )
-                transaction_address = Label(
-                    address,
-                    style=LabelStyle.transaction_address
+            await self.add_transactions_list(sorted_transactions)
+        else:
+            self.txids_list_box.add(
+                self.no_transactions_txt
+            )
+            self.add(
+                self.txids_list_box
+            )
+
+
+
+    async def add_transactions_list(self, sorted_transactions):
+        for data in sorted_transactions:
+            address = data.get("address", "Shielded")
+            category = data["category"]
+            amount = self.system.format_balance(data["amount"])
+            timereceived = data["timereceived"]
+            formatted_date_time = datetime.fromtimestamp(timereceived).strftime("%Y-%m-%d %H:%M:%S")
+            txid = data["txid"]
+            if category == "send":
+                cash_icone = ImageView(
+                    "icones/cashout.png",
+                    style=ImageStyle.cash_icon
                 )
-                transaction_amount = Label(
-                    f"{amount} BTCZ",
-                    style=LabelStyle.transaction_amount
+            else:
+                cash_icone = ImageView(
+                    "icones/cashin.png",
+                    style=ImageStyle.cash_icon
                 )
-                time_received = Label(
-                    formatted_date_time,
-                    style=LabelStyle.time_received
-                )
-                explorer_button = Button(
-                    icon=Icon("icones/explorer_txid"),
-                    style=ButtonStyle.explorer_button,
-                    enabled=True,
-                    on_press=lambda widget, txid=txid: asyncio.create_task(self.transaction_window(txid))
-                )
-                transaction_address_box = Box(
-                    style=BoxStyle.transaction_address_box
-                )
-                transaction_box = Box(
-                    style=BoxStyle.transaction_box
-                )
-                amount_box = Box(
-                    style=BoxStyle.transaction_amount_box
-                )
-                timereceived_box = Box(
-                    style=BoxStyle.transaction_time_box
-                )
-                transaction_address_box.add(
-                    transaction_address
-                )
-                amount_box.add(
-                    transaction_amount
-                )
-                timereceived_box.add(
-                    time_received
-                )
-                transaction_box.add(
-                    cash_icone,
-                    transaction_address_box,
-                    amount_box,
-                    timereceived_box,
-                    explorer_button
-                )
-                self.txids_list_box.add(
-                    transaction_box
-                )
-                self.add(
-                    self.txids_list_box
-                )
+            transaction_address = Label(
+                address,
+                style=LabelStyle.transaction_address
+            )
+            transaction_amount = Label(
+                f"{amount} BTCZ",
+                style=LabelStyle.transaction_amount
+            )
+            time_received = Label(
+                formatted_date_time,
+                style=LabelStyle.time_received
+            )
+            explorer_button = Button(
+                icon=Icon("icones/explorer_txid"),
+                style=ButtonStyle.explorer_button,
+                enabled=True,
+                on_press=lambda widget, txid=txid: asyncio.create_task(self.transaction_window(txid))
+            )
+            transaction_address_box = Box(
+                style=BoxStyle.transaction_address_box
+            )
+            transaction_box = Box(
+                style=BoxStyle.transaction_box
+            )
+            amount_box = Box(
+                style=BoxStyle.transaction_amount_box
+            )
+            timereceived_box = Box(
+                style=BoxStyle.transaction_time_box
+            )
+            transaction_address_box.add(
+                transaction_address
+            )
+            amount_box.add(
+                transaction_amount
+            )
+            timereceived_box.add(
+                time_received
+            )
+            transaction_box.add(
+                cash_icone,
+                transaction_address_box,
+                amount_box,
+                timereceived_box,
+                explorer_button
+            )
+            self.txids_list_box.add(
+                transaction_box
+            )
+            self.add(
+                self.txids_list_box
+            )
+
 
     
     async def add_navigation_buttons(self, widget):

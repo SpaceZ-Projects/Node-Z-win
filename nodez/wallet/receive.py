@@ -429,6 +429,7 @@ class WalletWindow(Window):
                         "Impoting wallet...",
                         "This operation may take minutes to complete, please wait..."
                     )
+                    await asyncio.sleep(1)
                     if os.path.exists(db_path):
                         #Imports taddr and zaddr keys from a wallet export file
                         self.client.z_importWallet(selected_file)

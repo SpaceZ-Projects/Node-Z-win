@@ -32,10 +32,20 @@ def rpc_test(rpcuser, rpcpassword, rpchost, rpcport):
             return False
     
     except http.client.HTTPException as e:
+        print(f"HTTPException: {e}")
+        return False
+    
+    except ConnectionRefusedError:
+        print(f"Connection refused to {rpchost}:{rpcport}. Is the RPC server running?")
+        return False
+    
+    except Exception as e:
+        print(f"Exception: {e}")
         return False
     
     finally:
-        conn.close()
+        if conn:
+            conn.close()
 
 
 async def get_btcz_price():
@@ -113,12 +123,21 @@ class RPCRequest():
                 print("RPC request failed:", data.get("error"))
                 return None
 
+        except http.client.HTTPException as e:
+            print(f"HTTPException: {e}")
+            return False
+        
+        except ConnectionRefusedError:
+            print(f"Connection refused to {rpchost}:{rpcport}. Is the RPC server running?")
+            return False
+        
         except Exception as e:
-            print("Exception during RPC request:", e)
-            return None
+            print(f"Exception: {e}")
+            return False
         
         finally:
-            conn.close()
+            if conn:
+                conn.close()
         
         
     def getInfo(self):

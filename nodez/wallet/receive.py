@@ -164,13 +164,13 @@ class WalletWindow(Window):
             "Scan UTXOs",
             enabled= True,
             style=ButtonStyle.scan_button,
-            on_press=self.scan_utoxs
+            on_press=self.scan_utxos
         )
         self.cancel_button = Button(
             "Cancel",
             enabled=True,
             style=ButtonStyle.cancel_button,
-            on_press=self.cancel_merge_utoxs
+            on_press=self.cancel_merge_utxos
         )
         self.merge_button = Button(
             "Merge",
@@ -286,7 +286,7 @@ class WalletWindow(Window):
 
 
 
-    async def scan_utoxs(self, button):
+    async def scan_utxos(self, button):
         config_path = self.app.paths.config
         db_path = os.path.join(config_path, 'config.db')
         self.scan_button.enabled = False
@@ -382,7 +382,7 @@ class WalletWindow(Window):
         
 
 
-    async def cancel_merge_utoxs(self, button):
+    async def cancel_merge_utxos(self, button):
         self.number_addresses = None
         self.total_amount = None
         self.json_addresses = None

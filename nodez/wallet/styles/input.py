@@ -11,3 +11,14 @@ class InputStyle():
         color = WHITE,
         background_color = BLACK
     )
+
+
+    merge_fee_input = Pack(
+        padding_top = 10,
+        padding_left = 20,
+        padding_right = 200,
+        font_size = 11,
+        color = WHITE,
+        background_color = BLACK,
+        flex = 1
+    )

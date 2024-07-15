@@ -48,7 +48,7 @@ class BoxStyle():
     address_info_box = Pack(
         direction = ROW,
         background_color = GRAY,
-        padding_top = 50,
+        padding_top = 20,
         padding_left = 5,
         padding_right = 5,
         padding_bottom = 5,
@@ -121,6 +121,42 @@ class BoxStyle():
     import_button_box = Pack(
         alignment = CENTER,
         direction = COLUMN,
+        background_color = BLACK,
+        flex = 1
+    )
+
+    wallet_manage_box = Pack(
+        direction = COLUMN,
+        background_color = BLACK
+    )
+
+    merge_operation_box = Pack(
+        alignment = CENTER,
+        direction = COLUMN,
+        background_color = BLACK,
+        flex = 1
+    )
+
+    merge_result_box = Pack(
+        direction = COLUMN,
+        background_color = BLACK,
+    )
+
+    merge_manage_box = Pack(
+        direction = ROW,
+        background_color = BLACK,
+        flex = 1
+    )
+
+
+    merge_buttons_box = Pack(
+        direction = ROW,
+        background_color = BLACK,
+        flex = 1
+    )
+
+    merge_fee_box = Pack(
+        direction = ROW,
         background_color = BLACK,
         flex = 1
     )

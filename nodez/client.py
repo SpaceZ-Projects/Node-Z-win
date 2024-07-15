@@ -388,3 +388,11 @@ class RPCRequest():
             "z_importwallet",
             [f"{backup_file}"]
         )
+    
+
+    def z_mergeToaAdress(self, list_addresses, address, tx_fee, limit):
+        addresses_json = json.dumps(list_addresses)
+        return self.make_rpc_request(
+            "z_mergetoaddress",
+            [addresses_json, address, tx_fee, limit]
+        )

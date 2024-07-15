@@ -274,3 +274,9 @@ class ClientCommands():
     async def z_importWallet(self, backup_file):
         command = f'{self.bitcoinz_cli_file} z_importwallet "{backup_file}"'
         return await self._run_command(command)
+    
+
+    async def z_mergeToaAdress(self, list_addresses, address, tx_fee, limit):
+        addresses_json = json.dumps(list_addresses)
+        command = f'{self.bitcoinz_cli_file} z_mergetoaddress {addresses_json} {address} {tx_fee} {limit}'
+        return await self._run_command(command)

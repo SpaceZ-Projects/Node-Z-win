@@ -79,3 +79,23 @@ class ButtonStyle():
         padding_left = 150,
         padding_right = 150
     )
+
+
+    scan_button = Pack(
+        color = YELLOW,
+        background_color = BLACK,
+        padding_top = 100,
+        padding_left = 150,
+        padding_right = 150
+    )
+
+    cancel_button = Pack(
+        padding_right = 20,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+    merge_button = Pack(
+        color = WHITE,
+        background_color = BLACK
+    )

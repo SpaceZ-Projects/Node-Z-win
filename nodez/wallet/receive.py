@@ -17,10 +17,11 @@ from toga import (
     OptionItem,
     TextInput,
     PasswordInput,
-    Switch
+    Switch,
+    Divider
 )
 from toga.colors import YELLOW, CYAN
-from toga.constants import VISIBLE
+from toga.constants import VISIBLE, Direction
 
 from .styles.box import BoxStyle
 from .styles.image import ImageStyle
@@ -112,7 +113,7 @@ class WalletWindow(Window):
             style=BoxStyle.buttons_box
         )
         self.select_address_txt = Label(
-            "Select Address :",
+            "Addresses :",
             style=LabelStyle.select_address_txt
         )
         self.select_address = Selection(
@@ -127,14 +128,84 @@ class WalletWindow(Window):
         self.address_manage_box = Box(
             style=BoxStyle.address_manage_box
         )
-
         self.wallet_manage_box = Box(
+            style=BoxStyle.wallet_manage_box
+        )
+        self.merge_info_txt = Label(
+            "Merge multiple UTXOs into a single UTXO or note.",
+            style=LabelStyle.merge_info_txt
+        )
+        self.merge_result_txt = Label(
+            "- Opreration Result -",
+            style=LabelStyle.merge_result_txt
+        )
+        self.merge_select_address_txt = Label(
+            "Merge to :",
+            style=LabelStyle.merge_select_address_txt
+        )
+        self.merge_select_address = Selection(
+            accessor="merge_select_address",
+            enabled=True,
+            style=SelectionStyle.merge_select_address
+        )
+        self.merge_list_txt = Label(
+            "",
+            style=LabelStyle.merge_list_txt
+        )
+        self.merge_fee_txt = Label(
+            "Txfee :",
+            style=LabelStyle.merge_fee_txt
+        )
+        self.merge_fee_input = TextInput(
+            placeholder="default 0.0001",
+            style=InputStyle.merge_fee_input
+        )
+        self.scan_button = Button(
+            "Scan UTXOs",
+            enabled= True,
+            style=ButtonStyle.scan_button,
+            on_press=self.scan_utoxs
+        )
+        self.cancel_button = Button(
+            "Cancel",
+            enabled=True,
+            style=ButtonStyle.cancel_button,
+            on_press=self.cancel_merge_utoxs
+        )
+        self.merge_button = Button(
+            "Merge",
+            enabled=True,
+            style=ButtonStyle.merge_button,
+            on_press=self.verify_merge_inputs
+        )
+        self.merge_divider = Divider(
+            direction=Direction.VERTICAL
+        )
+        self.merge_fee_box = Box(
+            style=BoxStyle.merge_fee_box
+        )
+        self.merge_buttons_box = Box(
+            style=BoxStyle.merge_buttons_box
+        )
+        self.merge_address_box = Box(
+            style=BoxStyle.select_address_box
+        )
+        self.merge_reslut_box = Box(
+            style=BoxStyle.merge_result_box
+        )
+        self.merge_operation_box = Box(
+            style=BoxStyle.merge_operation_box
+        )
+        self.merge_manage_box = Box(
+            style=BoxStyle.merge_manage_box
+        )
+        self.wallet_main_box = Box(
             style=BoxStyle.wallet_main_box
         )
         self.wallet_manage_option = OptionItem(
             text="Address Manage",
             enabled=True,
-            content=self.wallet_manage_box
+            content=self.wallet_main_box
         )
         self.transactions_list_option = OptionItem(
             text="Transactions List",
@@ -164,6 +235,7 @@ class WalletWindow(Window):
         self.transaction_mode = "transparent"
         transparent_address = await self.get_transparent_addresses()
         self.select_address.items = transparent_address
+        self.merge_select_address.items = transparent_address
 
         await self.display_window()
 
@@ -186,18 +258,156 @@ class WalletWindow(Window):
         self.wallet_manage_box.add(
             self.switch_button_box,
             self.buttons_box,
-            self.select_address_box
+            self.select_address_box,
+            self.address_manage_box
+        )
+        self.merge_address_box.add(
+            self.merge_select_address_txt,
+            self.merge_select_address
+        )
+        self.merge_operation_box.add(
+            self.merge_info_txt,
+            self.scan_button
+        )
+        self.merge_reslut_box.add(
+            self.merge_result_txt
+        )
+        self.merge_manage_box.add(
+            self.merge_operation_box,
+            self.merge_divider,
+            self.merge_reslut_box
+        )
+        self.wallet_main_box.add(
+            self.wallet_manage_box,
+            self.merge_manage_box
         )
         await asyncio.sleep(1)
         self.show()
+
+
+
+    async def scan_utoxs(self, button):
+        config_path = self.app.paths.config
+        db_path = os.path.join(config_path, 'config.db')
+        self.scan_button.enabled = False
+        if os.path.exists(db_path):
+            scan_addresses = self.client.listAddressgroupPings()
+        else:
+            scan_addresses = await self.command.listAddressgroupPings()
+            scan_addresses = json.loads(scan_addresses)
+        if scan_addresses:
+            flattened_addresses = [address_info for address_info_list in scan_addresses for address_info in address_info_list]
+            filtered_addresses = [address_info for address_info in flattened_addresses if address_info[1] != 0]
+            sorted_addresses = sorted(filtered_addresses, key=lambda x: x[1], reverse=True)
+            self.number_addresses = len(sorted_addresses)
+            if self.number_addresses == 0:
+                self.scan_button.enabled = True
+                return
+            self.total_amount = sum(address_info[1] for address_info in sorted_addresses)
+            
+            addresses_only = [address_info[0] for address_info in sorted_addresses]
+            self.json_addresses = json.dumps(addresses_only)
+            self.scan_button.enabled = True
+            await self.display_merge_options()
+        else:
+            self.scan_button.enabled = True
+
+
+    async def display_merge_options(self):
+        self.merge_list_txt.text = f"Total amount : {self.total_amount:.8f} BTCZ in {self.number_addresses} addresses"
+        self.merge_operation_box.remove(
+            self.scan_button
+        )
+        self.merge_address_box.add(
+            self.merge_select_address_txt,
+            self.merge_select_address
+        )
+        self.merge_fee_box.add(
+            self.merge_fee_txt,
+            self.merge_fee_input
+        )
+        self.merge_buttons_box.add(
+            self.cancel_button,
+            self.merge_button
+        )
+        self.merge_operation_box.add(
+            self.merge_address_box,
+            self.merge_list_txt,
+            self.merge_fee_box,
+            self.merge_buttons_box
+        )
+
+
+    async def verify_merge_inputs(self, button):
+        self.cancel_button.enabled = False
+        self.merge_button.enabled = False
+        selected_address = self.merge_select_address.value.merge_select_address
+        if not self.merge_fee_input.value:
+            tx_fee = 0.0001
+        else:
+            tx_fee = self.merge_fee_input.value
+        await self.start_merge_opertation(selected_address, tx_fee)
+
+    
+
+    async def start_merge_opertation(self, address, tx_fee):
+        config_path = self.app.paths.config
+        db_path = os.path.join(config_path, 'config.db')
+        if os.path.exists(db_path):
+            operation = self.client.z_mergeToaAdress(
+                self.json_addresses,
+                address,
+                tx_fee,
+                self.number_addresses
+            )
+        else:
+            operation = await self.command.z_mergeToaAdress(
+                self.json_addresses,
+                address,
+                tx_fee,
+                self.number_addresses
+            )
+            if operation:
+                operation = json.loads(operation)
+        if operation is not None:
+            print(operation)
+        else:
+            self.error_dialog(
+                "Error...",
+                "z_mergetoaddress is disabled.\nTo enable it, add these two lines to bitcoinz.conf file\n\n-experimentalfeatures\n-zmergetoaddress"
+            )
+            await asyncio.sleep(1)
+            self.cancel_button.enabled = True
+            self.merge_button.enabled = True
         
+
+
+    async def cancel_merge_utoxs(self, button):
+        self.number_addresses = None
+        self.total_amount = None
+        self.json_addresses = None
+        self.merge_operation_box.remove(
+            self.merge_address_box,
+            self.merge_list_txt,
+            self.merge_fee_box,
+            self.merge_buttons_box
+        )
+        self.merge_operation_box.add(
+            self.scan_button
+        )
+        
+            
+
 
     async def switch_to_transparent(self, button):
         self.transaction_mode = "transparent"
         transparent_address = await self.get_transparent_addresses()
         self.select_address.items.clear()
+        self.merge_select_address.items.clear()
         self.select_address.style.color = YELLOW
+        self.merge_select_address.style.color = YELLOW
         self.select_address.items = transparent_address
+        self.merge_select_address.items = transparent_address
         self.switch_button_box.remove(
             self.transparent_button,
             self.shielded_icon
@@ -211,8 +421,11 @@ class WalletWindow(Window):
         self.transaction_mode = "shielded"
         shielded_address = await self.get_shielded_addresses()
         self.select_address.items.clear()
+        self.merge_select_address.items.clear()
         self.select_address.style.color = CYAN
+        self.merge_select_address.style.color = CYAN
         self.select_address.items = shielded_address
+        self.merge_select_address.items = shielded_address
         self.switch_button_box.remove(
             self.transparent_icon,
             self.shielded_button
@@ -543,9 +756,7 @@ class WalletWindow(Window):
                 self.transaction_mode
             )
         )
-        self.wallet_manage_box.add(
-            self.address_manage_box
-        )
+        
 
 
     async def copy_key_clipboard(self, button):

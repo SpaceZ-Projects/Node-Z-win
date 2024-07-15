@@ -1,6 +1,6 @@
 from toga.style.pack import Pack
 from toga.constants import CENTER, BOLD
-from toga.colors import BLACK, WHITE
+from toga.colors import BLACK, WHITE, YELLOW
 
 
 
@@ -9,7 +9,7 @@ class LabelStyle():
 
     select_address_txt = Pack(
         padding_top = 17,
-        padding_left = 55,
+        padding_left = 130,
         font_size = 10,
         font_weight = BOLD,
         color = WHITE,
@@ -70,4 +70,51 @@ class LabelStyle():
         color = WHITE,
         background_color = BLACK,
         font_weight = BOLD,
+    )
+
+
+    merge_select_address_txt = Pack(
+        padding_top = 17,
+        padding_left = 10,
+        font_size = 10,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+
+    merge_result_txt = Pack(
+        padding_top = 10,
+        padding_left = 40,
+        padding_right = 40,
+        font_size = 12,
+        font_weight = BOLD,
+        text_align = CENTER,
+        color = YELLOW,
+        background_color = BLACK,
+    )
+
+
+    merge_info_txt = Pack(
+        text_align = CENTER,
+        padding_top = 10,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+    merge_list_txt = Pack(
+        padding = 15,
+        text_align = CENTER,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+
+    merge_fee_txt = Pack(
+        padding_top = 13,
+        padding_left = 67,
+        font_size = 10,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK
     )

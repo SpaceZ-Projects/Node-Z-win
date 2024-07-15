@@ -86,7 +86,7 @@ class NodeZ(App):
         splash_thread = threading.Thread(target=show_splash)
         splash_thread.start()
 
-        time.sleep(5)
+        time.sleep(4)
 
         def on_loading_done():
             splash_form.Close()

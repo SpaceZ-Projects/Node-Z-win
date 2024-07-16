@@ -25,7 +25,8 @@ class BoxStyle():
     
     start_main_box = Pack(
         direction = COLUMN,
-        alignment = CENTER
+        alignment = CENTER,
+        background_color = BLACK
     )
     
     download_main_box = Pack(

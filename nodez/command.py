@@ -276,7 +276,7 @@ class ClientCommands():
         return await self._run_command(command)
     
 
-    async def z_mergeToaAdress(self, list_addresses, address, tx_fee, limit):
+    async def z_mergeToaAdress(self, list_addresses, address, tx_fee):
         addresses_json = json.dumps(list_addresses)
-        command = f'{self.bitcoinz_cli_file} z_mergetoaddress {addresses_json} {address} {tx_fee} {limit}'
+        command = f'{self.bitcoinz_cli_file} z_mergetoaddress {addresses_json} {address} {tx_fee}'
         return await self._run_command(command)

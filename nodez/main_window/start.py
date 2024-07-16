@@ -28,7 +28,7 @@ class StartNode(Window):
     def __init__(self, app:App, local_button):
         super().__init__(
             title="Loading...",
-            size=(280, 90),
+            size=(250, 300),
             resizable=False,
             minimizable=False,
             closable=False
@@ -40,6 +40,9 @@ class StartNode(Window):
         self.local_button = local_button
         self.bitcoinzd_file = os.path.join(self.app.paths.data, "bitcoinzd.exe")
         
+        self.loading_image = ImageView(
+            "icones/loading_blocks.gif"
+        )
         self.starting_txt = Label(
             "Starting Node...",
             style=LabelStyle.starting_txt
@@ -51,13 +54,10 @@ class StartNode(Window):
         self.main_box = Box(
             style=BoxStyle.start_main_box
         )
-        self.bitcoinz_coin = ImageView(
-            ("resources/btcz_coin1.gif")
-        )
         self.main_box.add(
             self.starting_txt,
             self.divider_top,
-            self.bitcoinz_coin
+            self.loading_image
         )
         self.content = self.main_box
         self.app.add_background_task(

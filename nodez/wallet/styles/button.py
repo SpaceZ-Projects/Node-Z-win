@@ -96,6 +96,6 @@ class ButtonStyle():
     )
 
     merge_button = Pack(
-        color = WHITE,
-        background_color = BLACK
+        color = BLACK,
+        background_color = YELLOW
     )

@@ -68,6 +68,13 @@ class DiversConfig(Box):
             "exportdir :",
             style=LabelStyle.exportdir_txt
         )
+        self.zmergetoaddress_switch = Switch(
+            "zmergetoaddress",
+            style=SwitchStyle.switch,
+            on_change=lambda switch: self.update_config_switch(
+                switch, "zmergetoaddress"
+            )
+        )
         self.genproclimit_input = NumberInput(
             step=1,
             min=-1,
@@ -123,6 +130,12 @@ class DiversConfig(Box):
             style=ButtonStyle.info_button,
             on_press=self.display_info
         )
+        self.zmergetoaddress_info = Button(
+            "?",
+            id="zmergetoaddress",
+            style=ButtonStyle.info_button,
+            on_press=self.display_info
+        )
         self.exportdir_button = Button(
             "...",
             style=ButtonStyle.exportdir_button,
@@ -150,10 +163,12 @@ class DiversConfig(Box):
             style=BoxStyle.divers_row2_box
         )
         self.divers_switch_box.add(
-            self.gen_switch
+            self.gen_switch,
+            self.zmergetoaddress_switch
         )
         self.divers_button_box.add(
-            self.gen_info
+            self.gen_info,
+            self.zmergetoaddress_info
         )
         self.divers_button2_box.add(
             self.genproclimit_info,
@@ -188,11 +203,14 @@ class DiversConfig(Box):
                 
     
     async def read_file_lines(self, widget):
+        
         gen = None
         genproclimit = None
         equihashsolver = None
         keypool = None
         exportdir = None
+        zmergetoaddress = None
+
         with open(self.file_path, 'r') as file:
             lines = file.readlines()
             for line in lines:
@@ -208,9 +226,11 @@ class DiversConfig(Box):
                     elif key == "keypool":
                         keypool = value
                     elif key == "exportdir":
-                        exportdir = value             
+                        exportdir = value
+                    elif key == "zmergetoaddress":
+                        zmergetoaddress = value             
         await self.update_values(
-            gen, genproclimit, equihashsolver, keypool, exportdir
+            gen, genproclimit, equihashsolver, keypool, exportdir, zmergetoaddress
         )
 
 
@@ -231,9 +251,10 @@ class DiversConfig(Box):
         
     async def update_values(
         self,
-        gen, genproclimit, equihashsolver, keypool, exportdir
+        gen, genproclimit, equihashsolver, keypool, exportdir, zmergetoaddress
     ):
         self.gen_switch.value = (gen == "1")
+        self.zmergetoaddress_switch.value = (zmergetoaddress == "1")
         self.genproclimit_input.value = genproclimit
         self.equihashsolver_input.value = equihashsolver
         self.keypool_input.value = keypool
@@ -309,6 +330,8 @@ class DiversConfig(Box):
             info_message = "Pre-generate this many public/private key pairs, so wallet backups will be valid for both prior transactions and several dozen future transactions."
         elif button.id == "exportdir":
             info_message = ""
+        elif button.id == "zmergetoaddress":
+            info_message = "Enable z_mergetoaddress function"
         self.app.main_window.info_dialog(
             "Info",
             info_message

@@ -135,9 +135,33 @@ class WalletWindow(Window):
             "Merge multiple UTXOs into a single UTXO or note.",
             style=LabelStyle.merge_info_txt
         )
-        self.merge_result_txt = Label(
-            "- Opreration Result -",
-            style=LabelStyle.merge_result_txt
+        self.operation_status_txt = Label(
+            "- Operation Result -",
+            style=LabelStyle.operation_status_txt
+        )
+        self.remaining_utxos = Label(
+            "remainingUTXOs :",
+            style=LabelStyle.status_txt
+        )
+        self.remaining_value = Label(
+            "remainingValue :",
+            style=LabelStyle.status_txt
+        )
+        self.merging_utxos = Label(
+            "mergingUTXOs :",
+            style=LabelStyle.status_txt
+        )
+        self.merging_value = Label(
+            "mergingValue :",
+            style=LabelStyle.status_txt
+        )
+        self.operation_id = Label(
+            "OperationID :",
+            style=LabelStyle.status_txt
+        )
+        self.operation_id_output = TextInput(
+            readonly=True,
+            style=InputStyle.operation_id_output
         )
         self.merge_select_address_txt = Label(
             "Merge to :",
@@ -161,7 +185,7 @@ class WalletWindow(Window):
             style=InputStyle.merge_fee_input
         )
         self.scan_button = Button(
-            "Scan UTXOs",
+            icon=Icon("icones/scan_utxos"),
             enabled= True,
             style=ButtonStyle.scan_button,
             on_press=self.scan_utxos
@@ -270,7 +294,13 @@ class WalletWindow(Window):
             self.scan_button
         )
         self.merge_reslut_box.add(
-            self.merge_result_txt
+            self.operation_status_txt,
+            self.remaining_utxos,
+            self.remaining_value,
+            self.merging_utxos,
+            self.merging_value,
+            self.operation_id,
+            self.operation_id_output
         )
         self.merge_manage_box.add(
             self.merge_operation_box,
@@ -292,25 +322,31 @@ class WalletWindow(Window):
         self.scan_button.enabled = False
         if os.path.exists(db_path):
             scan_addresses = self.client.listAddressgroupPings()
+            account_addresses = self.client.getAddressesByAccount()
         else:
+            account_addresses = await self.command.getAddressesByAccount()
+            account_addresses = json.loads(account_addresses)
+
             scan_addresses = await self.command.listAddressgroupPings()
             scan_addresses = json.loads(scan_addresses)
+
         if scan_addresses:
             flattened_addresses = [address_info for address_info_list in scan_addresses for address_info in address_info_list]
             filtered_addresses = [address_info for address_info in flattened_addresses if address_info[1] != 0]
             sorted_addresses = sorted(filtered_addresses, key=lambda x: x[1], reverse=True)
-            self.number_addresses = len(sorted_addresses)
-            if self.number_addresses == 0:
-                self.scan_button.enabled = True
-                return
             self.total_amount = sum(address_info[1] for address_info in sorted_addresses)
-            
             addresses_only = [address_info[0] for address_info in sorted_addresses]
-            self.json_addresses = json.dumps(addresses_only)
+        if account_addresses:
+            main_addresees = [address_info for address_info in account_addresses]
+        addresses_only = [address for address in addresses_only if address not in main_addresees]
+        self.number_addresses = len(addresses_only)
+        if self.number_addresses == 0:
             self.scan_button.enabled = True
-            await self.display_merge_options()
+            return
         else:
             self.scan_button.enabled = True
+            self.json_addresses = addresses_only
+            await self.display_merge_options()
 
 
     async def display_merge_options(self):
@@ -357,20 +393,30 @@ class WalletWindow(Window):
             operation = self.client.z_mergeToaAdress(
                 self.json_addresses,
                 address,
-                tx_fee,
-                self.number_addresses
+                tx_fee
             )
         else:
+            self.json_addresses = json.dumps(self.json_addresses)
             operation = await self.command.z_mergeToaAdress(
                 self.json_addresses,
                 address,
-                tx_fee,
-                self.number_addresses
+                tx_fee
             )
             if operation:
                 operation = json.loads(operation)
         if operation is not None:
-            print(operation)
+            remainingUTXOs = operation.get("remainingUTXOs")
+            remainingTransparentValue = operation.get("remainingTransparentValue")
+            mergingUTXOs = operation.get("mergingUTXOs")
+            mergingTransparentValue = operation.get("mergingTransparentValue")
+            operationID = operation.get("opid")
+            await self.update_operation_status(
+                remainingUTXOs,
+                remainingTransparentValue,
+                mergingUTXOs,
+                mergingTransparentValue,
+                operationID
+            )
         else:
             self.error_dialog(
                 "Error...",
@@ -379,7 +425,35 @@ class WalletWindow(Window):
             await asyncio.sleep(1)
             self.cancel_button.enabled = True
             self.merge_button.enabled = True
-        
+
+
+    
+    async def update_operation_status(self, remainingUTXOs, remainingTransparentValue, mergingUTXOs, mergingTransparentValue, operationID):
+        self.remaining_utxos.text = f"remainingUTXOs : {remainingUTXOs}"
+        self.remaining_value.text = f"remainingValue : {self.system.format_balance(remainingTransparentValue)}"
+        self.merging_utxos.text = f"mergingUTXOs : {mergingUTXOs}"
+        self.merging_value.text = f"mergingValue : {self.system.format_balance(mergingTransparentValue)}"
+        self.operation_id_output.value = f"OperationID : {operationID}"
+        config_path = self.app.paths.config
+        db_path = os.path.join(config_path, 'config.db')
+        while True:
+            if os.path.exists(db_path):
+                operation_status = self.client.z_getOperationStatus(operationID)
+            else:
+                operation_status = await self.command.z_getOperationStatus(operationID)
+                operation_status = json.loads(operation_status)
+            if operation_status is not None:
+                status = operation_status[0].get('status')
+                if status == "success":
+                    await asyncio.sleep(3)
+                    self.remaining_utxos.text = f"remainingUTXOs :"
+                    self.remaining_value.text = f"remainingValue :"
+                    self.merging_utxos.text = f"mergingUTXOs :"
+                    self.merging_value.text = f"mergingValue :"
+                    self.operation_id_output.value = ""
+                    await self.cancel_merge_utxos(None)
+                    return
+            await asyncio.sleep(5)
 
 
     async def cancel_merge_utxos(self, button):
@@ -658,7 +732,7 @@ class WalletWindow(Window):
         self.open_file_dialog(
             title="Select file...",
             file_types=["*"],
-            initial_directory=self.app.paths.data,
+            initial_directory=self.app.paths.config,
             multiple_select=False,
             on_result=on_confirm
         )
@@ -726,16 +800,19 @@ class WalletWindow(Window):
 
     async def update_addresses_list(self, address):
         self.select_address.items.clear()
+        self.merge_select_address.items.clear()
 
         if self.transaction_mode == "transparent":
             transparent_address = await self.get_transparent_addresses()
             self.select_address.style.color = YELLOW
             self.select_address.items = transparent_address
+            self.merge_select_address.items = transparent_address
 
         elif self.transaction_mode == "shielded":
             shielded_address = await self.get_shielded_addresses()
             self.select_address.style.color = CYAN
             self.select_address.items = shielded_address
+            self.merge_select_address.items = shielded_address
         if address is not None:  
             self.select_address.value = self.select_address.items.find(address)
 

@@ -22,3 +22,14 @@ class InputStyle():
         background_color = BLACK,
         flex = 1
     )
+
+
+    operation_id_output = Pack(
+        padding_top = 5,
+        padding_left = 10,
+        padding_right = 10,
+        font_size = 10,
+        color = WHITE,
+        background_color = BLACK,
+        width= 200
+    )

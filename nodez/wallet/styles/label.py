@@ -83,10 +83,11 @@ class LabelStyle():
     )
 
 
-    merge_result_txt = Pack(
+    operation_status_txt = Pack(
         padding_top = 10,
         padding_left = 40,
         padding_right = 40,
+        padding_bottom = 25,
         font_size = 12,
         font_weight = BOLD,
         text_align = CENTER,
@@ -114,6 +115,15 @@ class LabelStyle():
         padding_top = 13,
         padding_left = 67,
         font_size = 10,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+
+    status_txt = Pack(
+        padding_left = 5,
+        padding_bottom = 15,
         font_weight = BOLD,
         color = WHITE,
         background_color = BLACK

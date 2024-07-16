@@ -4,7 +4,7 @@ from toga.constants import CENTER
 class DividerStyle():
     
     start_divider_top = Pack(
-        padding_bottom = 5
+        padding_bottom = 10
     )
     
     download_divider_top = Pack(

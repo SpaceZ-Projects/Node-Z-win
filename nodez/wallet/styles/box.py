@@ -139,7 +139,7 @@ class BoxStyle():
 
     merge_result_box = Pack(
         direction = COLUMN,
-        background_color = BLACK,
+        background_color = BLACK
     )
 
     merge_manage_box = Pack(

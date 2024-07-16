@@ -47,11 +47,12 @@ class LabelStyle():
     )
     
     starting_txt = Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         text_align = CENTER,
-        padding_top = 5,
-        padding_bottom = 5
+        padding_top = 20,
+        padding_bottom = 10,
+        background_color = BLACK,
+        color = WHITE
     )
     
     download_txt = Pack(

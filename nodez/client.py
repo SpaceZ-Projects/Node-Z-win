@@ -409,9 +409,8 @@ class RPCRequest():
         )
     
 
-    def z_mergeToaAdress(self, list_addresses, address, tx_fee, limit):
-        addresses_json = json.dumps(list_addresses)
+    def z_mergeToaAdress(self, list_addresses, address, tx_fee):
         return self.make_rpc_request(
             "z_mergetoaddress",
-            [addresses_json, address, tx_fee, limit]
+            [list_addresses, address, tx_fee]
         )

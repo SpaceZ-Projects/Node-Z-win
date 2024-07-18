@@ -13,11 +13,11 @@ from toga import (
     Button
 )
 
-from .options.network import NetConfig
-from .options.rpc import RPCConfig
-from .options.txfee import FeeConfig
-from .options.index import insightConfig
-from .options.divers import DiversConfig
+from .network import NetConfig
+from .rpc import RPCConfig
+from .txfee import FeeConfig
+from .index import insightConfig
+from .divers import DiversConfig
 
 from ..system import SystemOp
 

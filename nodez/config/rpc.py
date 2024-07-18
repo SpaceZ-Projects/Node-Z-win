@@ -14,10 +14,10 @@ from toga import (
 from toga.constants import Direction
 from toga.widgets.base import Widget
 
-from ..styles.box import BoxStyle
-from ..styles.button import ButtonStyle
-from ..styles.label import LabelStyle
-from ..styles.input import InputStyle
+from .styles.box import BoxStyle
+from .styles.button import ButtonStyle
+from .styles.label import LabelStyle
+from .styles.input import InputStyle
         
         
         

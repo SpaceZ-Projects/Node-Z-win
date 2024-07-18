@@ -382,11 +382,11 @@ class WalletWindow(Window):
             tx_fee = 0.0001
         else:
             tx_fee = self.merge_fee_input.value
-        await self.start_merge_opertation(selected_address, tx_fee)
+        await self.start_merge_operation(selected_address, tx_fee)
 
     
 
-    async def start_merge_opertation(self, address, tx_fee):
+    async def start_merge_operation(self, address, tx_fee):
         config_path = self.app.paths.config
         db_path = os.path.join(config_path, 'config.db')
         if os.path.exists(db_path):
@@ -476,8 +476,6 @@ class WalletWindow(Window):
     async def switch_to_transparent(self, button):
         self.transaction_mode = "transparent"
         transparent_address = await self.get_transparent_addresses()
-        self.select_address.items.clear()
-        self.merge_select_address.items.clear()
         self.select_address.style.color = YELLOW
         self.merge_select_address.style.color = YELLOW
         self.select_address.items = transparent_address
@@ -494,8 +492,6 @@ class WalletWindow(Window):
     async def switch_to_shielded(self, button):
         self.transaction_mode = "shielded"
         shielded_address = await self.get_shielded_addresses()
-        self.select_address.items.clear()
-        self.merge_select_address.items.clear()
         self.select_address.style.color = CYAN
         self.merge_select_address.style.color = CYAN
         self.select_address.items = shielded_address
@@ -799,8 +795,6 @@ class WalletWindow(Window):
 
 
     async def update_addresses_list(self, address):
-        self.select_address.items.clear()
-        self.merge_select_address.items.clear()
 
         if self.transaction_mode == "transparent":
             transparent_address = await self.get_transparent_addresses()

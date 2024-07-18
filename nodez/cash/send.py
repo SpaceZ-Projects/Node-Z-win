@@ -507,7 +507,6 @@ class CashWindow(Window):
     async def switch_to_transparent(self, button):
         self.transaction_mode = "transparent"
         transparent_address = await self.get_transparent_addresses()
-        self.select_address.items.clear()
         self.select_address.style.color = YELLOW
         self.select_address.items = transparent_address
         self.send_button.style.background_color = YELLOW
@@ -523,7 +522,6 @@ class CashWindow(Window):
     async def switch_to_shielded(self, button):
         self.transaction_mode = "shielded"
         shielded_address = await self.get_shielded_addresses()
-        self.select_address.items.clear()
         self.select_address.style.color = CYAN
         self.select_address.items = shielded_address
         self.send_button.style.background_color = CYAN

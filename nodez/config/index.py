@@ -12,10 +12,10 @@ from toga.constants import Direction
 from toga.colors import RED
 from toga.widgets.base import Widget
 
-from ..styles.box import BoxStyle
-from ..styles.label import LabelStyle
-from ..styles.switch import SwitchStyle
-from ..styles.button import ButtonStyle
+from .styles.box import BoxStyle
+from .styles.label import LabelStyle
+from .styles.switch import SwitchStyle
+from .styles.button import ButtonStyle
         
               
         

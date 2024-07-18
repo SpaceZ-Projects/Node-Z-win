@@ -2,7 +2,7 @@ from toga.style.pack import Pack
 
 
 
-class ConatinerStyle():
+class ContainerStyle():
 
 
     mining_output = Pack(

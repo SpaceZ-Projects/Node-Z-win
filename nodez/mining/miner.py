@@ -24,7 +24,7 @@ from .styles.label import LabelStyle
 from .styles.selection import SelectionStyle
 from .styles.input import InputStyle
 from.styles.button import ButtonStyle
-from .styles.container import ConatinerStyle
+from .styles.container import ContainerStyle
 
 from ..system import SystemOp
 from ..client import RPCRequest
@@ -141,7 +141,7 @@ class MiningWindow(Window):
         )
         self.mining_output = ScrollContainer(
             content=self.mining_output_box,
-            style=ConatinerStyle.mining_output
+            style=ContainerStyle.mining_output
         )
         self.main_box = Box(
             style=BoxStyle.mining_main_box
@@ -261,7 +261,7 @@ class MiningWindow(Window):
                 self.select_miner.value = self.select_miner.items[0]
         self.question_dialog(
             "Download miner...",
-            f"{selected_app} is not found in {miner_dir}, do you want to download it ?",
+            f"{selected_app} was not found in {miner_dir}. Would you like to download it?",
             on_result=on_confirm
         )
 
@@ -300,21 +300,22 @@ class MiningWindow(Window):
     async def verify_mining_params(self, button):
         if not self.select_miner.value.miner:
             self.error_dialog(
-                "Error...",
-                "Select the miner app."
+                "Missing Miner Selection",
+                "Please select a mining application."
             )
             return
         elif not self.select_pool.value.pool:
             self.error_dialog(
-                "Error...",
-                "Select the mining pool."
+                "Missing Pool Selection",
+                "Please select a mining pool."
             )
             return
         elif not self.worker_name.value:
             self.error_dialog(
-                "Error...",
-                "Set the worker name"
+                "Missing Worker Name",
+                "Please set a worker name."
             )
+            self.worker_name.focus()
             return
         else:
             self.mining_button_stop()

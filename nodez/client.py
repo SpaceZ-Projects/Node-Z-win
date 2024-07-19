@@ -147,6 +147,13 @@ class RPCRequest():
         )
     
 
+    def getPeerInfo(self):
+        return self.make_rpc_request(
+            "getpeerinfo",
+            []
+        )
+    
+
     def getConnectionCount(self):
         return self.make_rpc_request(
             "getconnectioncount",

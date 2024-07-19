@@ -1,5 +1,5 @@
 from toga.style.pack import Pack
-from toga.colors import BLACK
+from toga.colors import BLACK, YELLOW
 
 
 class ButtonStyle():
@@ -9,5 +9,11 @@ class ButtonStyle():
         padding_top = 15,
         padding_right = 10,
         padding_left = 10,
+        background_color = BLACK
+    )
+
+
+    peerinfo_button = Pack(
+        color = YELLOW,
         background_color = BLACK
     )

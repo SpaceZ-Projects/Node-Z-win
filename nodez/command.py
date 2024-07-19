@@ -53,6 +53,11 @@ class ClientCommands():
         return await self._run_command(command)
     
 
+    async def getPeerInfo(self):
+        command = f'{self.bitcoinz_cli_file} getpeerinfo'
+        return await self._run_command(command)
+    
+
     async def getConnectionCount(self):
         command = f'{self.bitcoinz_cli_file} getconnectioncount'
         return await self._run_command(command)

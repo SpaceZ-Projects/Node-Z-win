@@ -213,3 +213,13 @@ class LabelStyle():
         padding_right = 5,
         padding_bottom = 3
     )
+
+
+    peer_info_txt = Pack(
+        padding_top = 15,
+        padding_left = 10,
+        background_color = BLACK,
+        color = WHITE,
+        font_weight = BOLD,
+        flex = 1
+    )

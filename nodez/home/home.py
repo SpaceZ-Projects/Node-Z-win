@@ -10,7 +10,8 @@ from toga import (
     Divider,
     ImageView,
     Button,
-    Icon
+    Icon,
+    ScrollContainer
 )
 from toga.constants import Direction, HIDDEN, VISIBLE
 from toga.colors import RED, BLACK
@@ -20,6 +21,7 @@ from .styles.divider import DividerStyle
 from .styles.label import LabelStyle
 from .styles.button import ButtonStyle
 from .styles.image import ImageStyle
+from .styles.container import ContainerStyle
 
 from ..client import RPCRequest, get_btcz_price
 from ..command import ClientCommands
@@ -202,6 +204,12 @@ class HomeWindow(Window):
             "NaN",
             style=LabelStyle.home_connected_node_value
         )
+        self.peerinfo_button = Button(
+            "info",
+            enabled=True,
+            style=ButtonStyle.peerinfo_button,
+            on_press=self.display_peerinfo
+        )
         self.buttons_box = Box(
             style=BoxStyle.home_buttons_box
         )
@@ -292,7 +300,8 @@ class HomeWindow(Window):
             self.difficulty_txt,
             self.difficulty_value,
             self.connected_node_txt,
-            self.connected_node_value
+            self.connected_node_value,
+            self.peerinfo_button
         )
         self.menu_box.add(
             self.buttons_box,
@@ -322,6 +331,80 @@ class HomeWindow(Window):
             self.update_balance_task,
             self.update_info_task
         )
+
+
+    async def display_peerinfo(self, button):
+        self.peer_window = Window(
+            title="Peer Info",
+            minimizable=False,
+            resizable=False,
+            size=(900, 450)
+        )
+        self.peer_main_box = Box(
+            style=BoxStyle.peer_main_box
+        )
+        self.peer_main = ScrollContainer(
+            content=self.peer_main_box,
+            style=ContainerStyle.peer_main
+        )
+        config_path = self.app.paths.config
+        db_path = os.path.join(config_path, 'config.db')
+        if os.path.exists(db_path):
+            result = self.client.getPeerInfo()
+        else:
+            result = await self.command.getPeerInfo()
+            result = json.loads(result)
+        if result is not None:
+            for peer in result:
+                peer_id = peer.get('id')
+                addr = peer.get('addr')
+                addrlocal = peer.get('addrlocal')
+                subver = peer.get('subver')
+                syncedblocks = peer.get('synced_blocks')
+                whitelisted = peer.get('whitelisted')
+                
+                peer_info_box = Box(
+                    style=BoxStyle.peer_info_box
+                )
+                peer_id_txt = Label(
+                    peer_id,
+                    style=LabelStyle.peer_info_txt
+                )
+                addr_txt = Label(
+                    addr,
+                    style=LabelStyle.peer_info_txt
+                )
+                addrlocal_txt = Label(
+                    addrlocal,
+                    style=LabelStyle.peer_info_txt
+                )
+                subver_txt = Label(
+                    subver,
+                    style=LabelStyle.peer_info_txt
+                )
+                whitelisted_txt = Label(
+                    f"whitelist : {whitelisted}",
+                    style=LabelStyle.peer_info_txt
+                )
+                syncedblocks_txt = Label(
+                    syncedblocks,
+                    style=LabelStyle.peer_info_txt
+                )
+                peer_info_box.add(
+                    peer_id_txt,
+                    addr_txt,
+                    addrlocal_txt,
+                    subver_txt,
+                    syncedblocks_txt,
+                    whitelisted_txt
+                )
+                self.peer_main_box.add(
+                    peer_info_box
+                )
+            self.peer_window.content = self.peer_main
+            await asyncio.sleep(1)
+            self.peer_window.show()
+
         
         
     async def update_total_balances(self):

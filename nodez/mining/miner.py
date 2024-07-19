@@ -23,7 +23,7 @@ from .styles.box import BoxStyle
 from .styles.label import LabelStyle
 from .styles.selection import SelectionStyle
 from .styles.input import InputStyle
-from.styles.button import ButtonStyle
+from .styles.button import ButtonStyle
 from .styles.container import ContainerStyle
 
 from ..system import SystemOp

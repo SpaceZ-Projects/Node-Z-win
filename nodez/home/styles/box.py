@@ -1,5 +1,5 @@
 from toga.style import Pack
-from toga.colors import BLACK
+from toga.colors import BLACK, rgb
 from toga.constants import CENTER, ROW, COLUMN
 
 
@@ -51,4 +51,19 @@ class BoxStyle():
         background_color = BLACK,
         width = 730,
         height = 110
+    )
+
+
+    peer_main_box = Pack(
+        alignment = CENTER,
+        direction = COLUMN,
+        background_color = BLACK,
+        flex = 1
+    )
+
+    peer_info_box = Pack(
+        direction = ROW,
+        background_color = rgb(39, 37, 37),
+        padding = 5,
+        flex = 1
     )

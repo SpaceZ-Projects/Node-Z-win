@@ -338,7 +338,8 @@ class HomeWindow(Window):
             title="Peer Info",
             minimizable=False,
             resizable=False,
-            size=(900, 450)
+            size=(900, 450),
+            on_close=self.on_close_peerinfo
         )
         self.peer_main_box = Box(
             style=BoxStyle.peer_main_box
@@ -355,6 +356,7 @@ class HomeWindow(Window):
             result = await self.command.getPeerInfo()
             result = json.loads(result)
         if result is not None:
+            self.peerinfo_button.style.visibility = HIDDEN
             for peer in result:
                 peer_id = peer.get('id')
                 addr = peer.get('addr')
@@ -404,6 +406,11 @@ class HomeWindow(Window):
             self.peer_window.content = self.peer_main
             await asyncio.sleep(1)
             self.peer_window.show()
+
+    
+    def on_close_peerinfo(self, window):
+        self.peer_window.close()
+        self.peerinfo_button.style.visibility = VISIBLE
 
         
         
@@ -515,7 +522,7 @@ class HomeWindow(Window):
                 chain = info.get('chain')
                 blocks = info.get('blocks')
                 sync = info.get('verificationprogress')
-                difficulty = self.system.format_balance(float(info.get('difficulty')))
+                difficulty = info.get('difficulty')
             else:
                 chain = blocks = sync = difficulty = "N/A"
             dep = deprecation.get('deprecationheight') if deprecation else "N/A"
@@ -528,7 +535,7 @@ class HomeWindow(Window):
             self.sync_value.text = f"%{float(sync_percentage):.2f}"
             self.dep_value.text = f"{dep}"
             self.networksol_value.text = f"{netsol} Sol/s"
-            self.difficulty_value.text = f"{difficulty}"
+            self.difficulty_value.text = f"{difficulty:.2f}"
             self.connected_node_value.text = f"{connections}/8"
 
             await asyncio.sleep(5)

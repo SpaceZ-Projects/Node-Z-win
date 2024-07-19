@@ -4,6 +4,7 @@ import json
 import asyncio
 import subprocess
 import psutil
+import re
 
 from toga import (
     App,
@@ -356,11 +357,14 @@ class MiningWindow(Window):
             )
             self.mining_button.on_press = self.stop_mining
             self.mining_button.enabled = True
+            clean_regex = re.compile(r'\x1b\[[0-9;]*[mGK]|[^a-zA-Z0-9\s\[\]=><.%()/,`\'":]')
             while True:
                 stdout_line = await self.process.stdout.readline()
                 if stdout_line:
+                    decoded_line = stdout_line.decode().strip()
+                    cleaned_line = clean_regex.sub('', decoded_line)
                     mining_output_txt = Label(
-                        stdout_line.decode().strip(),
+                        cleaned_line,
                         style=LabelStyle.mining_output_txt
                     )
                     self.mining_output_box.add(

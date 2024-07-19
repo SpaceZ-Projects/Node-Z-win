@@ -1,6 +1,6 @@
 from toga.style.pack import Pack
 from toga.constants import CENTER, BOLD
-from toga.colors import BLACK, WHITE, BLUE
+from toga.colors import BLACK, WHITE, BLUE, GREENYELLOW
 
 
 
@@ -70,6 +70,6 @@ class LabelStyle():
         padding_top = 2,
         padding_left = 5,
         font_size = 8,
-        color = WHITE,
+        color = GREENYELLOW,
         background_color = BLACK
     )

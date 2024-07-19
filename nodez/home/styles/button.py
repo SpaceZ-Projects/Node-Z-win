@@ -14,6 +14,7 @@ class ButtonStyle():
 
 
     peerinfo_button = Pack(
+        padding_top = 1,
         color = YELLOW,
         background_color = BLACK
     )

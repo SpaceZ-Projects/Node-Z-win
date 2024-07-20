@@ -55,13 +55,31 @@ class BoxStyle():
 
 
     peer_main_box = Pack(
-        alignment = CENTER,
         direction = COLUMN,
         background_color = BLACK,
         flex = 1
     )
 
     peer_info_box = Pack(
+        direction = ROW,
+        background_color = rgb(39, 37, 37),
+        padding = 5,
+        flex = 1
+    )
+
+    peer_menu_box = Pack(
+        direction = COLUMN,
+        background_color = rgb(39, 37, 37)
+    )
+
+    peer_buttons_box = Pack(
+        direction = ROW,
+        background_color = BLACK,
+        padding = 5,
+        flex = 1
+    )
+
+    peer_table_box = Pack(
         direction = ROW,
         background_color = rgb(39, 37, 37),
         padding = 5,

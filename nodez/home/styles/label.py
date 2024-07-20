@@ -24,7 +24,6 @@ class LabelStyle():
     )
     
     home_transparent_balance_txt= Pack(
-        font_family = MONOSPACE,
         color = WHITE,
         background_color = BLACK,
         font_weight = BOLD,
@@ -34,7 +33,6 @@ class LabelStyle():
     )
     
     home_transparent_balance= Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         color = YELLOW,
         background_color = BLACK,
@@ -44,7 +42,6 @@ class LabelStyle():
     )
     
     home_private_balance_txt= Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         color = WHITE,
         background_color = BLACK,
@@ -53,7 +50,6 @@ class LabelStyle():
     )
     
     home_private_balance= Pack(
-        font_family = MONOSPACE,
         font_weight = BOLD,
         color= CYAN,
         background_color = BLACK,
@@ -63,7 +59,6 @@ class LabelStyle():
     
     home_unconfirmed_txt = Pack(
         visibility = HIDDEN,
-        font_family = MONOSPACE,
         font_weight = BOLD,
         color= WHITE,
         background_color = BLACK,
@@ -73,7 +68,6 @@ class LabelStyle():
     
     home_unconfirmed_balance = Pack(
         visibility = HIDDEN,
-        font_family = MONOSPACE,
         font_weight = BOLD,
         color= RED,
         background_color = BLACK,
@@ -82,7 +76,6 @@ class LabelStyle():
     )
     
     home_price_txt = Pack(
-        font_family = MONOSPACE,
         background_color = BLACK,
         color = WHITE,
         padding_top = 5,
@@ -90,7 +83,6 @@ class LabelStyle():
     )
     
     home_price_value = Pack(
-        font_family = MONOSPACE,
         background_color = BLACK,
         color = WHITE,
         padding_top = 5,
@@ -99,7 +91,6 @@ class LabelStyle():
     )
     
     total_value_txt = Pack(
-        font_family = MONOSPACE,
         background_color = BLACK,
         color = WHITE,
         padding_top = 5,
@@ -107,7 +98,6 @@ class LabelStyle():
     )
     
     total_value = Pack(
-        font_family = MONOSPACE,
         background_color = BLACK,
         color = WHITE,
         padding_top = 5,
@@ -118,14 +108,14 @@ class LabelStyle():
     home_chain_txt = Pack(
         color = WHITE,
         background_color = BLACK,
-        padding_top = 5,
+        padding_top = 6,
         padding_bottom = 3,
         padding_left = 20
     )
     
     home_chain_value = Pack(
         background_color = WHITE,
-        padding_top = 5,
+        padding_top = 6,
         padding_right = 5,
         padding_bottom = 3
     )
@@ -133,13 +123,13 @@ class LabelStyle():
     home_blocks_txt = Pack(
         color = WHITE,
         background_color = BLACK,
-        padding_top = 5,
+        padding_top = 6,
         padding_bottom = 3
     )
     
     home_blocks_value = Pack(
         background_color = WHITE,
-        padding_top = 5,
+        padding_top = 6,
         padding_right = 5,
         padding_bottom = 3
     )
@@ -147,13 +137,13 @@ class LabelStyle():
     home_sync_txt = Pack(
         color = WHITE,
         background_color = BLACK,
-        padding_top = 5,
+        padding_top = 6,
         padding_bottom = 3
     )
     
     home_sync_value = Pack(
         background_color = WHITE,
-        padding_top = 5,
+        padding_top = 6,
         padding_right = 5,
         padding_bottom = 3
     )
@@ -161,13 +151,13 @@ class LabelStyle():
     home_dep_txt = Pack(
         color= WHITE,
         background_color = BLACK,
-        padding_top = 5,
+        padding_top = 6,
         padding_bottom = 3
     )
     
     home_dep_value = Pack(
         background_color = WHITE,
-        padding_top = 5,
+        padding_top = 6,
         padding_right = 5,
         padding_bottom = 3
     )
@@ -175,13 +165,13 @@ class LabelStyle():
     home_networksol_txt = Pack(
         color= WHITE,
         background_color = BLACK,
-        padding_top = 5,
+        padding_top = 6,
         padding_bottom = 3
     )
     
     home_networksol_value = Pack(
         background_color = WHITE,
-        padding_top = 5,
+        padding_top = 6,
         padding_right = 5,
         padding_bottom = 3
     )
@@ -189,13 +179,13 @@ class LabelStyle():
     home_difficulty_txt = Pack(
         color= WHITE,
         background_color = BLACK,
-        padding_top = 5,
+        padding_top = 6,
         padding_bottom = 3
     )
     
     home_difficulty_value = Pack(
         background_color = WHITE,
-        padding_top = 5,
+        padding_top = 6,
         padding_right = 5,
         padding_bottom = 3
     )
@@ -203,21 +193,50 @@ class LabelStyle():
     home_connected_node_txt = Pack(
         color= WHITE,
         background_color = BLACK,
-        padding_top = 5,
+        padding_top = 6,
         padding_bottom = 3
     )
 
     home_connected_node_value = Pack(
         background_color = WHITE,
-        padding_top = 5,
+        padding_top = 6,
         padding_right = 5,
         padding_bottom = 3
     )
 
 
     peer_info_txt = Pack(
+        text_align = CENTER,
         padding_top = 15,
         padding_left = 10,
+        background_color = BLACK,
+        color = WHITE,
+        font_weight = BOLD,
+        flex = 1
+    )
+
+    peer_id = Pack(
+        padding_top = 15,
+        padding_left = 10,
+        background_color = BLACK,
+        color = CYAN,
+        font_weight = BOLD
+    )
+
+    peer_id_txt = Pack(
+        padding_top = 15,
+        padding_left = 11,
+        padding_right = 5,
+        background_color = BLACK,
+        color = WHITE,
+        font_weight = BOLD
+    )
+
+    banscore_txt = Pack(
+        text_align = CENTER,
+        padding_top = 15,
+        padding_left = 10,
+        padding_right = 10,
         background_color = BLACK,
         color = WHITE,
         font_weight = BOLD,

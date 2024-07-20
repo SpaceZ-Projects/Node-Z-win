@@ -68,7 +68,8 @@ class SystemOp():
                 'message_window',
                 'ecosys_window',
                 'mining_window',
-                'browser_window'
+                'browser_window',
+                'peerinfo_window'
                 ]
                    ):
                 return True

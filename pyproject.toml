@@ -36,7 +36,8 @@ test_requires = [
 requires = [
     "toga-winforms",
     "aiohttp",
-    "qrcode"
+    "qrcode",
+    "psutil"
 ]
 
 use_full_install_path = false

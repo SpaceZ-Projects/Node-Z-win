@@ -33,6 +33,13 @@ cd nodez-win
 Create and activate a virtual environment :
 ```
 python -m venv env
+```
+Run the following command to temporarily bypass the execution policy:
+```
+Set-ExecutionPolicy Bypass -Scope Process
+```
+Activate virtual environment:
+```
 env\Scripts\activate
 ```
 Install BeeWare tools :
@@ -46,6 +53,10 @@ pip install -U -r requirements.txt
 Run the App
 ```
 briefcase dev --update
+```
+After completing your tasks in the virtual environment, you can revert the execution policy to its previous state for security:
+```
+Set-ExecutionPolicy Restricted -Scope Process
 ```
 
 ### Build App :

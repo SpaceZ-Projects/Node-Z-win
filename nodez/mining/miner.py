@@ -5,6 +5,7 @@ import asyncio
 import subprocess
 import psutil
 import re
+from .gputil import getGPUs
 
 from toga import (
     App,
@@ -26,6 +27,7 @@ from .styles.selection import SelectionStyle
 from .styles.input import InputStyle
 from .styles.button import ButtonStyle
 from .styles.container import ContainerStyle
+from .styles.divider import DividerStyle
 
 from ..system import SystemOp
 from ..client import RPCRequest
@@ -134,6 +136,28 @@ class MiningWindow(Window):
             style=ButtonStyle.mining_button,
             on_press=self.verify_mining_params
         )
+        self.options_box = Box(
+            style=BoxStyle.options_box
+        )
+        self.name_txt = Label(f"GPU : __", style=LabelStyle.gpu_info_txt)
+        self.load_txt = Label(f"Load __ %", style=LabelStyle.gpu_info_txt)
+        self.memory_total_txt = Label(f"Memory Total : __ MB", style=LabelStyle.gpu_info_txt)
+        self.memory_used_txt = Label(f"Memomry Used : __ MB", style=LabelStyle.gpu_info_txt)
+        self.memory_free_txt = Label(f"Memory Free : __ MB", style=LabelStyle.gpu_info_txt)
+        self.driver_txt = Label(f"Driver : __", style=LabelStyle.gpu_info_txt)
+        self.temperature_txt = Label(f"Temperature : __ °C", style=LabelStyle.gpu_info_txt)
+        self.display_active_txt = Label(f"Display : __", style=LabelStyle.gpu_info_txt)
+
+        self.gpuinfo_box = Box(
+            style=BoxStyle.gpuinfo_box
+        )
+        self.params_box = Box(
+            style=BoxStyle.params_box
+        )
+        self.divider_params = Divider(
+            direction=Direction.VERTICAL,
+            style=DividerStyle.divider_params
+        )
         self.divider = Divider(
             direction=Direction.HORIZONTAL
         )
@@ -146,6 +170,17 @@ class MiningWindow(Window):
         )
         self.main_box = Box(
             style=BoxStyle.mining_main_box
+        )
+
+        self.gpuinfo_box.add(
+            self.name_txt,
+            self.load_txt,
+            self.memory_total_txt,
+            self.memory_used_txt,
+            self.memory_free_txt,
+            self.driver_txt,
+            self.temperature_txt,
+            self.display_active_txt
         )
 
         self.content = self.main_box
@@ -187,17 +222,55 @@ class MiningWindow(Window):
             self.select_address_txt,
             self.select_address
         )
-        self.main_box.add(
+        self.options_box.add(
             self.select_miner_box,
             self.select_pool_box,
             self.select_server_box,
             self.worker_name_box,
             self.select_address_box,
             self.mining_button,
+        )
+        self.params_box.add(
+            self.options_box,
+            self.divider_params,
+            self.gpuinfo_box
+        )
+        self.main_box.add(
+            self.params_box,
             self.divider,
             self.mining_output
         )
+        self.update_gpu_info_task = asyncio.create_task(self.update_gpu_info())
+        await asyncio.sleep(1)
         self.show()
+        await asyncio.gather(
+            self.update_gpu_info_task
+        )
+
+
+    async def update_gpu_info(self):
+        while True:
+            gpu_info = self.get_nvidia_gpu_info()
+            if gpu_info is not None:
+                id = gpu_info['id']
+                name = gpu_info['name']
+                load = gpu_info['load']
+                memory_total = gpu_info['memory_total']
+                memory_used = gpu_info['memory_used']
+                memory_free = gpu_info['memory_free']
+                driver = gpu_info['driver']
+                temperature = gpu_info['temperature']
+                display_active = gpu_info['display_active']
+
+                self.name_txt.text = f"GPU {id} : {name}"
+                self.load_txt.text = f"Load {load} %"
+                self.memory_total_txt.text = f"Memory Total : {memory_total} MB"
+                self.memory_used_txt.text = f"Memory Used : {memory_used} MB"
+                self.memory_free_txt.text = f"Memory Free : {memory_free} MB"
+                self.driver_txt.text = f"Driver : {driver}"
+                self.temperature_txt.text = f"Temperature : {temperature} °C"
+                self.display_active_txt.text = f"Display Active : {display_active}"
+            await asyncio.sleep(5)
     
 
 
@@ -438,6 +511,26 @@ class MiningWindow(Window):
             address_items = []
         
         return address_items
+    
+
+    def get_nvidia_gpu_info(self):
+        gpus = getGPUs()
+        if gpus:
+            gpu = gpus[0]
+            info = {
+                'id': gpu.id,
+                'name': gpu.name,
+                'load': gpu.load,
+                'memory_total': gpu.memoryTotal,
+                'memory_used': gpu.memoryUsed,
+                'memory_free': gpu.memoryFree,
+                'driver': gpu.driver,
+                'temperature': gpu.temperature,
+                'display_active': gpu.display_active,
+            }
+            return info
+        else:
+            return None
     
 
     def disable_params(self):

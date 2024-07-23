@@ -30,7 +30,7 @@ Clone the Repository:
 git clone https://github.com/ezzygarmyz/nodez-win.git
 cd nodez-win
 ```
-Create and activate a virtual environment :
+Create a virtual environment :
 ```
 python -m venv env
 ```

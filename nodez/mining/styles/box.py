@@ -49,3 +49,20 @@ class BoxStyle():
         padding_bottom = 5,
         flex = 1
     )
+
+    params_box = Pack(
+        direction = ROW,
+        background_color = BLACK
+    )
+
+    options_box = Pack(
+        direction = COLUMN,
+        background_color= BLACK,
+        flex = 1
+    )
+
+    gpuinfo_box = Pack(
+        direction = COLUMN,
+        background_color= BLACK,
+        flex = 1
+    )

@@ -28,3 +28,9 @@ class DividerStyle():
     rpc_divider = Pack(
         padding_top = 10
     )
+
+    divider_params = Pack(
+        height = 255,
+        padding_top = 4,
+        padding_left = 10
+    )

@@ -77,7 +77,7 @@ class LabelStyle():
     gpu_info_txt = Pack(
         color = WHITE,
         background_color = BLACK,
-        padding_top = 15,
+        padding_top = 13,
         padding_left = 15,
         font_weight = BOLD
     )

@@ -147,6 +147,7 @@ class MiningWindow(Window):
         self.driver_txt = Label(f"Driver : __", style=LabelStyle.gpu_info_txt)
         self.temperature_txt = Label(f"Temperature : __ °C", style=LabelStyle.gpu_info_txt)
         self.display_active_txt = Label(f"Display : __", style=LabelStyle.gpu_info_txt)
+        self.fan_speed_txt = Label(f"Fan : __ %", style=LabelStyle.gpu_info_txt)
 
         self.gpuinfo_box = Box(
             style=BoxStyle.gpuinfo_box
@@ -180,7 +181,8 @@ class MiningWindow(Window):
             self.memory_free_txt,
             self.driver_txt,
             self.temperature_txt,
-            self.display_active_txt
+            self.display_active_txt,
+            self.fan_speed_txt
         )
 
         self.content = self.main_box
@@ -261,6 +263,7 @@ class MiningWindow(Window):
                 driver = gpu_info['driver']
                 temperature = gpu_info['temperature']
                 display_active = gpu_info['display_active']
+                fan_speed = gpu_info['fan_speed']
 
                 self.name_txt.text = f"GPU {id} : {name}"
                 self.load_txt.text = f"Load {load} %"
@@ -270,6 +273,7 @@ class MiningWindow(Window):
                 self.driver_txt.text = f"Driver : {driver}"
                 self.temperature_txt.text = f"Temperature : {temperature} °C"
                 self.display_active_txt.text = f"Display Active : {display_active}"
+                self.fan_speed_txt.text = f"Fan : {fan_speed} %"
             await asyncio.sleep(5)
     
 
@@ -527,6 +531,7 @@ class MiningWindow(Window):
                 'driver': gpu.driver,
                 'temperature': gpu.temperature,
                 'display_active': gpu.display_active,
+                'fan_speed': gpu.fan_speed
             }
             return info
         else:
@@ -571,7 +576,13 @@ class MiningWindow(Window):
 
 
         
-    def close_window(self, window):
+    async def close_window(self, window):
+        try:
+            if self.update_gpu_info_task and not self.update_gpu_info_task.done():
+                self.update_gpu_info_task.cancel()
+                await self.update_gpu_info_task
+        except asyncio.CancelledError:
+            pass
         self.window_button.style.visibility = VISIBLE
         self.system.update_settings('mining_window', False)
         self.close()

@@ -125,15 +125,15 @@ class RPCRequest():
 
         except http.client.HTTPException as e:
             print(f"HTTPException: {e}")
-            return False
+            return None
         
         except ConnectionRefusedError:
             print(f"Connection refused to {rpchost}:{rpcport}. Is the RPC server running?")
-            return False
+            return None
         
         except Exception as e:
             print(f"Exception: {e}")
-            return False
+            return None
         
         finally:
             if conn:
@@ -151,6 +151,20 @@ class RPCRequest():
         return self.make_rpc_request(
             "getpeerinfo",
             []
+        )
+    
+
+    def getAddedNodeInfo(self):
+        return self.make_rpc_request(
+            "getaddednodeinfo",
+            [True]
+        )
+    
+
+    def addNode(self, ip_address):
+        return self.make_rpc_request(
+            "addnode",
+            [f'{ip_address}', 'add']
         )
     
 

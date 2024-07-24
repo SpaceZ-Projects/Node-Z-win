@@ -54,6 +54,13 @@ class BoxStyle():
     )
 
 
+    stopping_main_box = Pack(
+        direction = COLUMN,
+        alignment = CENTER,
+        background_color = BLACK
+    )
+
+
     peer_main_box = Pack(
         direction = COLUMN,
         background_color = BLACK,

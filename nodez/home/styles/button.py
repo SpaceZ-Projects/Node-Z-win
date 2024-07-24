@@ -1,5 +1,6 @@
 from toga.style.pack import Pack
 from toga.colors import BLACK, YELLOW
+from toga.constants import BOLD
 
 
 class ButtonStyle():
@@ -15,20 +16,5 @@ class ButtonStyle():
 
     peerinfo_button = Pack(
         padding_top = 1,
-        background_color = BLACK
-    )
-
-
-    addnode_button = Pack(
-        padding_left = 10,
-        padding_right = 10,
-        color = YELLOW,
-        background_color = BLACK
-    )
-
-
-    clearbanned_button = Pack(
-        padding_right = 10,
-        color = YELLOW,
         background_color = BLACK
     )

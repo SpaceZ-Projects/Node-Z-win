@@ -8,3 +8,8 @@ class DividerStyle():
         padding_bottom = 4,
         width = 695
     )
+
+
+    stopping_divider = Pack(
+        padding_top = 70
+    )

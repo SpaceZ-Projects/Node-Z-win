@@ -1,9 +1,18 @@
 from toga.style.pack import Pack
-from toga.colors import YELLOW, WHITE, BLACK, RED, CYAN
-from toga.constants import BOLD, MONOSPACE, CENTER, HIDDEN
+from toga.colors import YELLOW, WHITE, BLACK, RED, CYAN, rgb
+from toga.constants import BOLD, CENTER, HIDDEN
 
 
 class LabelStyle():
+
+
+    stopping_txt = Pack(
+        font_weight = BOLD,
+        text_align = CENTER,
+        padding_top = 20,
+        background_color = BLACK,
+        color = WHITE
+    )
     
     
     home_total_balances_txt = Pack(
@@ -215,12 +224,33 @@ class LabelStyle():
         flex = 1
     )
 
-    peer_id = Pack(
+    peer_column = Pack(
         padding_top = 15,
         padding_left = 10,
         background_color = BLACK,
         color = CYAN,
         font_weight = BOLD
+    )
+
+    default_column = Pack(
+        text_align = CENTER,
+        padding_top = 15,
+        padding_left = 10,
+        background_color = BLACK,
+        color = CYAN,
+        font_weight = BOLD,
+        flex = 1
+    )
+
+    banscore_column = Pack(
+        text_align = CENTER,
+        padding_top = 15,
+        padding_left = 10,
+        padding_right = 10,
+        background_color = BLACK,
+        color = CYAN,
+        font_weight = BOLD,
+        flex = 1
     )
 
     peer_id_txt = Pack(

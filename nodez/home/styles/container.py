@@ -11,3 +11,8 @@ class ContainerStyle():
         font_weight = BOLD,
         padding = 3
     )
+
+
+    peers_info = Pack(
+        flex = 1
+    )

@@ -1,3 +1,4 @@
+
 import asyncio
 import os
 import subprocess
@@ -12,7 +13,7 @@ class ClientCommands():
         self.app = app
         data_path = self.app.paths.data
         self.bitcoinz_cli_file = os.path.join(data_path, "bitcoinz-cli.exe")
-        
+
     
     async def _run_command(self, command):
         try:
@@ -55,6 +56,16 @@ class ClientCommands():
 
     async def getPeerInfo(self):
         command = f'{self.bitcoinz_cli_file} getpeerinfo'
+        return await self._run_command(command)
+    
+
+    async def getAddedNodeInfo(self):
+        command = f'{self.bitcoinz_cli_file} getaddednodeinfo true'
+        return await self._run_command(command)
+    
+
+    async def addNode(self, ip_address):
+        command = f'{self.bitcoinz_cli_file} addnode \"{ip_address}\" "add"'
         return await self._run_command(command)
     
 

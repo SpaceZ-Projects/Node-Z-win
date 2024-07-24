@@ -8,8 +8,3 @@ class ImageStyle():
         background_color = BLACK,
         padding_top = 8
     )
-    
-    unconfimed_loading = Pack(
-        width = 16,
-        height = 16
-    )

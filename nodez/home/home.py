@@ -31,7 +31,7 @@ from ..message.chat import MessageWindow
 from ..ecosys.feature import EcosysWindow
 from ..mining.miner import MiningWindow
 from ..browser.navigator import BrowserWindow
-from .manage import PeerManage
+from .manage import PeersManage
 
 
 
@@ -206,7 +206,7 @@ class HomeWindow(Window):
             icon=Icon("icones/settings"),
             enabled=True,
             style=ButtonStyle.peerinfo_button,
-            on_press=self.display_peerinfo
+            on_press=self.open_nodes_manage
         )
         self.buttons_box = Box(
             style=BoxStyle.home_buttons_box
@@ -506,7 +506,6 @@ class HomeWindow(Window):
             self.mining_button
         )
         self.system.update_settings('mining_window', True)
-        self.mining_window.show()
 
     
     def open_ecosys_window(self, button):
@@ -528,13 +527,13 @@ class HomeWindow(Window):
         self.system.update_settings('browser_window', True)
 
 
-    def display_peerinfo(self, button):
-        self.peerinfo_button.style.visibility = HIDDEN
-        self.peer_window = PeerManage(
+    async def open_nodes_manage(self, button):
+        self.peerinfo_button.enabled = False
+        self.peer_window = PeersManage(
             self.app,
             self.peerinfo_button
         )
-        self.system.update_settings('peerinfo_window', True)
+        self.system.update_settings('peermanage_window', True)
             
             
     async def close_window(self, window):
@@ -591,6 +590,35 @@ class HomeWindow(Window):
 
     
     async def stopping_node(self):
+        self.stopping_image = ImageView(
+            "icones/stopping_node.gif"
+        )
+        self.stopping_txt = Label(
+            "Stopping Node...",
+            style=LabelStyle.stopping_txt
+        )
+        self.stopping_divider = Divider(
+            direction=Direction.HORIZONTAL,
+            style=DividerStyle.stopping_divider
+        )
+        self.stopping_main_box = Box(
+            style=BoxStyle.stopping_main_box
+        )
+        self.stopping_main_box.add(
+            self.stopping_image,
+            self.stopping_divider,
+            self.stopping_txt
+        )
+        self.stopping_window = Window(
+            title="Stopping node...",
+            resizable=False,
+            minimizable=False,
+            closable=False,
+            size=(250, 300)
+        )
+        position_center = self.system.windows_screen_center(self.stopping_window.size)
+        self.stopping_window.position = position_center
+        self.stopping_window.content = self.stopping_main_box
         try:
             tasks = [task for task in (
                 self.update_price_task,
@@ -602,6 +630,7 @@ class HomeWindow(Window):
 
             await asyncio.gather(*tasks, return_exceptions=True)
             self.close()
+            self.stopping_window.show()
             result = await self.command.stopNode()
             if result:
                 await asyncio.sleep(10)
@@ -609,6 +638,7 @@ class HomeWindow(Window):
         except asyncio.CancelledError:
             pass
         self.system.clean_config_path()
+        self.stopping_window.close()
         await asyncio.sleep(1)
         self.app.main_window.show()
 

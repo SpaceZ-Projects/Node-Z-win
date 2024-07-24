@@ -69,7 +69,7 @@ class SystemOp():
                 'ecosys_window',
                 'mining_window',
                 'browser_window',
-                'peerinfo_window'
+                'peermanage_window'
                 ]
                    ):
                 return True

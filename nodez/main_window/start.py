@@ -19,7 +19,6 @@ from .styles.box import BoxStyle
 from .styles.label import LabelStyle
 from .styles.divider import DividerStyle
 
-from ..command import ClientCommands
 from ..home.home import HomeWindow
 from ..system import SystemOp
 
@@ -33,7 +32,6 @@ class StartNode(Window):
             minimizable=False,
             closable=False
         )
-        self.commands = ClientCommands(self.app)
         self.system = SystemOp(self.app)
         position_center = self.system.windows_screen_center(self.size)
         self.position = position_center
@@ -49,15 +47,15 @@ class StartNode(Window):
         )
         self.divider_top = Divider(
             direction=Direction.HORIZONTAL,
-            style=DividerStyle.start_divider_top
+            style=DividerStyle.start_divider
         )
         self.main_box = Box(
             style=BoxStyle.start_main_box
         )
         self.main_box.add(
-            self.starting_txt,
+            self.loading_image,
             self.divider_top,
-            self.loading_image
+            self.starting_txt
         )
         self.content = self.main_box
         self.app.add_background_task(
@@ -67,7 +65,7 @@ class StartNode(Window):
 
     async def check_node_status(self, widget):
         self.local_button.enabled = False
-        result = await self.commands.z_getTotalBalance()
+        result = await self.getNodeStatus()
         if result:
             self.app.main_window.hide()
             self.local_button.enabled = True
@@ -152,7 +150,7 @@ class StartNode(Window):
         
     async def waiting_node_status(self):
         await asyncio.sleep(1)
-        result = await self.commands.z_getTotalBalance()
+        result, error_message = await self.getNodeStatus()
         if result:
             self.home_window = HomeWindow(self.app)
             self.home_window.title = "MainMenu (Local)"
@@ -160,7 +158,7 @@ class StartNode(Window):
             return
         else:
             while True:
-                result = await self.commands.z_getTotalBalance()
+                result, error_message = await self.getNodeStatus()
                 if result:
                     self.starting_txt.text = "Starting GUI..."
                     self.home_window = HomeWindow(self.app)
@@ -168,6 +166,48 @@ class StartNode(Window):
                     self.close()
                     return
                 else:
-                    self.starting_txt.text = "Loading blocks..."
+                    if error_message:
+                        self.starting_txt.text = error_message
 
                 await asyncio.sleep(4)
+        
+
+        
+    async def getNodeStatus(self):
+        data_path = self.app.paths.data
+        bitcoinz_cli_file = os.path.join(data_path, "bitcoinz-cli.exe")
+
+        command = f'{bitcoinz_cli_file} getinfo'
+        return await self._start_command(command)
+    
+
+    
+
+    async def _start_command(self, command):
+        try:
+            process = await asyncio.create_subprocess_shell(
+                command,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                creationflags=subprocess.CREATE_NO_WINDOW
+            )
+            stdout, stderr = await process.communicate()
+
+            if process.returncode == 0:
+                if stdout:
+                    try:
+                        data = json.loads(stdout.decode())
+                        result = json.dumps(data, indent=4)
+                        return result, None
+                    except json.JSONDecodeError:
+                        return stdout.decode().strip()
+                else:
+                    return None, None
+            else:
+                error_message = stderr.decode()
+                if "error message:" in error_message:
+                    index = error_message.index("error message:")+len("error message:")
+                    return None, error_message[index:].strip()
+        except Exception as e:
+            print(f"An error occurred while running command {command}: {e}")
+            return None

@@ -50,7 +50,6 @@ class LabelStyle():
         font_weight = BOLD,
         text_align = CENTER,
         padding_top = 20,
-        padding_bottom = 10,
         background_color = BLACK,
         color = WHITE
     )

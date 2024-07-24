@@ -3,8 +3,8 @@ from toga.constants import CENTER
 
 class DividerStyle():
     
-    start_divider_top = Pack(
-        padding_bottom = 10
+    start_divider = Pack(
+        padding_top = 70
     )
     
     download_divider_top = Pack(

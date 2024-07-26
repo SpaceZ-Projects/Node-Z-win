@@ -16,6 +16,8 @@ from .styles.box import BoxStyle
 from .styles.label import LabelStyle
 from .styles.switch import SwitchStyle
 from .styles.button import ButtonStyle
+
+from ..system import SystemOp
         
               
         
@@ -30,9 +32,8 @@ class insightConfig(Box):
         style = BoxStyle.option_box
         super().__init__(id, style, children)
         self.app = app
-        config_file = "bitcoinz.conf"
-        config_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
-        self.file_path = os.path.join(config_path, config_file)
+        self.system = SystemOp(self.app)
+        self.file_path = self.system.load_config_file()
         
         self.explorer_txt = Label(
             "Insight explorer",

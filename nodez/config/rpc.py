@@ -18,6 +18,8 @@ from .styles.box import BoxStyle
 from .styles.button import ButtonStyle
 from .styles.label import LabelStyle
 from .styles.input import InputStyle
+
+from ..system import SystemOp
         
         
         
@@ -32,9 +34,8 @@ class RPCConfig(Box):
         style = BoxStyle.rpc_box
         super().__init__(id, style, children)
         self.app = app
-        config_file = "bitcoinz.conf"
-        config_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
-        self.file_path = os.path.join(config_path, config_file)
+        self.system = SystemOp(self.app)
+        self.file_path = self.system.load_config_file()
         
         self.rpc_txt = Label(
             "RPC server options",

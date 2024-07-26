@@ -17,12 +17,14 @@ from ..client import RPCRequest
 from ..command import ClientCommands
 
 from .peers import PeersInfo
+from .nodes import NodesList
+from .banlist import BannedList
 
 
-class PeersManage(Window):
+class NodesManage(Window):
     def __init__(self, app:App, window_button):
         super().__init__(
-            title="Peers Manage",
+            title="Nodes Manage",
             minimizable=False,
             resizable=False,
             size=(925, 550),
@@ -38,15 +40,28 @@ class PeersManage(Window):
 
         
         self.peer_info = OptionItem(
-            "Peers Info",
+            "Connected Nodes",
             content=PeersInfo(self.app),
+            enabled=True
+        )
+        self.nodes_list = OptionItem(
+            "Added Nodes",
+            content=NodesList(self.app),
+            enabled=True
+        )
+        self.banned_list = OptionItem(
+            "Banned List",
+            content=BannedList(self.app),
             enabled=True
         )
         self.peer_tabs = OptionContainer(
             content=[
-                self.peer_info
+                self.peer_info,
+                self.nodes_list,
+                self.banned_list
             ],
-            style=ContainerStyle.peer_main
+            style=ContainerStyle.peer_main,
+            on_select=self.update_tabs
         )
         self.app.add_background_task(
             self.display_window
@@ -58,8 +73,59 @@ class PeersManage(Window):
         await asyncio.sleep(1)
         self.show()
 
+
+    async def update_tabs(self, container):
+        if self.peer_tabs.current_tab.text == "Connected Nodes":
+            self.peer_tabs.content.remove(index=self.nodes_list)
+            self.peer_tabs.content.remove(index=self.banned_list)
+            self.nodes_list = OptionItem(
+                "Added Nodes",
+                content=NodesList(self.app),
+                enabled=True
+            )
+            self.banned_list = OptionItem(
+                "Banned List",
+                content=BannedList(self.app),
+                enabled=True
+            )
+            self.peer_tabs.content.insert(index=1, text_or_item=self.nodes_list)
+            self.peer_tabs.content.insert(index=2, text_or_item=self.banned_list)
+
+        elif self.peer_tabs.current_tab.text == "Added Nodes":
+            self.peer_tabs.content.remove(index=self.peer_info)
+            self.peer_tabs.content.remove(index=self.banned_list)
+            self.peer_info = OptionItem(
+                "Connected Nodes",
+                content=PeersInfo(self.app),
+                enabled=True
+            )
+            self.banned_list = OptionItem(
+                "Banned List",
+                content=BannedList(self.app),
+                enabled=True
+            )
+            self.peer_tabs.content.insert(index=0, text_or_item=self.peer_info)
+            self.peer_tabs.content.insert(index=2, text_or_item=self.banned_list)
+        
+        elif self.peer_tabs.current_tab.text == "Banned List":
+            self.peer_tabs.content.remove(index=self.peer_info)
+            self.peer_tabs.content.remove(index=self.nodes_list)
+            self.peer_info = OptionItem(
+                "Connected Nodes",
+                content=PeersInfo(self.app),
+                enabled=True
+            )
+            self.nodes_list = OptionItem(
+                "Added Nodes",
+                content=NodesList(self.app),
+                enabled=True
+            )
+            self.peer_tabs.content.insert(index=0, text_or_item=self.peer_info)
+            self.peer_tabs.content.insert(index=1, text_or_item=self.nodes_list)
+
+
     
     def close_window(self, window):
         self.close()
-        self.system.update_settings('peermanage_window', False)
+        self.system.update_settings('node_window', False)
         self.window_button.enabled = True

@@ -31,7 +31,7 @@ from ..message.chat import MessageWindow
 from ..ecosys.feature import EcosysWindow
 from ..mining.miner import MiningWindow
 from ..browser.navigator import BrowserWindow
-from .manage import PeersManage
+from .manage import NodesManage
 
 
 
@@ -529,11 +529,11 @@ class HomeWindow(Window):
 
     async def open_nodes_manage(self, button):
         self.peerinfo_button.enabled = False
-        self.peer_window = PeersManage(
+        self.peer_window = NodesManage(
             self.app,
             self.peerinfo_button
         )
-        self.system.update_settings('peermanage_window', True)
+        self.system.update_settings('node_window', True)
             
             
     async def close_window(self, window):

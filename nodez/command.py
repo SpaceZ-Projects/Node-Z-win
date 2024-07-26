@@ -64,8 +64,23 @@ class ClientCommands():
         return await self._run_command(command)
     
 
-    async def addNode(self, ip_address):
-        command = f'{self.bitcoinz_cli_file} addnode \"{ip_address}\" "add"'
+    async def listBanned(self):
+        command = f'{self.bitcoinz_cli_file} listbanned'
+        return await self._run_command(command)
+    
+
+    async def clearBanned(self):
+        command = f'{self.bitcoinz_cli_file} clearbanned'
+        return await self._run_command(command)
+
+
+    async def addNode(self, ip_address, action):
+        command = f'{self.bitcoinz_cli_file} addnode \"{ip_address}\" "{action}"'
+        return await self._run_command(command)
+    
+
+    async def setBan(self, ip_address, action):
+        command = f'{self.bitcoinz_cli_file} setban \"{ip_address}\" "{action}"'
         return await self._run_command(command)
     
 

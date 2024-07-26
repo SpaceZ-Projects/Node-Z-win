@@ -11,39 +11,30 @@ class Toolbar():
     def __init__(self, app:App):
         self.app = app
     
-        self.file = Group.FILE
-        self.help = Group.HELP
-        self.config = Group("Config")
+        self.start_group = Group(
+            "Start",
+            order=0
+        )
+        self.settings_group = Group(
+            "Settings",
+            order=1
+        )
         
-        self.edit_config_cmd = Command(
-            text="Edit config",
-            group=self.config,
+        self.custom_params = Command(
+            text="Custom params",
+            group=self.start_group,
             enabled=True,
-            tooltip="Edit bitcoinz.conf file",
-            shortcut=Key.F2,
+            shortcut=Key.MOD_1 + Key.S,
             action=True,
             order=0,
             section=0
         )
-        
-        self.start_config_cmd = Command(
-            text="Start with <config file>",
-            group=self.config,
-            enabled=True,
-            tooltip="Start the node with spcecific config file",
-            shortcut=Key.F3,
-            action=True,
-            order=1,
-            section=0
-        )
 
-        self.import_wallet_cmd = Command(
-            text="Import wallet",
-            group=self.file,
+        self.blockchain_dir = Command(
+            text="Blockchain dir",
+            group=self.settings_group,
             enabled=True,
-            tooltip="Import wallet.dat file",
-            shortcut=Key.MOD_1 + Key.I,
-            action=None,
+            action=True,
             order=0,
             section=0
         )

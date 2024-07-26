@@ -1,13 +1,17 @@
+
 import os
+import asyncio
 
 from toga import (
     App,
+    Window,
     Box,
     Label,
     ImageView,
     Button,
     Icon,
-    Divider
+    Divider,
+    TextInput
 )
 from toga.widgets.base import Widget
 from toga.constants import Direction
@@ -15,14 +19,16 @@ from .styles.box import BoxStyle
 from .styles.label import LabelStyle
 from .styles.button import ButtonStyle
 from .styles.divider import DividerStyle
+from .styles.input import InputStyle
 
 from .connect import WindowRPC
-from .start import StartNode
+from .start import StartNode, StartCMD
 from .social import Social
 from .download import DownloadNode, DownloadParams
 
 from ..config.config import EditConfig
 from ..system import SystemOp
+from ..toolbar import Toolbar
 
 class MainWizard(Box):
     def __init__(
@@ -36,6 +42,7 @@ class MainWizard(Box):
         super().__init__(id, style, children)
         self.app = app
         self.system = SystemOp(self.app)
+        self.toolbar = Toolbar(self.app)
         self.config_status = None
         self.node_status = None
         self.params_status = None
@@ -191,6 +198,12 @@ class MainWizard(Box):
         
     async def insert_toolbar(self):
         self.app.commands.clear()
+        self.app.commands.add(
+            self.toolbar.custom_params,
+            self.toolbar.blockchain_dir
+        )
+        self.toolbar.custom_params.action = self.display_custom_params
+        self.toolbar.blockchain_dir.action = self.set_blockchain_data_path
         await self.display_main_window()
         
         
@@ -233,9 +246,87 @@ class MainWizard(Box):
             self.app,
             self.local_button
         )
+
+
+    async def display_custom_params(self, action):
+        self.app.main_window.hide()
+        custom_info_txt = Label(
+            "Start your node using custom params",
+            style=LabelStyle.custom_info_txt
+        )
+        client_file_name = Label(
+            "bitcoinzd",
+            style=LabelStyle.client_file_name
+        )
+        self.custom_params_input = TextInput(
+            placeholder="custom params",
+            style=InputStyle.custom_params_input
+        )
+        self.custom_params_input_box = Box(
+            style=BoxStyle.custom_params_input_box
+        )
+        self.start_button = Button(
+            "Start",
+            style=ButtonStyle.start_button,
+            enabled=True,
+            on_press=self.start_node_custom_params
+        )
+        self.custom_params_box = Box(
+            style=BoxStyle.custom_params_box
+        )
+        self.custom_params_input_box.add(
+            client_file_name,
+            self.custom_params_input,
+            self.start_button
+        )
+        self.custom_params_box.add(
+            custom_info_txt,
+            self.custom_params_input_box
+        )
+        self.custom_params_window = Window(
+            title="Custom Params",
+            size=(500, 100),
+            resizable=False,
+            minimizable=False,
+            on_close=self.show_main_window
+        )
+        position_center = self.system.windows_screen_center(self.custom_params_window.size)
+        self.custom_params_window.position = position_center
+        self.custom_params_window.content = self.custom_params_box
+        self.custom_params_window.show()
+
+    
+    async def show_main_window(self, action):
+        self.custom_params_window.close()
+        await asyncio.sleep(1)
+        self.app.main_window.show()
+
+
+    
+    async def set_blockchain_data_path(self, action):
+        async def on_confirm(window, path):
+            if path:
+                blockchain_path = path
+                if isinstance(blockchain_path, os.PathLike):
+                    blockchain_path = str(blockchain_path)
+                self.system.update_settings('blockchainpath', blockchain_path)
+                self.app.main_window.info_dialog(
+                    "Done",
+                    f"Blockchain dir has been set to {blockchain_path}"
+                )
+            else:
+                return
+        self.app.main_window.select_folder_dialog(
+            "Select path...",
+            multiple_select=False,
+            initial_directory=self.app.paths.data,
+            on_result=on_confirm
+        )
+
         
     
     def start_node(self, button):
+        self.app.main_window.hide()
         self.local_window = StartNode(
             self.app,
             self.local_button
@@ -244,4 +335,15 @@ class MainWizard(Box):
     def open_rpc_window(self, button):
         self.rpc_window = WindowRPC(
             self.app
+        )
+
+
+    def start_node_custom_params(self, button):
+        if not self.custom_params_input.value:
+            return
+        custom_params = self.custom_params_input.value
+        self.starting_custom = StartCMD(
+            self.app,
+            self.custom_params_window,
+            custom_params
         )

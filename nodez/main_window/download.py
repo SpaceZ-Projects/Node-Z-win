@@ -296,7 +296,7 @@ class DownloadParams(Window):
             self.file_progress_bar,
             self.file_name_txt
         )
-        base_url = "https://d.btcz.rocks/"
+        base_url = "https://z.cash/downloads/"
         total_files = len(missing_files)
         try:
             async with aiohttp.ClientSession() as session:

@@ -5,7 +5,7 @@ requires = ["briefcase"]
 [tool.briefcase]
 project_name = "Node-Z"
 bundle = "com.nodez"
-version = "1.0.5"
+version = "1.0.6"
 url = "https://www.getbtcz.com"
 license.file = "LICENSE"
 author = "BTCZCommunity"

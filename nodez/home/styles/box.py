@@ -69,26 +69,18 @@ class BoxStyle():
 
     peer_info_box = Pack(
         direction = ROW,
-        background_color = rgb(39, 37, 37),
-        padding = 5,
-        flex = 1
-    )
-
-    peer_menu_box = Pack(
-        direction = COLUMN,
-        background_color = rgb(39, 37, 37)
-    )
-
-    peer_buttons_box = Pack(
-        direction = ROW,
         background_color = BLACK,
-        padding = 5,
-        flex = 1
+        padding = 5
     )
 
     peer_table_box = Pack(
         direction = ROW,
         background_color = rgb(39, 37, 37),
-        padding = 5,
-        flex = 1
+        padding = 5
+    )
+
+    banned_table_box = Pack(
+        direction = ROW,
+        background_color = rgb(39, 37, 37),
+        padding = 5
     )

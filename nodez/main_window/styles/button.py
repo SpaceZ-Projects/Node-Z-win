@@ -1,5 +1,5 @@
 from toga.style.pack import Pack
-from toga.colors import BLACK, YELLOW, TRANSPARENT
+from toga.colors import BLACK, YELLOW
 
 
 class ButtonStyle():
@@ -32,4 +32,13 @@ class ButtonStyle():
         padding_top = 15,
         background_color = BLACK,
         width = 116
+    )
+
+
+    start_button = Pack(
+        color = YELLOW,
+        background_color = BLACK,
+        padding_top = 15,
+        padding_left = 10,
+        padding_right = 10
     )

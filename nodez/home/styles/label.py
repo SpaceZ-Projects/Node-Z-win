@@ -213,23 +213,24 @@ class LabelStyle():
         padding_bottom = 3
     )
 
-
-    peer_info_txt = Pack(
-        text_align = CENTER,
-        padding_top = 15,
-        padding_left = 10,
-        background_color = BLACK,
-        color = WHITE,
-        font_weight = BOLD,
-        flex = 1
-    )
-
     peer_column = Pack(
         padding_top = 15,
-        padding_left = 10,
+        padding_left = 45,
+        padding_bottom = 15,
         background_color = BLACK,
         color = CYAN,
         font_weight = BOLD
+    )
+
+    node_column = Pack(
+        text_align = CENTER,
+        padding_top = 15,
+        padding_left = 20,
+        padding_bottom = 15,
+        background_color = BLACK,
+        color = CYAN,
+        font_weight = BOLD,
+        flex = 1
     )
 
     default_column = Pack(
@@ -242,7 +243,7 @@ class LabelStyle():
         flex = 1
     )
 
-    banscore_column = Pack(
+    option_column = Pack(
         text_align = CENTER,
         padding_top = 15,
         padding_left = 10,
@@ -255,18 +256,106 @@ class LabelStyle():
 
     peer_id_txt = Pack(
         padding_top = 15,
-        padding_left = 11,
-        padding_right = 5,
+        padding_left = 8,
         background_color = BLACK,
         color = WHITE,
-        font_weight = BOLD
+        font_weight = BOLD,
+        visibility = HIDDEN
     )
 
-    banscore_txt = Pack(
+    addr_txt = Pack(
         text_align = CENTER,
         padding_top = 15,
         padding_left = 10,
-        padding_right = 10,
+        background_color = BLACK,
+        color = WHITE,
+        font_weight = BOLD,
+        flex = 1,
+        visibility = HIDDEN
+    )
+
+    addrlocal_txt = Pack(
+        text_align = CENTER,
+        padding_top = 15,
+        padding_left = 10,
+        background_color = BLACK,
+        color = WHITE,
+        font_weight = BOLD,
+        flex = 1,
+        visibility = HIDDEN
+    )
+
+    syncedblocks_txt = Pack(
+        text_align = CENTER,
+        padding_top = 15,
+        padding_left = 5,
+        padding_right = 15,
+        background_color = BLACK,
+        color = WHITE,
+        font_weight = BOLD,
+        flex = 1,
+        visibility = HIDDEN
+    )
+
+    subver_txt = Pack(
+        text_align = CENTER,
+        padding_top = 15,
+        padding_left = 5,
+        padding_right = 5,
+        background_color = BLACK,
+        color = WHITE,
+        font_weight = BOLD,
+        flex = 1,
+        visibility = HIDDEN
+    )
+
+    pingtime_txt = Pack(
+        text_align = CENTER,
+        padding_top = 15,
+        padding_left = 5,
+        padding_right = 25,
+        background_color = BLACK,
+        color = WHITE,
+        font_weight = BOLD,
+        flex = 1,
+        visibility = HIDDEN
+    )
+
+
+    node_id_txt = Pack(
+        text_align = CENTER,
+        padding_top = 15,
+        padding_right = 30,
+        background_color = BLACK,
+        color = WHITE,
+        font_weight = BOLD,
+        flex = 1
+    )
+
+    addednode_txt = Pack(
+        text_align = CENTER,
+        padding_top = 15,
+        padding_right = 150,
+        background_color = BLACK,
+        color = WHITE,
+        font_weight = BOLD,
+        flex = 1
+    )
+
+
+    address_txt = Pack(
+        text_align = CENTER,
+        padding_top = 15,
+        background_color = BLACK,
+        color = WHITE,
+        font_weight = BOLD,
+        flex = 1
+    )
+
+    banned_until_txt = Pack(
+        text_align = CENTER,
+        padding_top = 15,
+        padding_right = 120,
         background_color = BLACK,
         color = WHITE,
         font_weight = BOLD,

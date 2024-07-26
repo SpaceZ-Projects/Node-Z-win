@@ -86,3 +86,24 @@ class LabelStyle():
         background_color = BLACK,
         padding_top = 15
     )
+
+
+    client_file_name = Pack(
+        padding_top = 16,
+        padding_left = 10,
+        padding_bottom = 15,
+        background_color = BLACK,
+        color = YELLOW,
+        font_weight = BOLD,
+        font_size = 10
+    )
+
+
+    custom_info_txt = Pack(
+        padding_top = 15,
+        text_align = CENTER,
+        background_color = BLACK,
+        color = WHITE,
+        font_weight = BOLD,
+        font_size = 10
+    )

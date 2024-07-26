@@ -1,6 +1,6 @@
 from toga.style.pack import Pack
 from toga.colors import BLACK, YELLOW
-from toga.constants import BOLD
+from toga.constants import BOLD, HIDDEN
 
 
 class ButtonStyle():
@@ -17,4 +17,14 @@ class ButtonStyle():
     peerinfo_button = Pack(
         padding_top = 1,
         background_color = BLACK
+    )
+
+
+    clear_button = Pack(
+        padding_top = 10,
+        padding_right = 10,
+        background_color = BLACK,
+        color = YELLOW,
+        font_weight = BOLD,
+        visibility = HIDDEN
     )

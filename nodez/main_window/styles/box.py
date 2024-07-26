@@ -76,3 +76,17 @@ class BoxStyle():
         alignment = BOTTOM,
         flex = 1
     )
+
+
+    custom_params_box = Pack(
+        alignment = CENTER,
+        direction = COLUMN,
+        background_color = BLACK,
+        flex = 1
+    )
+
+    custom_params_input_box = Pack(
+        direction = ROW,
+        background_color = BLACK,
+        flex = 1
+    )

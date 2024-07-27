@@ -12,10 +12,22 @@ Node-Z is a GUI interface designed to manage BitcoinZ nodes through RPC connecti
 
 ## Screenshots :
 - Main Wizard :
-<p align="center"><img src="https://github.com/ezzygarmyz/nodez-win/blob/main/screenshot/nodez_screenshot.png" </p>
+<p align="center"><img src="https://github.com/ezzygarmyz/nodez-win/blob/main/screenshot/main_wizard.png" </p>
 
 - Main Menu :
 <p align="center"><img src="https://github.com/ezzygarmyz/nodez-win/blob/main/screenshot/main_menu.png" </p>
+
+- Cash Out :
+<p align="center"><img src="https://github.com/ezzygarmyz/nodez-win/blob/main/screenshot/cash_out.png" </p>
+
+- Wallet Manage :
+<p align="center"><img src="https://github.com/ezzygarmyz/nodez-win/blob/main/screenshot/wallet_manage.png" </p>
+
+- Insight Explorer :
+<p align="center"><img src="https://github.com/ezzygarmyz/nodez-win/blob/main/screenshot/insight_explorer.png" </p>
+
+- Mining Tools :
+<p align="center"><img src="https://github.com/ezzygarmyz/nodez-win/blob/main/screenshot/mining_tools.png" </p>
 
 ## Getting Started :
 

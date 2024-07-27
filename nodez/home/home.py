@@ -509,7 +509,7 @@ class HomeWindow(Window):
 
     
     def open_ecosys_window(self, button):
-        self.ecosys_button.style.visisbility = HIDDEN
+        self.ecosys_button.style.visibility = HIDDEN
         self.ecosys_window = EcosysWindow(
             self.app,
             self.ecosys_button

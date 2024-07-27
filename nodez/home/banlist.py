@@ -10,13 +10,14 @@ from toga import (
     ScrollContainer,
     Label,
     Button,
-    ImageView
+    Selection
 )
 from toga.constants import VISIBLE
 
 from .styles.box import BoxStyle
 from .styles.label import LabelStyle
 from .styles.button import ButtonStyle
+from .styles.selection import SelectionStyle
 
 from ..command import ClientCommands
 from ..client import RPCRequest
@@ -44,6 +45,10 @@ class BannedList(ScrollContainer):
         )
         self.ban_until_column = Label(
             "Banned Until",
+            style=LabelStyle.default_column
+        )
+        self.options_column = Label(
+            "Options",
             style=LabelStyle.option_column
         )
         self.clear_button = Button(
@@ -70,6 +75,7 @@ class BannedList(ScrollContainer):
         self.banned_table_box.add(
             self.address_column,
             self.ban_until_column,
+            self.options_column,
             self.clear_button
         )
         self.banlist_main_box.add(
@@ -77,11 +83,17 @@ class BannedList(ScrollContainer):
         )
         self.address_column.style.visibility = VISIBLE
         self.ban_until_column.style.visibility = VISIBLE
+        self.options_column.style.visibility = VISIBLE
         self.clear_button.style.visibility = VISIBLE
         result = await self.get_nodes_banlist()
         for banned in result:
             address = banned.get('address')
             banned_until = datetime.fromtimestamp(banned.get('banned_until')).strftime("%Y-%m-%d %H:%M:%S")
+
+            option_items = [
+                {"option": ""},
+                {"option": "Unban"}
+            ]
 
             address_txt = Label(
                 address,
@@ -91,12 +103,21 @@ class BannedList(ScrollContainer):
                 banned_until,
                 style=LabelStyle.banned_until_txt
             )
+            option_select = Selection(
+                items=option_items,
+                accessor="option",
+                enabled=True,
+                style=SelectionStyle.ban_option_select,
+                on_change=lambda widget, address=address: asyncio.create_task(self.get_selected_action(widget, address))
+            )
+
             banned_box = Box(
                 style=BoxStyle.peer_info_box
             )
             banned_box.add(
                 address_txt,
-                banned_until_txt
+                banned_until_txt,
+                option_select
             )
             self.banlist_main_box.add(
                 banned_box
@@ -104,6 +125,7 @@ class BannedList(ScrollContainer):
 
             address_txt.style.visibility = VISIBLE
             banned_until_txt.style.visibility = VISIBLE
+            option_select.style.visibility = VISIBLE
 
     
     async def clear_banlist(self, button):
@@ -115,6 +137,25 @@ class BannedList(ScrollContainer):
             await self.command.clearBanned()
         self.banlist_main_box.clear()
         await self.display_tab(None)
+
+
+
+    async def get_selected_action(self, selection, address):
+        selected_option = selection.value.option
+        if selected_option == "Unban":
+            await self.unban_selected_address(address)
+        selection.value = selection.items.find("")
+
+
+    async def unban_selected_address(self, address):
+        config_path = self.app.paths.config
+        db_path = os.path.join(config_path, 'config.db')
+        if os.path.exists(db_path):
+            self.client.setBan(address, "remove")
+        else:
+            await self.command.setBan(address, "remove")
+        self.banlist_main_box.clear()
+        await self.display_tab(None)    
 
     
 

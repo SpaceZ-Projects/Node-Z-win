@@ -25,3 +25,13 @@ class SelectionStyle():
         color = GREENYELLOW,
         visibility = HIDDEN
     )
+
+
+    ban_option_select = Pack(
+        font_size = 11,
+        padding_right = 180,
+        padding_top = 10,
+        background_color = BLACK,
+        color = GREENYELLOW,
+        visibility = HIDDEN
+    )

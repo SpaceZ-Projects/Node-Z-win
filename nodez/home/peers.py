@@ -131,7 +131,7 @@ class PeersInfo(ScrollContainer):
                 style=LabelStyle.addr_txt
             )
             addrlocal_txt = Label(
-                f"{addrlocal[:6]}XXX.XXXX",
+                f"{addrlocal}",
                 style=LabelStyle.addrlocal_txt
             )
             subver_txt = Label(
@@ -179,19 +179,6 @@ class PeersInfo(ScrollContainer):
             syncedblocks_txt.style.visibility = VISIBLE
             pingtime_txt.style.visibility = VISIBLE
             option_select.style.visibility = VISIBLE
-
-
-
-    async def get_peers_info(self):
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
-        if os.path.exists(db_path):
-            result = self.client.getPeerInfo()
-        else:
-            result = await self.command.getPeerInfo()
-            result = json.loads(result)
-        if result is not None:
-            return result
         
 
 
@@ -203,8 +190,6 @@ class PeersInfo(ScrollContainer):
             await self.verify_node_address(peer)
         elif selected_option == "Ban":
             await self.ban_node(peer)
-            self.peer_list_box.clear()
-            await self.display_tab(None)
         selection.value = selection.items.find("")
 
 
@@ -322,6 +307,9 @@ class PeersInfo(ScrollContainer):
             self.client.setBan(address, "add")
         else:
             await self.command.setBan(address, "add")
+            
+        self.peer_list_box.clear()
+        await self.display_tab(None)
 
 
 
@@ -341,5 +329,18 @@ class PeersInfo(ScrollContainer):
                     target_file_path = os.path.join(blockchain_path, config_file)
                     
                     shutil.copyfile(file_path, target_file_path)
+
+
+    
+    async def get_peers_info(self):
+        config_path = self.app.paths.config
+        db_path = os.path.join(config_path, 'config.db')
+        if os.path.exists(db_path):
+            result = self.client.getPeerInfo()
+        else:
+            result = await self.command.getPeerInfo()
+            result = json.loads(result)
+        if result is not None:
+            return result
         
         

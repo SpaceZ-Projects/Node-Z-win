@@ -2,6 +2,7 @@
 import os
 import json
 import asyncio
+import shutil
 
 from toga import (
     App,
@@ -20,6 +21,7 @@ from .styles.image import ImageStyle
 
 from ..command import ClientCommands
 from ..client import RPCRequest
+from ..system import SystemOp
 
 
 class NodesList(ScrollContainer):
@@ -34,7 +36,10 @@ class NodesList(ScrollContainer):
         self.app = app
         self.command = ClientCommands(self.app)
         self.client = RPCRequest(self.app)
+        self.system = SystemOp(self.app)
         self.horizontal = False
+
+        self.file_path = self.system.load_config_file()
 
         self.node_column = Label(
             "ID",
@@ -80,61 +85,134 @@ class NodesList(ScrollContainer):
         self.status_column.style.visibility = VISIBLE
         self.option_column.style.visibility = VISIBLE
         result = await self.get_nodes_list()
+
+        with open(self.file_path, 'r') as file:
+            lines = file.readlines()
+
+        addnode_lines = []
+        for line in lines:
+            if line.startswith('addnode='):
+                _, value = line.split('=', 1)
+                value = value.strip()
+                addnode_lines.append(value)
+
         for index, node in enumerate(result):
             addednode = node.get('addednode')
             connected = node.get('connected')
-            if connected is True:
-                status_icon = ImageView(
-                    "icones/green_spot.gif",
-                    style=ImageStyle.status_icon
-                )
-            else:
-                status_icon = ImageView(
-                    ("icones/red_spot.gif"),
-                    style=ImageStyle.status_icon
-                )
+            if addednode in addnode_lines:
+                if connected is True:
+                    status_icon = ImageView(
+                        "icones/green_spot.gif",
+                        style=ImageStyle.status_icon
+                    )
+                else:
+                    status_icon = ImageView(
+                        ("icones/red_spot.gif"),
+                        style=ImageStyle.status_icon
+                    )
 
-            option_items = [
-                {"option": ""},
-                {"option": "Remove"},
-                {"option": "Ban"}
-            ]
+                option_items = [
+                    {"option": ""},
+                    {"option": "Connect"},
+                    {"option": "Remove"}
+                ]
 
-            node_id_txt = Label(
-                index+1,
-                style=LabelStyle.node_id_txt
-            )
-            addednode_txt = Label(
-                addednode,
-                style=LabelStyle.addednode_txt
-            )
-            option_select = Selection(
-                items=option_items,
-                accessor="option",
-                enabled=True,
-                style=SelectionStyle.node_option_select,
-                on_change=lambda widget, node=node: asyncio.create_task(self.get_selected_action(widget, node))
-            )
-            node_box = Box(
-                style=BoxStyle.peer_info_box
-            )
-            node_box.add(
-                node_id_txt,
-                addednode_txt,
-                status_icon,
-                option_select
-            )
-            self.nodes_main_box.add(
-                node_box
-            )
-            node_id_txt.style.visibility = VISIBLE
-            addednode_txt.style.visibility = VISIBLE
-            status_icon.style.visibility = VISIBLE
-            option_select.style.visibility = VISIBLE
+                node_id_txt = Label(
+                    index+1,
+                    style=LabelStyle.node_id_txt
+                )
+                addednode_txt = Label(
+                    addednode,
+                    style=LabelStyle.addednode_txt
+                )
+                option_select = Selection(
+                    items=option_items,
+                    accessor="option",
+                    enabled=True,
+                    style=SelectionStyle.node_option_select,
+                    on_change=lambda widget, node=node: asyncio.create_task(self.get_selected_action(widget, node))
+                )
+                node_box = Box(
+                    style=BoxStyle.peer_info_box
+                )
+                node_box.add(
+                    node_id_txt,
+                    addednode_txt,
+                    status_icon,
+                    option_select
+                )
+                self.nodes_main_box.add(
+                    node_box
+                )
+                node_id_txt.style.visibility = VISIBLE
+                addednode_txt.style.visibility = VISIBLE
+                status_icon.style.visibility = VISIBLE
+                option_select.style.visibility = VISIBLE
 
 
     async def get_selected_action(self, selection, node):
-        pass
+        selected_option = selection.value.option
+        if selected_option == "Remove":
+            await self.remove_node(node)
+        selection.value = selection.items.find("")
+
+
+
+    async def remove_node(self, node):
+        config_path = self.app.paths.config
+        db_path = os.path.join(config_path, 'config.db')
+        if os.path.exists(db_path):
+            self.client.addNode(node, "remove")
+        else:
+            await self.command.addNode(node, "remove")
+            await self.remove_node_config_file(node)
+            
+        self.nodes_main_box.clear()
+        await self.display_tab(None)
+
+
+
+    async def remove_node_config_file(self, node):
+        node_address = node.get('addednode')
+
+        with open(self.file_path, 'r') as file:
+            lines = file.readlines()
+
+        update_lines = []
+        for line in lines:
+            if line.startswith('addnode='):
+                _, value = line.split('=', 1)
+                value = value.strip()
+                if value != node_address:
+                    update_lines.append(line)
+            else:
+                update_lines.append(line)
+
+        with open(self.file_path, 'w') as file:
+            file.writelines(update_lines)
+
+        await self.copy_config_datadir()
+        
+
+    
+    async def copy_config_datadir(self):
+        settings_path = os.path.join(self.app.paths.config, 'settings.json')
+        if os.path.exists(settings_path):
+            with open(settings_path, 'r') as f:
+                settings_data = json.load(f)
+                blockchain_path = settings_data.get('blockchainpath')
+                
+                if not blockchain_path:
+                    return
+                else:
+                    config_file = "bitcoinz.conf"
+                    config_path = os.path.join(os.getenv('APPDATA'), "BitcoinZ")
+                    file_path = os.path.join(config_path, config_file)
+                    target_file_path = os.path.join(blockchain_path, config_file)
+                    
+                    shutil.copyfile(file_path, target_file_path)
+            
+
 
 
     async def get_nodes_list(self):

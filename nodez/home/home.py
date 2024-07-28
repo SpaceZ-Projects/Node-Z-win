@@ -46,6 +46,9 @@ class HomeWindow(Window):
         self.client = RPCRequest(self.app)
         self.command = ClientCommands(self.app)
         self.system = SystemOp(self.app)
+
+        config_path = self.app.paths.config
+        self.db_path = os.path.join(config_path, 'config.db')
         
         self.cash_button = Button(
             icon=Icon("icones/cash"),
@@ -334,10 +337,8 @@ class HomeWindow(Window):
         
     async def update_total_balances(self):
         while True:
-            config_path = self.app.paths.config
-            db_path = os.path.join(config_path, 'config.db')
             try:
-                if os.path.exists(db_path):
+                if os.path.exists(self.db_path):
                     balances = self.client.z_getTotalBalance()
                     unconfirmed_balances = self.client.getUnconfirmedBalance()
                 else:
@@ -383,8 +384,6 @@ class HomeWindow(Window):
             
     async def update_price(self):
         while True:
-            config_path = self.app.paths.config
-            db_path = os.path.join(config_path, 'config.db')
             try:
                 price = await get_btcz_price()
                 if price is not None:
@@ -392,7 +391,7 @@ class HomeWindow(Window):
                     self.price_value.text = f"${price_format}"
                 else:
                     self.price_value.text = "$ NaN"
-                if os.path.exists(db_path):
+                if os.path.exists(self.db_path):
                     total_balances = self.client.z_getTotalBalance()
                 else:
                     total_balances = await self.command.z_getTotalBalance()
@@ -416,9 +415,7 @@ class HomeWindow(Window):
     
     async def update_blockchain_info(self):
         while True:
-            config_path = self.app.paths.config
-            db_path = os.path.join(config_path, 'config.db')
-            if os.path.exists(db_path):
+            if os.path.exists(self.db_path):
                 info = self.client.getBlockchainInfo()
                 deprecation = self.client.getDeprecationInfo()
                 networksol = self.client.getNetworkSolps()

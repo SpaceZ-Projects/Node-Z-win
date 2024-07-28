@@ -38,6 +38,9 @@ class BannedList(ScrollContainer):
         self.command = ClientCommands(self.app)
         self.client = RPCRequest(self.app)
         self.system = SystemOp(self.app)
+
+        config_path = self.app.paths.config
+        self.db_path = os.path.join(config_path, 'config.db')
         
         self.address_column = Label(
             "Address",
@@ -129,9 +132,7 @@ class BannedList(ScrollContainer):
 
     
     async def clear_banlist(self, button):
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
-        if os.path.exists(db_path):
+        if os.path.exists(self.db_path):
             self.client.clearBanned()
         else:
             await self.command.clearBanned()
@@ -148,9 +149,7 @@ class BannedList(ScrollContainer):
 
 
     async def unban_selected_address(self, address):
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
-        if os.path.exists(db_path):
+        if os.path.exists(self.db_path):
             self.client.setBan(address, "remove")
         else:
             await self.command.setBan(address, "remove")
@@ -160,9 +159,7 @@ class BannedList(ScrollContainer):
     
 
     async def get_nodes_banlist(self):
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
-        if os.path.exists(db_path):
+        if os.path.exists(self.db_path):
             result = self.client.listBanned()
         else:
             result = await self.command.listBanned()

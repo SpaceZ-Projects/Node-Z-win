@@ -39,7 +39,11 @@ class PeersInfo(ScrollContainer):
         self.client = RPCRequest(self.app)
         self.command = ClientCommands(self.app)
         self.system = SystemOp(self.app)
+
         self.file_path = self.system.load_config_file()
+
+        config_path = self.app.paths.config
+        self.db_path = os.path.join(config_path, 'config.db')
 
 
         self.peer_column = Label(
@@ -190,6 +194,8 @@ class PeersInfo(ScrollContainer):
             await self.verify_node_address(peer)
         elif selected_option == "Ban":
             await self.ban_node(peer)
+        elif selected_option == "Disconnect":
+            await self.disconnect_node(peer)
         selection.value = selection.items.find("")
 
 
@@ -273,9 +279,7 @@ class PeersInfo(ScrollContainer):
 
 
     async def add_node(self, node):
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
-        if os.path.exists(db_path):
+        if os.path.exists(self.db_path):
             self.client.addNode(node, "add")
         else:
             await self.command.addNode(node, "add")
@@ -301,15 +305,48 @@ class PeersInfo(ScrollContainer):
     async def ban_node(self, peer):
         node_address = peer.get('addr')
         address = node_address.split(':')[0]
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
-        if os.path.exists(db_path):
+        if os.path.exists(self.db_path):
             self.client.setBan(address, "add")
         else:
             await self.command.setBan(address, "add")
             
         self.peer_list_box.clear()
         await self.display_tab(None)
+
+
+    
+    async def disconnect_node(self, peer):
+        node_address = peer.get('addr')
+        
+        if os.path.exists(self.db_path):
+            self.client.disconnectNode(node_address)
+        else:
+            await self.command.disconnectNode(node_address)
+        
+        self.peer_list_box.clear()
+        await self.display_tab(None)
+
+
+
+    async def remove_connect_config_file(self, peer):
+        node_address = peer.get('addr')
+        with open(self.file_path, 'r') as file:
+            lines = file.readlines()
+
+        update_lines = []
+        for line in lines:
+            if line.startswith('connect='):
+                _, value = line.split('=', 1)
+                value = value.strip()
+                if value != node_address:
+                    update_lines.append(line)
+            else:
+                update_lines.append(line)
+
+        with open(self.file_path, 'w') as file:
+            file.writelines(update_lines)
+
+        await self.copy_config_datadir()
 
 
 
@@ -333,9 +370,7 @@ class PeersInfo(ScrollContainer):
 
     
     async def get_peers_info(self):
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
-        if os.path.exists(db_path):
+        if os.path.exists(self.db_path):
             result = self.client.getPeerInfo()
         else:
             result = await self.command.getPeerInfo()

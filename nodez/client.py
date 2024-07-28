@@ -161,18 +161,26 @@ class RPCRequest():
         )
     
 
-    def addNode(self, ip_address, action):
+    def addNode(self, node, action):
         return self.make_rpc_request(
             "addnode",
-            [f'{ip_address}', action]
+            [f'{node}', action]
         )
     
 
-    def setBan(self, ip_address, action):
+    def setBan(self, node, action):
         return self.make_rpc_request(
             "setban",
-            [f'{ip_address}', action]
+            [f'{node}', action]
         )
+    
+
+    def disconnectNode(self, node):
+        return self.make_rpc_request(
+            "disconnectnode",
+            [f"{node}"]
+        )
+
     
 
     def listBanned(self):

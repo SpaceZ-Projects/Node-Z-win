@@ -41,6 +41,9 @@ class NodesList(ScrollContainer):
 
         self.file_path = self.system.load_config_file()
 
+        config_path = self.app.paths.config
+        self.db_path = os.path.join(config_path, 'config.db')
+
         self.node_column = Label(
             "ID",
             style=LabelStyle.node_column
@@ -154,21 +157,41 @@ class NodesList(ScrollContainer):
         selected_option = selection.value.option
         if selected_option == "Remove":
             await self.remove_node(node)
+        elif selected_option == "Connect":
+            #edit config and add selected node to connect= list
+            await self.connect_node(node)
         selection.value = selection.items.find("")
 
 
 
     async def remove_node(self, node):
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
-        if os.path.exists(db_path):
+        node_address = node.get("addednode")
+        
+        if os.path.exists(self.db_path):
             self.client.addNode(node, "remove")
         else:
-            await self.command.addNode(node, "remove")
-            await self.remove_node_config_file(node)
+            await self.command.addNode(node_address, "remove")
+            await self.remove_node_config_file(node_address)
             
         self.nodes_main_box.clear()
         await self.display_tab(None)
+
+
+
+    async def connect_node(self, node):
+        node_address = node.get("addednode")
+        new_entry = f"connect={node_address.strip()}\n"
+        with open(self.file_path, 'r') as file:
+            lines = file.readlines()
+        entry_found = any(line.strip() == new_entry.strip() for line in lines)
+        if not entry_found:
+            lines.append(new_entry)
+        with open(self.file_path, 'w') as file:
+            file.writelines(lines)
+        await self.copy_config_datadir()
+        self.nodes_main_box.clear()
+        await self.display_tab(None)
+        
 
 
 
@@ -216,9 +239,7 @@ class NodesList(ScrollContainer):
 
 
     async def get_nodes_list(self):
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
-        if os.path.exists(db_path):
+        if os.path.exists(self.db_path):
             result = self.client.getAddedNodeInfo()
         else:
             result = await self.command.getAddedNodeInfo()

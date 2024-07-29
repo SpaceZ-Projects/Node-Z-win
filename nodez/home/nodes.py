@@ -179,6 +179,8 @@ class NodesList(ScrollContainer):
 
 
     async def connect_node(self, node):
+        if os.path.exists(self.db_path):
+            return
         node_address = node.get("addednode")
         new_entry = f"connect={node_address.strip()}\n"
         with open(self.file_path, 'r') as file:
@@ -196,17 +198,14 @@ class NodesList(ScrollContainer):
 
 
     async def remove_node_config_file(self, node):
-        node_address = node.get('addednode')
-
         with open(self.file_path, 'r') as file:
             lines = file.readlines()
-
         update_lines = []
         for line in lines:
             if line.startswith('addnode='):
                 _, value = line.split('=', 1)
                 value = value.strip()
-                if value != node_address:
+                if value != node:
                     update_lines.append(line)
             else:
                 update_lines.append(line)

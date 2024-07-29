@@ -13,7 +13,6 @@ from toga import (
     Selection,
     ScrollContainer
 )
-from toga.widgets.base import Widget
 from toga.constants import VISIBLE
 
 from .styles.box import BoxStyle
@@ -322,14 +321,14 @@ class PeersInfo(ScrollContainer):
             self.client.disconnectNode(node_address)
         else:
             await self.command.disconnectNode(node_address)
+            await self.remove_connect_config_file(node_address)
         
         self.peer_list_box.clear()
         await self.display_tab(None)
 
 
 
-    async def remove_connect_config_file(self, peer):
-        node_address = peer.get('addr')
+    async def remove_connect_config_file(self, node):
         with open(self.file_path, 'r') as file:
             lines = file.readlines()
 
@@ -338,7 +337,7 @@ class PeersInfo(ScrollContainer):
             if line.startswith('connect='):
                 _, value = line.split('=', 1)
                 value = value.strip()
-                if value != node_address:
+                if value != node:
                     update_lines.append(line)
             else:
                 update_lines.append(line)

@@ -10,7 +10,6 @@ import sys
 from toga import (
     App,
     Window,
-    Switch,
     ScrollContainer,
     Selection,
     Divider,

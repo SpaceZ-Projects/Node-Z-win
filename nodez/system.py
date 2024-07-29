@@ -53,6 +53,20 @@ class SystemOp():
         settings[setting_key] = setting_value
         with open(settings_path, 'w') as f:
             json.dump(settings, f, indent=4)
+
+
+    def update_messenger(self, setting_key, setting_value):
+        if not os.path.exists(self.config_path):
+            os.makedirs(self.config_path)
+        settings_path = os.path.join(self.config_path, 'messenger.json')
+        if os.path.exists(settings_path):
+            with open(settings_path, 'r') as f:
+                settings = json.load(f)
+        else:
+            settings = {}
+        settings[setting_key] = setting_value
+        with open(settings_path, 'w') as f:
+            json.dump(settings, f, indent=4)
             
             
     def check_window_is_open(self):

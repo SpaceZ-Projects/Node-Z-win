@@ -218,3 +218,16 @@ class SystemOp():
 
         formatted_balance = integer_part + '.' + formatted_decimal
         return formatted_balance
+    
+
+    def format_bytes(self, bytes_size):
+        if bytes_size == 0:
+            return "0 Bytes"
+        units = ["Bit", "KB", "MB", "GB"]
+        i = 0
+        size = bytes_size
+        while size >= 1024 and i < len(units) - 1:
+            size /= 1024
+            i += 1
+
+        return f"{size:.2f} {units[i]}"

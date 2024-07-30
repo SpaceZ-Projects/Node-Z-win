@@ -34,8 +34,7 @@ class NodesManage(Window):
         self.client = RPCRequest(self.app)
         self.command = ClientCommands(self.app)
 
-        position_center = self.system.windows_screen_center(self.size)
-        self.position = position_center
+        self.position = self.system.windows_screen_center(self.size)
         self.window_button = window_button
 
         
@@ -126,6 +125,10 @@ class NodesManage(Window):
 
     
     def close_window(self, window):
+        active_windows = list(self.app.windows)
+        for open_window in active_windows:
+            if open_window.title == "Node Info":
+                open_window.close()
         self.close()
         self.system.update_settings('node_window', False)
         self.window_button.enabled = True

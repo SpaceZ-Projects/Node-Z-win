@@ -11,7 +11,8 @@ from toga import (
     Label,
     ImageView,
     Selection,
-    ScrollContainer
+    ScrollContainer,
+    Window
 )
 from toga.constants import VISIBLE
 
@@ -188,7 +189,7 @@ class PeersInfo(ScrollContainer):
     async def get_selected_action(self, selection, peer):
         selected_option = selection.value.option
         if selected_option == "Info":
-            await self.display_peer_info(peer)
+            await self.display_node_info(peer)
         elif selected_option == "Add":
             await self.verify_node_address(peer)
         elif selected_option == "Ban":
@@ -198,54 +199,54 @@ class PeersInfo(ScrollContainer):
         selection.value = selection.items.find("")
 
 
-    async def display_peer_info(self, peer):
-        peer_id = peer.get('id')
-        addr = peer.get('addr')
-        addrlocal = peer.get('addrlocal')
-        services = peer.get('services')
-        lastsend = datetime.fromtimestamp(peer.get('lastsend')).strftime("%Y-%m-%d %H:%M:%S")
-        lastrecv = datetime.fromtimestamp(peer.get('lastrecv')).strftime("%Y-%m-%d %H:%M:%S")
-        bytessent = peer.get('bytessent')
-        bytesrecv = peer.get('bytesrecv')
-        conntime = datetime.fromtimestamp(peer.get('conntime')).strftime("%Y-%m-%d %H:%M:%S")
-        timeoffset = peer.get('timeoffset')
-        pingtime = peer.get('pingtime') * 1000
-        version = peer.get('version')
-        subver = peer.get('subver')
-        inbound = peer.get('inbound')
-        startingheight = peer.get('startingheight')
-        banscore = peer.get('banscore')
-        synced_headers = peer.get('synced_headers')
-        synced_blocks = peer.get('synced_blocks')
-        whitelisted = peer.get('whitelisted')
 
-        peer_info_str = [
-            f"Peer ID : {peer_id}\n",
-            f"Node Addr : {addr}\n",
-            f"Addr Local : {addrlocal}\n",
-            f"Services : {services}\n",
-            f"LastSend : {lastsend}\n",
-            f"LastReceive : {lastrecv}\n",
-            f"BytesSent : {bytessent}\n",
-            f"BytesReceive : {bytesrecv}\n",
-            f"ConnTime : {conntime}\n",
-            f"TimeOffset : {timeoffset}\n",
-            f"PingTime : {int(pingtime)} ms\n",
-            f"PeerVersion : {version}\n",
-            f"NodeVersion : {subver}\n",
-            f"Inbound : {inbound}\n",
-            f"Starting Height : {startingheight}\n",
-            f"BanScore : {banscore}\n",
-            f"Sync Headres : {synced_headers}\n",
-            f"Sync Blocks : {synced_blocks}\n",
-            f"Whitelisted : {whitelisted}"
-        ]
-        peer_info = "".join(peer_info_str)
-
-        self.app.main_window.info_dialog(
-            "Peer info...",
-            peer_info
+    async def display_node_info(self, node):
+        active_windows = list(self.app.windows)
+        for open_window in active_windows:
+            if open_window.title == "Node Info":
+                open_window.close()
+        node_data = {
+            "Node ID": node.get('id'),
+            "Address": node.get('addr'),
+            "Local Address": node.get('addrlocal'),
+            "Services": node.get('services'),
+            "Last Sent": datetime.fromtimestamp(node.get('lastsend')).strftime("%Y-%m-%d %H:%M:%S"),
+            "Last Received": datetime.fromtimestamp(node.get('lastrecv')).strftime("%Y-%m-%d %H:%M:%S"),
+            "Bytes Sent": self.system.format_bytes(node.get('bytessent')),
+            "Bytes Received": self.system.format_bytes(node.get('bytesrecv')),
+            "Connection Time": datetime.fromtimestamp(node.get('conntime', 0)).strftime("%Y-%m-%d %H:%M:%S"),
+            "Time Offset": node.get('timeoffset', 'N/A'),
+            "Ping Time": f"{node.get('pingtime') * 1000} ms",
+            "Version": node.get('version'),
+            "Subversion": node.get('subver'),
+            "Inbound": "Yes" if node.get('inbound') else "No",
+            "Starting Height": node.get('startingheight'),
+            "Ban Score": node.get('banscore'),
+            "Synced Headers": node.get('synced_headers'),
+            "Synced Blocks": node.get('synced_blocks'),
+            "Whitelisted": "Yes" if node.get('whitelisted') else "No"
+        }
+        info_main_box = Box(
+            style=BoxStyle.peer_main_box
         )
+        for label_text, value_text in node_data.items():
+            info_label = Label(
+                f"{label_text} : {value_text}",
+                style=LabelStyle.info_label
+            )
+            info_main_box.add(
+                info_label
+            )
+        self.peerinfo_window = Window(
+            title="Node Info",
+            minimizable=False,
+            resizable=False,
+            size=(400, 500)
+        )
+        self.peerinfo_window.position = self.system.windows_screen_center(self.peerinfo_window.size)
+        self.peerinfo_window.content = info_main_box
+        self.peerinfo_window.show()
+        
 
 
 
@@ -376,5 +377,3 @@ class PeersInfo(ScrollContainer):
             result = json.loads(result)
         if result is not None:
             return result
-        
-        

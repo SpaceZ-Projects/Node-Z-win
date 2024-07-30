@@ -361,3 +361,13 @@ class LabelStyle():
         font_weight = BOLD,
         flex = 1
     )
+
+
+    info_label = Pack(
+        font_size = 10,
+        padding_left = 10,
+        padding_top = 7,
+        color = WHITE,
+        background_color = BLACK,
+        font_weight = BOLD,
+    )

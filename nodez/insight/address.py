@@ -1,4 +1,3 @@
-import asyncio
 import os
 import json
 from datetime import datetime
@@ -14,12 +13,13 @@ from toga import (
 )
 from toga.widgets.base import Widget
 from toga.constants import Direction
-from toga.colors import RED, GREEN
+from toga.colors import GREEN
 
 from .styles.box import BoxStyle
 from .styles.label import LabelStyle
 from .styles.divider import DividerStyle
 from .styles.image import ImageStyle
+from .styles.button import ButtonStyle
 
 from ..client import RPCRequest
 from ..command import ClientCommands
@@ -32,7 +32,7 @@ class AddressIndex(Box):
             app:App,
             address: str |None = None,
             result: str | None = None,
-            on_scroll= None,
+            container= None,
             id: str | None = None,
             style= None,
             children: Iterable[Widget] | None = None
@@ -45,7 +45,7 @@ class AddressIndex(Box):
         self.client = RPCRequest(self.app)
         self.command = ClientCommands(self.app)
         self.system = SystemOp(self.app)
-        self.on_scroll = on_scroll
+        self.container = container
 
         self.address_title = Label(
             self.address,
@@ -178,13 +178,16 @@ class AddressIndex(Box):
             self.address_balances_list_box.add(
                 self.number_transactions_box
             )
-            start_index = max(self.total_txids - 10, 0)
-            print(start_index)
+            start_index = self.total_txids - 10
             for item in reversed(self.txids_result[start_index:self.total_txids]):
                 txid = item["txid"]
-                transaction_id_label = Label(
+                transaction_id = Label(
                     txid,
                     style=LabelStyle.address_transaction_id
+                )
+                transaction_time = Label(
+                    "",
+                    style=LabelStyle.transaction_time
                 )
                 vin_address_box = Box(
                     style=BoxStyle.transaction_address_box
@@ -195,6 +198,10 @@ class AddressIndex(Box):
                 addresses_box = Box(
                     style=BoxStyle.addresses_box
                 )
+                transaction_fee_txt = Label(
+                    "",
+                    style=LabelStyle.transaction_fee
+                )
                 confirmations = Label(
                     "",
                     style=LabelStyle.transaction_confirmations
@@ -203,13 +210,15 @@ class AddressIndex(Box):
                     "",
                     style=LabelStyle.transaction_value
                 )
+                transaction_id_box = Box(
+                    style=BoxStyle.transaction_id_box
+                )
                 confirmations_box = Box(
                     style=BoxStyle.confirmations_box
                 )
                 transaction_box = Box(
                     style=BoxStyle.address_transaction_box
                 )
-                transaction_box.add(transaction_id_label)
                 if os.path.exists(db_path):
                     txid_details = self.client.getRawTransaction(txid)
                 else:
@@ -217,6 +226,7 @@ class AddressIndex(Box):
                     txid_details = json.loads(txid_details)
                 if txid_details:
                     vin = txid_details.get('vin', [])
+                    total_vin_value = sum(vin_data.get('value', 0) for vin_data in vin)
                     for data in vin:
                         vin_value = data.get('value')
                         vin_address = data.get('address')
@@ -234,7 +244,7 @@ class AddressIndex(Box):
                             vin_address_label
                         )
                     vout = txid_details.get('vout', [])
-                    total_value = sum(vout_data.get('value', 0) for vout_data in vout)
+                    total_vout_value = sum(vout_data.get('value', 0) for vout_data in vout)
                     for data in vout:
                         script_pubkey = data.get('scriptPubKey', {})
                         vout_value = data.get('value')
@@ -250,15 +260,33 @@ class AddressIndex(Box):
                         vout_address_box.add(
                             vout_address_label
                         )
+                    transaction_fee = total_vin_value - total_vout_value
+                    if transaction_fee < 0:
+                        tx_fee = ""
+                    elif transaction_fee > 1:
+                        tx_fee = "Fee : 0.0001 BTCZ"
+                    else:
+                        tx_fee = f"Fee : {self.system.format_balance(transaction_fee)} BTCZ"
+                    transaction_fee_txt.text = tx_fee
                     confirmations_result = txid_details.get('confirmations', '0')
+                    tx_time = datetime.fromtimestamp(txid_details.get('time')).strftime("%Y-%m-%d %H:%M:%S")
+                    transaction_time.text = tx_time
                     confirmations.text = f"Confirmations : {confirmations_result}"
                     confirmations.style.background_color = GREEN
-                    value.text = f"{self.system.format_balance(total_value)} BTCZ"
+                    value.text = f"{self.system.format_balance(total_vout_value)} BTCZ"
+                    transaction_id_box.add(
+                        transaction_id,
+                        transaction_time
+                    )
+                    transaction_box.add(
+                        transaction_id_box
+                    )
                     addresses_box.add(
                         vin_address_box,
                         vout_address_box
                     )
                     confirmations_box.add(
+                        transaction_fee_txt,
                         confirmations,
                         value
                     )
@@ -270,17 +298,21 @@ class AddressIndex(Box):
             self.loadmore_button = Button(
                 "load more",
                 enabled=True,
+                style=ButtonStyle.loadmore_button,
                 on_press=self.load_more_txids
             )
             self.add(self.loadmore_button)
-        self.total_txids -= 10
+        self.total_txids = self.total_txids - 10
 
                 
     async def load_more_txids(self, button):
         config_path = self.app.paths.config
         db_path = os.path.join(config_path, 'config.db')
         self.remove(self.loadmore_button)
-        start_index = max(self.total_txids - 20, 0)
+        self.container.vertical_position = self.container.max_vertical_position
+        start_index = self.total_txids - 10
+        if start_index < 0:
+            start_index = 0
         for item in reversed(self.txids_result[start_index:self.total_txids]):
             txid = item["txid"]
             if os.path.exists(db_path):
@@ -289,6 +321,17 @@ class AddressIndex(Box):
                 txid_details = await self.command.getRawTransaction(txid)
                 txid_details = json.loads(txid_details)
             if txid_details:
+                transaction_id = Label(
+                    txid,
+                    style=LabelStyle.address_transaction_id
+                )
+                transaction_time = Label(
+                    "",
+                    style=LabelStyle.transaction_time
+                )
+                transaction_id_box = Box(
+                    style=BoxStyle.transaction_id_box
+                )
                 vin_address_box = Box(
                     style=BoxStyle.transaction_address_box
                 )
@@ -297,6 +340,10 @@ class AddressIndex(Box):
                 )
                 addresses_box = Box(
                     style=BoxStyle.addresses_box
+                )
+                transaction_fee_txt = Label(
+                    "",
+                    style=LabelStyle.transaction_fee
                 )
                 confirmations = Label(
                     "",
@@ -309,8 +356,12 @@ class AddressIndex(Box):
                 confirmations_box = Box(
                     style=BoxStyle.confirmations_box
                 )
+                transaction_box = Box(
+                    style=BoxStyle.address_transaction_box
+                )
                 
                 vin = txid_details.get('vin', [])
+                total_vin_value = sum(vin_data.get('value', 0) for vin_data in vin)
                 for data in vin:
                     vin_value = data.get('value')
                     vin_address = data.get('address')
@@ -327,7 +378,7 @@ class AddressIndex(Box):
                     vin_address_box.add(vin_address_label)
                 
                 vout = txid_details.get('vout', [])
-                total_value = sum(vout_data.get('value', 0) for vout_data in vout)
+                total_vout_value = sum(vout_data.get('value', 0) for vout_data in vout)
                 for data in vout:
                     script_pubkey = data.get('scriptPubKey', {})
                     vout_value = data.get('value')
@@ -343,33 +394,42 @@ class AddressIndex(Box):
                     vout_address_box.add(
                         vout_address_label
                     )
+                transaction_fee = total_vin_value - total_vout_value
+                if transaction_fee < 0:
+                    tx_fee = ""
+                elif transaction_fee > 1:
+                    tx_fee = "Fee : 0.0001 BTCZ"
+                else:
+                    tx_fee = f"Fee : {self.system.format_balance(transaction_fee)} BTCZ"
+                transaction_fee_txt.text = tx_fee
+                tx_time = datetime.fromtimestamp(txid_details.get('time')).strftime("%Y-%m-%d %H:%M:%S")
+                transaction_time.text = tx_time
                 confirmations_result = txid_details.get('confirmations', '0')
                 confirmations.text = f"Confirmations : {confirmations_result}"
                 confirmations.style.background_color = GREEN
-                value.text = f"{self.system.format_balance(total_value)} BTCZ"
+                value.text = f"{self.system.format_balance(total_vout_value)} BTCZ"
+                transaction_id_box.add(
+                    transaction_id,
+                    transaction_time
+                )
+                transaction_box.add(
+                    transaction_id_box
+                )
                 addresses_box.add(
                     vin_address_box,
                     vout_address_box
                 )
                 confirmations_box.add(
+                    transaction_fee_txt,
                     confirmations,
                     value
                 )
-                transaction_id_label = Label(
-                    txid,
-                    style=LabelStyle.address_transaction_id
-                )
-                transaction_box = Box(
-                    style=BoxStyle.address_transaction_box
-                )
                 transaction_box.add(
-                    transaction_id_label,
                     addresses_box,
                     confirmations_box)
                 self.add(transaction_box)
-            
-            await asyncio.sleep(0.1)
+                self.container.vertical_position = self.container.max_vertical_position
         
-        self.total_txids -= 10
-        if self.total_txids > 10:
+        self.total_txids = self.total_txids - 10
+        if self.total_txids > 1:
             self.add(self.loadmore_button)        

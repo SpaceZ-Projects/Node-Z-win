@@ -65,6 +65,11 @@ class BoxStyle():
         flex=1
     )
 
+    transaction_id_box = Pack(
+        direction = ROW,
+        background_color = GRAY
+    )
+
     block_details_box = Pack(
         direction = ROW,
         background_color = BLACK,

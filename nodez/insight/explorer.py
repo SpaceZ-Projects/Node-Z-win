@@ -143,7 +143,7 @@ class ExplorerWindow(Window):
                 self.app,
                 address,
                 result,
-                self.details_container.on_scroll
+                self.details_container
             )
             self.details_container.style.visibility = HIDDEN
             self.main_box.add(

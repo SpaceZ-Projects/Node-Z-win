@@ -144,9 +144,6 @@ class Transaction(Box):
         self.coinbase_box = Box(
             style=BoxStyle.transaction_info_box
         )
-        self.transaction_details_box = Box(
-            style=BoxStyle.transaction_details_box
-        )
         self.transaction_id_box.add(
             self.transaction_id_txt
         )
@@ -186,8 +183,7 @@ class Transaction(Box):
             self.versiongroupid_box,
             self.expiryheight_box,
             self.coinbase_box,
-            self.transaction_divider,
-            self.transaction_details_box
+            self.transaction_divider
         )
 
         self.app.add_background_task(
@@ -253,49 +249,57 @@ class Transaction(Box):
 
     async def get_txid_details(self):
         await asyncio.sleep(1)
-        self.transaction_deatils_txt = Label(
+        transaction_deatils_txt = Label(
             "Transaction Details",
             style=LabelStyle.transaction_details_title
         )
-        self.confirmations = Label(
+        transaction_fee_txt = Label(
+            "",
+            style=LabelStyle.transaction_fee
+        )
+        confirmations_txt = Label(
             "",
             style=LabelStyle.transaction_confirmations
         )
-        self.value = Label(
+        value = Label(
             "",
             style=LabelStyle.transaction_value
         )
-        self.addresses_box = Box(
+        addresses_box = Box(
             style=BoxStyle.addresses_box
         )
-        self.vin_address_box = Box(
+        vin_address_box = Box(
             style=BoxStyle.transaction_address_box
         )
-        self.vout_address_box = Box(
+        vout_address_box = Box(
             style=BoxStyle.transaction_address_box
         )
-        self.confirmations_box = Box(
+        confirmations_box = Box(
             style=BoxStyle.confirmations_box
         )
+        transaction_details_box = Box(
+            style=BoxStyle.transaction_details_box
+        )
         vin = self.result.get('vin', [])
+        total_vin_value = sum(vin_data.get('value', 0) for vin_data in vin)
         for data in vin:
             vin_value = data.get('value')
             vin_address = data.get('address')
             if vin_value and vin_address:
-                self.vin_address = Label(
+                vin_address_txt = Label(
                     f"{vin_address}  {self.system.format_balance(vin_value)} BTCZ",
                     style=LabelStyle.transaction_vin_address
                 )
             else:
-                self.vin_address = Label(
+                vin_address_txt = Label(
                     "No Inputs (Newly Generated Coins)",
                     style=LabelStyle.transaction_vin_address
                 )
-            self.vin_address_box.add(
-                self.vin_address
+            vin_address_box.add(
+                vin_address_txt
             )
         vout = self.result.get('vout', [])
-        total_value = sum(vout_data.get('value', 0) for vout_data in vout)
+        total_vout_value = sum(vout_data.get('value', 0) for vout_data in vout)
         for data in vout:
             script_pubkey = data.get('scriptPubKey', {})
             vout_value = data.get('value')
@@ -304,32 +308,44 @@ class Transaction(Box):
                 vout_address = vout_addresses[0]
             else:
                 vout_address = ', '.join(vout_addresses) if vout_addresses else 'Unknown'
-            self.vout_address = Label(
+            vout_address_txt = Label(
                 f"{vout_address}  {self.system.format_balance(vout_value)} BTCZ",
                 style=LabelStyle.transaction_vout_address
             )
-            self.vout_address_box.add(self.vout_address)
+            vout_address_box.add(vout_address_txt)
+        transaction_fee = total_vin_value - total_vout_value
+        if transaction_fee < 0:
+            tx_fee = ""
+        elif transaction_fee > 1:
+            tx_fee = "Fee : 0.0001 BTCZ"
+        else:
+            tx_fee = f"Fee : {self.system.format_balance(transaction_fee)} BTCZ"
         confirmations = self.result.get('confirmations', '0')
         if confirmations == "0" or confirmations is None:
             background_color = RED
-            self.confirmations.text = f"Unconfirmed Tx"
+            confirmations.text = f"Unconfirmed Tx"
         else:
             background_color = GREEN
-            self.confirmations.text = f"Confirmations : {confirmations}"
-        self.value.text = f"{self.system.format_balance(total_value)} BTCZ"
-        self.confirmations.style.background_color = background_color
-        self.confirmations_box.add(
-            self.confirmations,
-            self.value
+            confirmations_txt.text = f"Confirmations : {confirmations}"
+        transaction_fee_txt.text = tx_fee
+        value.text = f"{self.system.format_balance(total_vout_value)} BTCZ"
+        confirmations_txt.style.background_color = background_color
+        confirmations_box.add(
+            transaction_fee_txt,
+            confirmations_txt,
+            value
         )
-        self.addresses_box.add(
-            self.vin_address_box,
-            self.vout_address_box
+        addresses_box.add(
+            vin_address_box,
+            vout_address_box
         )
-        self.transaction_details_box.add(
-            self.transaction_deatils_txt,
-            self.addresses_box,
-            self.confirmations_box
+        transaction_details_box.add(
+            transaction_deatils_txt,
+            addresses_box,
+            confirmations_box
+        )
+        self.add(
+            transaction_details_box
         )
 
 

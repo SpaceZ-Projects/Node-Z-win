@@ -340,37 +340,42 @@ class BlockIndex(Box):
         transaction_boxes = []
         for txid_data in txids:
             txid = txid_data.get('txid')
-            self.transaction_id = Label(
+            transaction_id = Label(
                 txid,
                 style=LabelStyle.block_transaction_id
             )
-            self.transcation_confirmations = Label(
+            transcation_confirmations = Label(
                 f"",
                 style=LabelStyle.transaction_confirmations
             )
-            self.transcation_value = Label(
+            transcation_value = Label(
                 "",
                 style=LabelStyle.transaction_value
             )
-            self.transaction_details_box = Box(
+            transaction_fee_txt = Label(
+                "",
+                style=LabelStyle.transaction_fee
+            )
+            transaction_details_box = Box(
                 style=BoxStyle.addresses_box
             )
-            self.confirmations_box = Box(
+            confirmations_box = Box(
                 style=BoxStyle.confirmations_box
             )
-            self.transaction_box = Box(
+            transaction_box = Box(
                 style=BoxStyle.block_txids_box
             )
-            self.inputs_box = Box(
+            inputs_box = Box(
                 style=BoxStyle.transaction_address_box
             )
-            self.outputs_box = Box(
+            outputs_box = Box(
                 style=BoxStyle.transaction_address_box
             )
-            self.transaction_box.add(self.transaction_id)
+            transaction_box.add(transaction_id)
+
             vout = txid_data.get('vout', [])
             if vout:
-                total_value = sum(vout_data.get('value', 0) for vout_data in vout)
+                total_vout_value = sum(vout_data.get('value', 0) for vout_data in vout)
                 for vout_data in vout:
                     vout_value = vout_data.get('value')
                     script_pubkey = vout_data.get('scriptPubKey', {})
@@ -379,68 +384,78 @@ class BlockIndex(Box):
                         vout_address = vout_addresses[0]
                     else:
                         vout_address = ', '.join(vout_addresses) if vout_addresses else 'Unknown'
-                    self.vout_address = Label(
+                    vout_address = Label(
                         f"{vout_address}  {self.system.format_balance(vout_value)} BTCZ",
                         style=LabelStyle.transaction_vout_address
                     )
-                    self.outputs_box.add(self.vout_address)
+                    outputs_box.add(vout_address)
             else:
-                total_value = 0
-                self.vout_address = Label(
+                total_vout_value = 0
+                vout_address = Label(
                     f"No Outputs",
                     style=LabelStyle.transaction_vout_address
                 )
-                self.outputs_box.add(self.vout_address)
+                outputs_box.add(vout_address)
             vin = txid_data.get('vin', [])
             if vin:
+                total_vin_value = sum(vin_data.get('value', 0) for vin_data in vin)
                 for vin_data in vin:
                     vin_value = vin_data.get('value')
                     vin_address = vin_data.get('address')
                     if vin_value and vin_address:
-                        self.vin_address = Label(
+                        vin_address = Label(
                             f"{vin_address}  {self.system.format_balance(vin_value)} BTCZ",
                             style=LabelStyle.transaction_vin_address
                         )
                     elif vin_value and vin_address is None:
-                        self.vin_address = Label(
+                        vin_address = Label(
                             f"Unparsed address  {self.system.format_balance(vin_value)} BTCZ",
                             style=LabelStyle.transaction_vin_address
                         )
                     else:
-                        self.vin_address = Label(
+                        vin_address = Label(
                             "No Inputs (Newly Generated Coins)",
                             style=LabelStyle.transaction_vin_address
                         )
-                    self.inputs_box.add(self.vin_address)
+                    inputs_box.add(vin_address)
             else:
-                self.vin_address = Label(
+                vin_address = Label(
                     "No Inputs",
                     style=LabelStyle.transaction_vin_address
                 )
-                self.inputs_box.add(self.vin_address)
+                inputs_box.add(vin_address)
+            transaction_fee = total_vin_value - total_vout_value
+            if transaction_fee < 0:
+                tx_fee = ""
+            elif transaction_fee > 1:
+                tx_fee = "Fee : 0.0001 BTCZ"
+            else:
+                tx_fee = f"Fee : {self.system.format_balance(transaction_fee)} BTCZ"
             confirmations = self.result.get('confirmations', '0')
             if confirmations == "0" or confirmations is None:
                 background_color = RED
                 confirmations.text = f"Unconfirmed Tx"
             else:
                 background_color = GREEN
-                self.transcation_confirmations.text = f"Confirmations : {confirmations}"
-            self.transcation_confirmations.style.background_color = background_color
-            self.transcation_value.text = f"{self.system.format_balance(total_value)} BTCZ"
-            self.confirmations_box.add(
-                self.transcation_confirmations,
-                self.transcation_value
+                transcation_confirmations.text = f"Confirmations : {confirmations}"
+            transcation_confirmations.style.background_color = background_color
+            transaction_fee_txt.text = tx_fee
+            transcation_value.text = f"{self.system.format_balance(total_vout_value)} BTCZ"
+            transaction_details_box.add(
+                inputs_box,
+                outputs_box
             )
-            self.transaction_details_box.add(
-                self.inputs_box,
-                self.outputs_box
+            confirmations_box.add(
+                transaction_fee_txt,
+                transcation_confirmations,
+                transcation_value
             )
-            self.transaction_box.add(
-                self.transaction_details_box,
-                self.confirmations_box
+            transaction_box.add(
+                transaction_details_box,
+                confirmations_box
             )
             
-            transaction_boxes.append(self.transaction_box)
+            transaction_boxes.append(transaction_box)
         
         for box in transaction_boxes:
             self.add(box)

@@ -125,6 +125,11 @@ class MessageWindow(Window):
             style=LabelStyle.contacts_txt
         )
         self.contacts_list = DetailedList(
+            data=[
+                {
+                    "title": "EzzyG"
+                }
+            ],
             style=OutputStyle.contacts_list
         )
         self.contacts_box = Box(
@@ -188,6 +193,11 @@ class MessageWindow(Window):
         self.content = self.main_box
         
         self.show()
+
+
+    def pass_pass(self, widget):
+        print(widget)
+        pass
         
     def close_window(self, window):
         self.window_button.style.visibility = VISIBLE

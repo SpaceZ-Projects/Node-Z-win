@@ -1,5 +1,6 @@
 from toga.style.pack import Pack
 from toga.colors import BLACK, WHITE, CYAN
+from toga.constants import BOLD
 
 
 
@@ -16,6 +17,8 @@ class OutputStyle():
 
 
     contacts_list = Pack(
+        font_size = 14,
+        font_weight = BOLD,
         flex = 1,
         background_color = BLACK,
         color = CYAN,

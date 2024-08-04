@@ -1,6 +1,6 @@
 from toga.style import Pack
-from toga.colors import rgb, BLACK, GREY, WHITE, GRAY
-from toga.constants import CENTER, BOTTOM, TOP, ROW, COLUMN, RIGHT, LEFT
+from toga.colors import BLACK, GREY
+from toga.constants import CENTER, ROW, COLUMN
 
 
 class BoxStyle():
@@ -119,14 +119,14 @@ class BoxStyle():
     
     net_switch_box = Pack(
         direction = COLUMN,
-        alignment = LEFT,
-        background_color = BLACK
+        background_color = BLACK,
+        flex = 1
     )
     
     fee_switch_box = Pack(
         direction = COLUMN,
-        alignment = LEFT,
-        background_color = BLACK
+        background_color = BLACK,
+        flex = 1
     )
     
     net_txt_box = Pack(
@@ -170,33 +170,28 @@ class BoxStyle():
     
     rpc_button_box = Pack(
         direction = COLUMN,
-        alignment = LEFT,
         background_color = GREY
     )
     
     net_button_box = Pack(
         direction = COLUMN,
-        alignment = LEFT,
         background_color = BLACK,
-        flex = 1
+        padding_right = 5
     )
     
     net_button2_box = Pack(
         direction = COLUMN,
-        alignment = LEFT,
         background_color = GREY
     )
     
     fee_button_box = Pack(
         direction = COLUMN,
-        alignment = LEFT,
         background_color = BLACK,
-        flex = 1
+        padding_right = 3
     )
     
     fee_button2_box = Pack(
         direction = COLUMN,
-        alignment = LEFT,
         background_color = GREY
     )
     
@@ -209,15 +204,14 @@ class BoxStyle():
     
     explorer_switch_box = Pack(
         direction = COLUMN,
-        alignment = LEFT,
-        background_color = BLACK
+        background_color = BLACK,
+        flex = 1
     )
     
     explorer_button_box = Pack(
         direction = COLUMN,
-        alignment = LEFT,
         background_color = BLACK,
-        flex = 1
+        padding_right = 3
     )
     
     divers_row_box = Pack(
@@ -237,20 +231,18 @@ class BoxStyle():
     
     divers_switch_box = Pack(
         direction = COLUMN,
-        alignment = LEFT,
-        background_color = BLACK
-    )
-    
-    divers_button_box = Pack(
-        direction = COLUMN,
-        alignment = LEFT,
         background_color = BLACK,
         flex = 1
     )
     
+    divers_button_box = Pack(
+        direction = COLUMN,
+        background_color = BLACK,
+        padding_right = 3
+    )
+    
     divers_button2_box = Pack(
         direction = COLUMN,
-        alignment = LEFT,
         background_color = GREY
     )
     

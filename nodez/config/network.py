@@ -59,6 +59,13 @@ class NetConfig(Box):
                 switch, "regtest"
             )
         )
+        self.daemon_switch = Switch(
+            "daemon",
+            style=SwitchStyle.switch,
+            on_change=lambda switch: self.update_config_switch(
+                switch, "daemon"
+            )
+        )
         self.listen_switch = Switch(
             "listen",
             style=SwitchStyle.switch,
@@ -161,6 +168,12 @@ class NetConfig(Box):
             style=ButtonStyle.switch_info_button,
             on_press=self.display_info
         )
+        self.daemon_info = Button(
+            "?",
+            id="daemon",
+            style=ButtonStyle.switch_info_button,
+            on_press=self.display_info
+        )
         self.listen_info = Button(
             "?",
             id="listen",
@@ -233,6 +246,7 @@ class NetConfig(Box):
         self.net_switch_box.add(
             self.testnet_switch,
             self.regtest_switch,
+            self.daemon_switch,
             self.listen_switch,
             self.server_switch
         )
@@ -247,6 +261,7 @@ class NetConfig(Box):
         self.net_button_box.add(
             self.testnet_info,
             self.regtest_info,
+            self.daemon_info,
             self.listen_info,
             self.server_info
         )
@@ -279,7 +294,7 @@ class NetConfig(Box):
 
                  
     async def read_file_lines(self, widget):
-        testnet = regtest = listen = server = proxy = None
+        testnet = regtest = daemon = listen = server = proxy = None
         bind = whitebind = maxconnections = None
         addnodes = []
         connections = []
@@ -293,6 +308,8 @@ class NetConfig(Box):
                         testnet = value
                     elif key == "regtest":
                         regtest = value
+                    elif key == "daemon":
+                        daemon = value
                     elif key == "listen":
                         listen = value
                     elif key == "server":
@@ -310,17 +327,18 @@ class NetConfig(Box):
                 if line.startswith("connect="):
                     connections.append(line.split("=", 1)[1].strip())
         await self.update_values(
-                testnet, regtest, listen, server, proxy, bind,
+                testnet, regtest, daemon, listen, server, proxy, bind,
                 whitebind, maxconnections, addnodes, connections
             )
         
     async def update_values(
         self,
-        testnet, regtest, listen, server, proxy,
+        testnet, regtest, daemon, listen, server, proxy,
         bind, whitebind, maxconnections, addnodes, connections
     ):
         self.testnet_switch.value = (testnet == "1")
         self.regtest_switch.value = (regtest == "1")
+        self.daemon_switch.value = (daemon == "1")
         self.listen_switch.value = (listen == "1")
         self.server_switch.value = (server == "1")
         self.proxy_input.value = proxy
@@ -339,7 +357,7 @@ class NetConfig(Box):
         )
         
     def update_config_switch(self, switch, key):
-        new_value = "1" if switch.value else "0"
+        new_value = "1" if switch.value else None
         key_found = False
         updated_lines = []
         with open(self.file_path, 'r') as file:
@@ -347,57 +365,54 @@ class NetConfig(Box):
         for line in lines:
             stripped_line = line.strip()
             if "=" in stripped_line:
-                current_key, value = map(str.strip, stripped_line.split('=', 1))
+                current_key, _ = map(str.strip, stripped_line.split('=', 1))
                 if current_key == key:
-                    updated_lines.append(f"{key}={new_value}\n")
                     key_found = True
+                    if new_value is not None:
+                        updated_lines.append(f"{key}={new_value}\n")
                 else:
                     updated_lines.append(line)
             else:
                 updated_lines.append(line)
-        if not key_found:
+        if not key_found and new_value is not None:
             updated_lines.append(f"{key}={new_value}\n")
         with open(self.file_path, 'w') as file:
             file.writelines(updated_lines)
+
             
             
     def update_config_input(self, input, key):
         current_value = input.value
-        key_found = False
         updated_lines = []
         with open(self.file_path, 'r') as file:
             lines = file.readlines()
+        key_found = False
         for line in lines:
             stripped_line = line.strip()
             if "=" in stripped_line:
-                current_key, value = map(str.strip, stripped_line.split('=', 1))
+                current_key, _ = map(str.strip, stripped_line.split('=', 1))
                 if current_key == key:
-                    if current_value is not None:
-                        updated_lines.append(f"{key}={current_value}\n")
-                    else:
-                        updated_lines.append(f"{key}=\n")
                     key_found = True
+                    if current_value is not None and current_value != "":
+                        updated_lines.append(f"{key}={current_value}\n")
                 else:
                     updated_lines.append(line)
             else:
                 updated_lines.append(line)
-        if not key_found:
-            if current_value is not None:
-                updated_lines.append(f"{key}={current_value}\n")
-            else:
-                updated_lines.append(f"{key}=\n")
+        if not key_found and current_value is not None and current_value != "":
+            updated_lines.append(f"{key}={current_value}\n")
         with open(self.file_path, 'w') as file:
             file.writelines(updated_lines)
-            
-    
+
+
+
+
     def update_config_multiinput(self, input, key):
         input_lines = input.value.strip().split('\n')
         updated_lines = []
         key_lines = [f"{key}={line.strip()}\n" for line in input_lines if line.strip()]
-
         with open(self.file_path, 'r') as file:
             lines = file.readlines()
-
         key_found = False
         for line in lines:
             stripped_line = line.strip()
@@ -407,7 +422,6 @@ class NetConfig(Box):
                     key_found = True
             else:
                 updated_lines.append(line)
-
         if not key_found:
             updated_lines.extend(key_lines)
 
@@ -420,6 +434,8 @@ class NetConfig(Box):
             info_message = "Use the test network"
         elif button.id == "regtest":
             info_message = "Run a regression test network"
+        elif button.id == "daemon":
+            info_message = "Run in the background as a daemon and accept commands."
         elif button.id == "listen":
             info_message = "Accept connections form outside (default : 1 if no -proxy or -connect)"
         elif button.id == "server":

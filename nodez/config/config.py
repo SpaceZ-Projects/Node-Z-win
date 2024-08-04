@@ -31,7 +31,7 @@ class EditConfig(Window):
     def __init__(self, app:App, local_button):
         super().__init__(
             title="Edit Config",
-            size=(470, 620),
+            size=(700, 800),
             resizable=False,
             minimizable=False,
             on_close=self.close_window

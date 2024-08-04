@@ -323,7 +323,7 @@ class Transaction(Box):
         confirmations = self.result.get('confirmations', '0')
         if confirmations == "0" or confirmations is None:
             background_color = RED
-            confirmations.text = f"Unconfirmed Tx"
+            confirmations_txt.text = "Unconfirmed Tx"
         else:
             background_color = GREEN
             confirmations_txt.text = f"Confirmations : {confirmations}"

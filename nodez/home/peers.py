@@ -214,17 +214,17 @@ class PeersInfo(ScrollContainer):
             "Last Received": datetime.fromtimestamp(node.get('lastrecv')).strftime("%Y-%m-%d %H:%M:%S"),
             "Bytes Sent": self.system.format_bytes(node.get('bytessent')),
             "Bytes Received": self.system.format_bytes(node.get('bytesrecv')),
-            "Connection Time": datetime.fromtimestamp(node.get('conntime', 0)).strftime("%Y-%m-%d %H:%M:%S"),
-            "Time Offset": node.get('timeoffset', 'N/A'),
+            "Connection Time": datetime.fromtimestamp(node.get('conntime')).strftime("%Y-%m-%d %H:%M:%S"),
+            "Time Offset": node.get('timeoffset'),
             "Ping Time": f"{node.get('pingtime') * 1000} ms",
             "Version": node.get('version'),
             "Subversion": node.get('subver'),
-            "Inbound": "Yes" if node.get('inbound') else "No",
+            "Inbound": node.get('inbound'),
             "Starting Height": node.get('startingheight'),
             "Ban Score": node.get('banscore'),
             "Synced Headers": node.get('synced_headers'),
             "Synced Blocks": node.get('synced_blocks'),
-            "Whitelisted": "Yes" if node.get('whitelisted') else "No"
+            "Whitelisted": node.get('whitelisted')
         }
         info_main_box = Box(
             style=BoxStyle.peer_main_box

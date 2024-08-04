@@ -204,7 +204,7 @@ class insightConfig(Box):
         
         
     def update_config_switch(self, switch, key):
-        new_value = "1" if switch.value else "0"
+        new_value = "1" if switch.value else None
         key_found = False
         updated_lines = []
         with open(self.file_path, 'r') as file:
@@ -212,15 +212,16 @@ class insightConfig(Box):
         for line in lines:
             stripped_line = line.strip()
             if "=" in stripped_line:
-                current_key, value = map(str.strip, stripped_line.split('=', 1))
+                current_key, _ = map(str.strip, stripped_line.split('=', 1))
                 if current_key == key:
-                    updated_lines.append(f"{key}={new_value}\n")
                     key_found = True
+                    if new_value is not None:
+                        updated_lines.append(f"{key}={new_value}\n")
                 else:
                     updated_lines.append(line)
             else:
                 updated_lines.append(line)
-        if not key_found:
+        if not key_found and new_value is not None:
             updated_lines.append(f"{key}={new_value}\n")
         with open(self.file_path, 'w') as file:
             file.writelines(updated_lines)

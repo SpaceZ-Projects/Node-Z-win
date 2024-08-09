@@ -1,6 +1,6 @@
 from toga.style.pack import Pack
-from toga.colors import rgb, YELLOW, BLACK, GREEN
-from toga.constants import CENTER, BOLD, MONOSPACE
+from toga.colors import YELLOW, BLACK, CYAN
+from toga.constants import BOLD, MONOSPACE
 
 
 class ButtonStyle():
@@ -11,9 +11,9 @@ class ButtonStyle():
         font_size = 11,
         padding_top = 3,
         padding_bottom = 2,
-        padding_left = 110,
-        padding_right = 110,
-        color = GREEN,
+        padding_left = 220,
+        padding_right = 220,
+        color = CYAN,
         background_color = BLACK
     )
     

@@ -356,8 +356,6 @@ class HomeWindow(Window):
                         private = self.system.format_balance(float(balances["private"]))
                 elif balances is None:
                     total, transparent, private = "_._", "_._", "_._"
-                    await asyncio.sleep(1)
-                    await self.close_all_windows()
 
                 if unconfirmed_balances is not None:
                     if isinstance(unconfirmed_balances, str):
@@ -373,8 +371,15 @@ class HomeWindow(Window):
                 elif unconfirmed_balances is None:
                     self.unconfirmed_txt.style.visibility = HIDDEN
                     self.unconfirmed_balance.style.visibility = HIDDEN
+                    self.error_dialog(
+                        "Error...",
+                        "The wallet operation is disabled while reindexing. Your balance will be updated once the operation is complete."
+                    )
+                    await asyncio.sleep(600)
+
             except Exception as e:
                 print(e)
+                await self.close_all_windows()
             self.total_balances.text = f"{total}"
             self.transparent_balance.text = f"{transparent}"
             self.private_balance.text = f"{private}"

@@ -262,12 +262,12 @@ class ClientCommands():
     
     
     async def listUnspent(self, address):
-        command = f'{self.bitcoinz_cli_file} listunspent 1 9999999 "[\\"{address}\\"]"'
+        command = f'{self.bitcoinz_cli_file} listunspent 0 9999999 "[\\"{address}\\"]"'
         return await self._run_command(command)
     
     
     async def z_listUnspent(self, address):
-        command = f'{self.bitcoinz_cli_file} z_listunspent 1 9999999 true "[\\"{address}\\"]"'
+        command = f'{self.bitcoinz_cli_file} z_listunspent 0 9999999 true "[\\"{address}\\"]"'
         return await self._run_command(command)
     
 

@@ -399,13 +399,13 @@ class RPCRequest():
     def listUnspent(self, address):
         return self.make_rpc_request(
             "listunspent",
-            [1, 9999999, [address]]
+            [0, 9999999, [address]]
         )
     
     def z_listUnspent(self, address):
         return self.make_rpc_request(
             "z_listunspent",
-            [1, 9999999, True, [address]]
+            [0, 9999999, True, [address]]
         )
     
     def DumpPrivKey(self, address):

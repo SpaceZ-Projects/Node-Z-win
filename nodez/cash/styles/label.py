@@ -1,6 +1,6 @@
 from toga.style.pack import Pack
-from toga.colors import BLACK, WHITE, YELLOW, RED
-from toga.constants import HIDDEN, BOLD
+from toga.colors import BLACK, WHITE, RED, GREENYELLOW
+from toga.constants import HIDDEN, BOLD, CENTER
 
 
 class LabelStyle():
@@ -22,11 +22,12 @@ class LabelStyle():
         background_color = BLACK,
         padding_top = 15,
         padding_left = 20,
-        font_size = 9
+        font_size = 9,
+        flex = 1
     )
     
     to_address_txt = Pack(
-        padding_top = 16,
+        padding_top = 14,
         padding_left = 15,
         font_size = 10,
         font_weight = BOLD,
@@ -36,7 +37,7 @@ class LabelStyle():
     
     
     amount_txt = Pack(
-        padding_top = 16,
+        padding_top = 17,
         padding_left = 15,
         font_size = 10,
         font_weight = BOLD,
@@ -108,6 +109,38 @@ class LabelStyle():
         padding_top = 20,
         padding_left = 10,
         color = WHITE,
+        background_color = BLACK,
+        flex = 1
+    )
+
+
+    info_txt = Pack(
+        text_align = CENTER,
+        padding_top = 10,
+        color = WHITE,
+        background_color = BLACK
+    )
+
+
+    verify_address_txt = Pack(
+        visibility = HIDDEN,
+        text_align = CENTER,
+        padding_top = 10,
+        background_color = BLACK
+    )
+
+
+    addresses_list_txt = Pack(
+        padding_top = 14,
+        padding_left = 95,
+        font_size = 10,
+        font_weight = BOLD,
+        color = GREENYELLOW,
+        background_color = BLACK
+    )
+
+
+    empty_txt = Pack(
         background_color = BLACK,
         flex = 1
     )

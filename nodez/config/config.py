@@ -63,7 +63,7 @@ class EditConfig(Window):
             style=LabelStyle.guide_txt
         )
         self.done_button = Button(
-            "Save & Close",
+            "Save / Close",
             style=ButtonStyle.done_button,
             on_press=self.copy_config_datadir
         )

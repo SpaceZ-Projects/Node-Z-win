@@ -361,6 +361,13 @@ class RPCRequest():
                 "z_sendmany",
                 [f"{uaddress}", [{"address": f"{toaddress}", "amount": float(amount)}], 1, float(txfee)]
             )
+        
+
+    def sendToManyAddresses(self, uaddress, addresses):
+        return self.make_rpc_request(
+            "z_sendmany",
+            [f"{uaddress}", addresses, 1, 0.0001]
+        )
     
     
     def z_getOperationStatus(self, operation):

@@ -1,5 +1,5 @@
 from toga.style.pack import Pack
-from toga.colors import BLACK, YELLOW, CYAN
+from toga.colors import BLACK, YELLOW, CYAN, RED
 from toga.constants import BOLD
 
 
@@ -25,15 +25,6 @@ class ButtonStyle():
         font_weight = BOLD,
         background_color = BLACK,
         color = CYAN,
-        flex = 1
-    )
-
-    lisunspent_button = Pack(
-        padding_left = 10,
-        padding_right = 30,
-        padding_top = 12,
-        color = YELLOW,
-        background_color = BLACK,
         flex = 1
     )
     
@@ -62,4 +53,40 @@ class ButtonStyle():
         padding_right = 3,
         background_color = BLACK,
         color = YELLOW
+    )
+
+
+    add_addresses_button = Pack(
+        padding_top = 10,
+        padding_left = 100,
+        padding_right = 450,
+        color = YELLOW,
+        background_color = BLACK,
+        flex = 1
+    )
+
+
+    verify_button = Pack(
+        padding_top = 10,
+        padding_bottom = 5,
+        padding_left = 20,
+        padding_right = 20,
+        color = YELLOW,
+        background_color = BLACK
+    )
+
+
+    edit_addresses_button = Pack(
+        padding_top = 12,
+        padding_left = 10,
+        color = YELLOW,
+        background_color = BLACK
+    )
+
+
+    delete_addresses_button = Pack(
+        padding_top = 12,
+        padding_left = 10,
+        color = RED,
+        background_color = BLACK
     )

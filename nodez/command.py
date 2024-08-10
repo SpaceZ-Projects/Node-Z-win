@@ -202,6 +202,15 @@ class ClientCommands():
             command = f'{self.bitcoinz_cli_file} z_sendmany "{uaddress}" "[{{\\"address\\": \\"{toaddress}\\", \\"amount\\": {amount}, \\"memo\\": \\"{hex_comment}\\"}}]" 1 {txfee}'
         else:
             command = f'{self.bitcoinz_cli_file} z_sendmany "{uaddress}" "[{{\\"address\\": \\"{toaddress}\\", \\"amount\\": {amount}}}]" 1 {txfee}'
+            print(command)
+        
+        return await self._run_command(command)
+    
+
+    async def sendToManyAddresses(self, uaddress, addresses):
+        transactions_json = json.dumps(addresses)
+        addresses_array = transactions_json.replace('"', '\\"')
+        command = f'{self.bitcoinz_cli_file} z_sendmany "{uaddress}" "{addresses_array}" 1 0.0001'
         
         return await self._run_command(command)
 

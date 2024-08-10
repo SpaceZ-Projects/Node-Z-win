@@ -19,7 +19,7 @@ class ImageStyle():
     verified_icon = Pack(
         visibility = HIDDEN,
         background_color = BLACK,
-        padding_top = 12,
+        padding_top = 8,
         padding_left = 5,
         padding_right = 200
     )
@@ -27,7 +27,7 @@ class ImageStyle():
     invalid_icon = Pack(
         visibility = HIDDEN,
         background_color = BLACK,
-        padding_top = 12,
+        padding_top = 8,
         padding_left = 5,
         padding_right = 200
     )

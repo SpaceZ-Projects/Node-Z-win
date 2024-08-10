@@ -95,3 +95,8 @@ class BoxStyle():
         background_color = BLACK,
         flex = 1
     )
+
+    many_switch_box = Pack(
+        direction = COLUMN,
+        background_color = BLACK
+    )

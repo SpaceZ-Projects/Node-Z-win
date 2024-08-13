@@ -100,8 +100,8 @@ class DownloadNode(Window):
         if not os.path.exists(data_path):
             os.makedirs(data_path, exist_ok=True)
         self.title = "Downloading..."
-        url = "https://github.com/ezzygarmyz/btcz-node-windows/releases/download/2.0.9-rc2/"
-        file_name = "bitcoinz-2.0.9-rc2-win64.zip"
+        url = "https://github.com/btcz/bitcoinz/releases/download/2.0.9-rc2/"
+        file_name = "bitcoinz-2.0.9-RC2-win64.zip"
         destination = os.path.join(data_path, file_name)
         self.current_download_file = destination
         try:

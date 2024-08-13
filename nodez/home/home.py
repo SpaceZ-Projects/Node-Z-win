@@ -1,6 +1,12 @@
 import asyncio
 import os
 import json
+import clr
+
+clr.AddReference("System.Drawing")
+clr.AddReference("System.Windows.Forms")
+import System.Drawing as Drawing
+import System.Windows.Forms as Forms
 
 from toga import (
     App,
@@ -327,6 +333,7 @@ class HomeWindow(Window):
         self.update_info_task = asyncio.create_task(self.update_blockchain_info())
         await asyncio.sleep(2)
         self.show()
+        await self.setup_notify_icon()
         await asyncio.gather(
             self.update_price_task,
             self.update_balance_task,
@@ -553,7 +560,28 @@ class HomeWindow(Window):
         )
 
 
-    async def ask_stopping_node(self, window):
+    async def setup_notify_icon(self):
+        self.notify_icon = Forms.NotifyIcon()
+        self.notify_icon.Icon = Drawing.Icon(os.path.join(self.app.paths.app, 'resources/app_logo.ico'))
+        self.notify_icon.Visible = True
+
+        self.context_menu = Forms.ContextMenuStrip()
+        await self.create_menu_items()
+        self.notify_icon.ContextMenuStrip = self.context_menu
+
+
+    async def create_menu_items(self):
+
+        stop_menu_item = Forms.ToolStripMenuItem("Stop Node")
+        stop_menu_item.Click += lambda sender, event: asyncio.create_task(self.ask_stopping_node(window=None, event=event))
+        self.context_menu.Items.Add(stop_menu_item)
+
+        exit_menu_item = Forms.ToolStripMenuItem("Exit App")
+        exit_menu_item.Click += self.exit_app
+        self.context_menu.Items.Add(exit_menu_item)
+
+
+    async def ask_stopping_node(self, window, event):
         if self.system.check_window_is_open():
             return
         if self.title == "MainMenu (Local)":
@@ -645,31 +673,19 @@ class HomeWindow(Window):
         self.app.main_window.show()
 
 
-
-    async def close_all_windows(self):
-        async def on_confirm(window, result):
-            if result is None:
-                try:
-                    tasks = [task for task in (
-                        self.update_price_task,
-                        self.update_balance_task,
-                        self.update_info_task
-                    ) if not task.done()]
-                    for task in tasks:
-                        task.cancel()
-
-                    await asyncio.gather(*tasks, return_exceptions=True)
-                except asyncio.CancelledError:
-                    pass
+    def exit_app(self, sender, event):
+        def on_confirm(window, result):
+            if result is True:
+                if self.notify_icon:
+                    self.notify_icon.Visible = False
+                    self.notify_icon.Dispose()
+                    self.notify_icon = None
                 self.system.clean_config_path()
-        active_windows = list(self.app.windows)
-        for active_window in active_windows:
-            if not active_window.title.startswith("Node-Z"):
-                active_window.close()
-        await asyncio.sleep(1)
-        self.app.main_window.show()
-        self.error_dialog(
-            "Connection Lost",
-            "The application has lost connection to the node. Please check your network connection or node status.",
+                self.app.exit()
+            if result is False:
+                return
+        self.question_dialog(
+            "Exit...",
+            "You are about to exit the app. Are you sure?",
             on_result=on_confirm
         )

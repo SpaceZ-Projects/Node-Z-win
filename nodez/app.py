@@ -1,23 +1,18 @@
-
 import os
 import clr
 import threading
-import time
 
 from toga import (
     App,
     MainWindow
 )
-
 from .main_window.wizard import MainWizard
-
 from .system import SystemOp
 
 clr.AddReference("System.Drawing")
 clr.AddReference("System.Windows.Forms")
 import System.Drawing as Drawing
 import System.Windows.Forms as Forms
-
 
 class NodeZ(App):
     def __init__(self):
@@ -63,16 +58,24 @@ class NodeZ(App):
     def author(self, value):
         self._author = value
         
-        
     def startup(self):
         self.system = SystemOp(self.app)
 
         splash_image_path = os.path.join(self.app.paths.app, 'resources/splash.png')
         icon_path = os.path.join(self.app.paths.app, 'resources/app_logo.ico')
 
-        splash_image = Drawing.Image.FromFile(splash_image_path)
+        try:
+            splash_image = Drawing.Image.FromFile(splash_image_path)
+        except Exception as e:
+            print(f"Error loading splash image: {e}")
+            splash_image = None
+
         splash_form = Forms.Form()
-        splash_form.Icon = Drawing.Icon(icon_path)
+        try:
+            splash_form.Icon = Drawing.Icon(icon_path)
+        except Exception as e:
+            print(f"Error loading icon: {e}")
+
         splash_form.StartPosition = Forms.FormStartPosition.CenterScreen
         splash_form.ClientSize = Drawing.Size(400, 150)
         splash_form.FormBorderStyle = Forms.FormBorderStyle(0)
@@ -86,27 +89,24 @@ class NodeZ(App):
         splash_thread = threading.Thread(target=show_splash)
         splash_thread.start()
 
-        time.sleep(4)
+        splash_thread.join(4)
 
-        def on_loading_done():
-            splash_form.Close()
+        if not splash_form.IsDisposed:
+            splash_form.Invoke(Forms.MethodInvoker(splash_form.Close))
+        self.main_window = MainWindow(
+            title=self.formal_name,
+            size=(550, 400),
+            resizable=False
+        )
+        position_center = self.system.windows_screen_center(self.main_window.size)
+        self.main_window.position = position_center
+        self.main_window.content = MainWizard(self.app)
 
-            self.main_window = MainWindow(
-                title=self.formal_name,
-                size=(550 ,400),
-                resizable=False
-            )
-            position_center = self.system.windows_screen_center(
-                self.main_window.size
-            )
-            self.main_window.position = position_center
-            self.main_window.content = MainWizard(self.app)
-            self.on_exit = self.prevent_close
+        self.main_window.show()
 
-        on_loading_done()
-        
-        
-    async def prevent_close(self, window):
+        self.on_exit = self.exit_app
+
+    async def exit_app(self, window):
         async def on_confirm(window, result):
             if result is False:
                 return
@@ -114,22 +114,20 @@ class NodeZ(App):
                 self.exit()
 
         self.main_window.question_dialog(
-            title="Exit...",
-            message="You are about to exit the app. Are you sure ?",
+            "Exit...",
+            "You are about to exit the app. Are you sure?",
             on_result=on_confirm
         )
 
-
 def main():
     app = NodeZ()
-    app.icon="resources/app_logo"
+    app.icon = "resources/app_logo"
     app.formal_name = "Node-Z"
     app.app_id = "com.nodez"
     app.home_page = "https://www.getbtcz.com"
     app.author = "BTCZCommunity"
     app.version = "1.0.6"
     return app
-
 
 if __name__ == "__main__":
     app = main()

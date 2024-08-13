@@ -202,7 +202,6 @@ class ClientCommands():
             command = f'{self.bitcoinz_cli_file} z_sendmany "{uaddress}" "[{{\\"address\\": \\"{toaddress}\\", \\"amount\\": {amount}, \\"memo\\": \\"{hex_comment}\\"}}]" 1 {txfee}'
         else:
             command = f'{self.bitcoinz_cli_file} z_sendmany "{uaddress}" "[{{\\"address\\": \\"{toaddress}\\", \\"amount\\": {amount}}}]" 1 {txfee}'
-            print(command)
         
         return await self._run_command(command)
     

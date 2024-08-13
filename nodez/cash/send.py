@@ -280,7 +280,6 @@ class CashWindow(Window):
         self.select_address.items = transparent_address
         
         await self.get_transactions_list()
-        await asyncio.sleep(1)
         self.display_window()
 
 
@@ -1213,8 +1212,8 @@ class CashWindow(Window):
         self.notify_icon.Icon = icon
         self.notify_icon.BalloonTipTitle = f"Sent {amount} BTCZ"
         self.notify_icon.BalloonTipText = txid
-        self.notify_icon.ShowBalloonTip(10)
-        threading.Timer(10, self.hide_toast).start()
+        self.notify_icon.ShowBalloonTip(5)
+        threading.Timer(5, self.hide_toast).start()
 
 
     async def on_notification_click(self, txid):

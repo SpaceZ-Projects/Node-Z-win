@@ -91,11 +91,6 @@ class HomeWindow(Window):
             style=ButtonStyle.menu_button,
             on_press=self.open_browser_window
         )
-        self.stop_button = Button(
-            icon=Icon("icones/stop_node"),
-            style=ButtonStyle.menu_button,
-            on_press=self.ask_stopping_node
-        )
         self.divider_menu = Divider(
             direction=Direction.HORIZONTAL,
             style=DividerStyle.home_divider_menu
@@ -212,7 +207,7 @@ class HomeWindow(Window):
             style=LabelStyle.home_connected_node_value
         )
         self.peerinfo_button = Button(
-            icon=Icon("icones/settings"),
+            "manage",
             enabled=True,
             style=ButtonStyle.peerinfo_button,
             on_press=self.open_nodes_manage
@@ -290,8 +285,7 @@ class HomeWindow(Window):
             self.message_button,
             self.ecosys_button,
             self.mining_button,
-            self.browser_button,
-            self.stop_button
+            self.browser_button
         )
         self.blockchain_info_box.add(
             self.chain_txt,
@@ -543,21 +537,6 @@ class HomeWindow(Window):
             self.peerinfo_button
         )
         self.system.update_settings('node_window', True)
-            
-            
-    async def close_window(self, window):
-        if self.system.check_window_is_open():
-            return
-        async def on_confirm(window, result):
-            if result is False:
-                return
-            if result is True:
-                await self.skip_node_and_close()
-        self.question_dialog(
-            "Exit GUI...",
-            "You are about to exit and return to the main wizard, are you sure?",
-            on_result=on_confirm
-        )
 
 
     async def setup_notify_icon(self):
@@ -620,6 +599,7 @@ class HomeWindow(Window):
 
     
     async def stopping_node(self):
+        self.remove_notify_icon()
         self.stopping_image = ImageView(
             "icones/stopping_node.gif"
         )
@@ -673,13 +653,26 @@ class HomeWindow(Window):
         self.app.main_window.show()
 
 
+    
+    async def close_window(self, window):
+        if self.system.check_window_is_open():
+            return
+        async def on_confirm(window, result):
+            if result is False:
+                return
+            if result is True:
+                self.remove_notify_icon()
+                await self.skip_node_and_close()
+        self.question_dialog(
+            "Exit GUI...",
+            "You are about to exit and return to the main wizard, are you sure?",
+            on_result=on_confirm
+        )
+
+
     def exit_app(self, sender, event):
         def on_confirm(window, result):
             if result is True:
-                if self.notify_icon:
-                    self.notify_icon.Visible = False
-                    self.notify_icon.Dispose()
-                    self.notify_icon = None
                 self.system.clean_config_path()
                 self.app.exit()
             if result is False:
@@ -689,3 +682,10 @@ class HomeWindow(Window):
             "You are about to exit the app. Are you sure?",
             on_result=on_confirm
         )
+
+    
+    def remove_notify_icon(self):
+        if self.notify_icon:
+            self.notify_icon.Visible = False
+            self.notify_icon.Dispose()
+            self.notify_icon = None

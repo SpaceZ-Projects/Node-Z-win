@@ -3,7 +3,6 @@ import asyncio
 import os
 import subprocess
 import json
-import shutil
 
 from toga import (
     App,

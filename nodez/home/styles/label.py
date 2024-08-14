@@ -119,7 +119,7 @@ class LabelStyle():
         background_color = BLACK,
         padding_top = 6,
         padding_bottom = 3,
-        padding_left = 20
+        padding_left = 18
     )
     
     home_chain_value = Pack(

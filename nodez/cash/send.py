@@ -697,7 +697,7 @@ class CashWindow(Window):
 
 
     def confirm_addresses_list(self, button):
-        input_lines = self.many_addresses_input.value.strip().split('\n')
+        input_lines = [line for line in self.many_addresses_input.value.strip().split('\n') if line]
         self.input_lines = self.many_addresses_input.value.strip()
         number_addresses = len(input_lines)
         addresses_list_txt = Label(

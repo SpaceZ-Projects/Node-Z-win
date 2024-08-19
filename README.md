@@ -29,6 +29,14 @@ Node-Z is a GUI interface designed to manage BitcoinZ nodes through RPC connecti
 - Mining Tools :
 <p align="center"><img src="https://github.com/ezzygarmyz/nodez-win/blob/main/screenshot/mining_tools.png" </p>
 
+- Briefcase: https://briefcase.readthedocs.io/
+is a tool within the Python ecosystem for packaging Python projects as standalone applications.
+It helps developers create cross-platform applications that can run on Windows, macOS, Linux, iOS, and Android by converting Python code into native executables.
+
+- Toga: https://toga.readthedocs.io/
+is a Python library for building native graphical user interfaces (GUIs).
+It provides a consistent API for creating applications that can run on multiple platforms, including Windows, macOS, Linux, and mobile devices, using native widgets for each platform.
+
 ## Getting Started :
 
 ### Requirements :

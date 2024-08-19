@@ -736,6 +736,7 @@ class CashWindow(Window):
         amount_value = self.amount_input.value.strip()
         if self.split_switch.value is True:
             amount = float(amount_value) / len(addresses)
+            amount = f"{amount:.8f}"
         elif self.each_switch.value is True:
             amounts = float(amount_value) * len(addresses)
             if os.path.exists(self.db_path):
@@ -749,7 +750,7 @@ class CashWindow(Window):
                 )
                 return
             else:
-                amount = amount_value
+                amount = f"{amount_value:.8f}"
         transactions = [{"address": address, "amount": amount} for address in addresses]
         await self.get_sending_to_many_method(selected_address, transactions)
 

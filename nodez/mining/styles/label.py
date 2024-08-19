@@ -43,6 +43,15 @@ class LabelStyle():
         background_color = BLACK
     )
 
+    worker_pass_txt = Pack(
+        padding_top = 17,
+        padding_left = 30,
+        font_size = 10,
+        font_weight = BOLD,
+        color = WHITE,
+        background_color = BLACK
+    )
+
     select_address_txt = Pack(
         padding_top = 20,
         padding_left = 30,

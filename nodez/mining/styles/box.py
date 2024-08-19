@@ -1,6 +1,6 @@
 from toga.style.pack import Pack
-from toga.colors import BLACK, GRAY
-from toga.constants import COLUMN, ROW, CENTER, LEFT, RIGHT
+from toga.colors import BLACK
+from toga.constants import COLUMN, ROW, CENTER
 
 
 
@@ -29,6 +29,11 @@ class BoxStyle():
     )
 
     worker_name_box = Pack(
+        direction = ROW,
+        background_color = BLACK
+    )
+
+    worker_pass_box = Pack(
         direction = ROW,
         background_color = BLACK
     )

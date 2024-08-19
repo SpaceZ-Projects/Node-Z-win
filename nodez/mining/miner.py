@@ -42,7 +42,7 @@ class MiningWindow(Window):
     def __init__(self, app:App, window_button):
         super().__init__(
             title="Mining Tools",
-            size=(800, 550),
+            size=(800, 600),
             resizable=False,
             minimizable=False,
             on_close=self.close_window
@@ -84,9 +84,11 @@ class MiningWindow(Window):
             items=[
                 {"pool": ""},
                 {"pool": "2Mars"},
-                {"pool": "Darkfibersmines"},
+                {"pool": "Swgroupe"},
+                {"pool": "Zeropool"},
                 {"pool": "PCmining"},
-                {"pool": "Swgroupe"}
+                {"pool": "Darkfibersmines"},
+                {"pool": "Zergpool"}
             ],
             accessor="pool",
             style=SelectionStyle.select_pool,
@@ -117,6 +119,17 @@ class MiningWindow(Window):
         )
         self.worker_name_box = Box(
             style=BoxStyle.worker_name_box
+        )
+        self.worker_pass_txt = Label(
+            "Pass :",
+            style=LabelStyle.worker_pass_txt
+        )
+        self.worker_pass = TextInput(
+            placeholder="[ Optional ]",
+            style=InputStyle.worker_pass
+        )
+        self.worker_pass_box = Box(
+            style=BoxStyle.worker_pass_box
         )
         self.select_address_txt = Label(
             "Address :",
@@ -220,6 +233,10 @@ class MiningWindow(Window):
             self.worker_name_txt,
             self.worker_name
         )
+        self.worker_pass_box.add(
+            self.worker_pass_txt,
+            self.worker_pass
+        )
         self.select_address_box.add(
             self.select_address_txt,
             self.select_address
@@ -229,6 +246,7 @@ class MiningWindow(Window):
             self.select_pool_box,
             self.select_server_box,
             self.worker_name_box,
+            self.worker_pass_box,
             self.select_address_box,
             self.mining_button,
         )
@@ -353,17 +371,27 @@ class MiningWindow(Window):
                 {"region": "Netherlands", "server": "btcz.eu.2mars.biz:1234"},
                 {"region": "Singapore", "server": "btcz.sg.2mars.biz:1234"}
             ]
-        elif selected_value == "Darkfibersmines":
+        elif selected_value == "Swgroupe":
             server_items = [
-                {"region": "USA", "server": "142.4.211.28:4000"},
+                {"region": "France", "server": "swgroupe.fr:2001"}
+            ]
+        elif selected_value == "Zeropool":
+            server_items = [
+                {"region": "USA", "server": "zeropool.io:1235"}
             ]
         elif selected_value == "PCmining":
             server_items = [
                 {"region": "Germany", "server": "btcz.pcmining.xyz:3333"}
             ]
-        elif selected_value == "Swgroupe":
+        elif selected_value == "Darkfibersmines":
             server_items = [
-                {"region": "France", "server": "swgroupe.fr:2001"}
+                {"region": "USA", "server": "142.4.211.28:4000"},
+            ]
+        elif selected_value == "Zergpool":
+            server_items = [
+                {"region": "North America", "server": "equihash144.na.mine.zergpool.com:2146"},
+                {"region": "Europe", "server": "equihash144.eu.mine.zergpool.com:2146"},
+                {"region": "Asia", "server": "equihash144.asia.mine.zergpool.com:2146"}
             ]
         else:
             self.select_server.items.clear()
@@ -407,18 +435,19 @@ class MiningWindow(Window):
         selected_miner = self.select_miner.value.miner
         selected_server = self.select_server.value.server
         worker_name = self.worker_name.value
+        worker_pass = self.worker_pass.value
         selected_address = self.select_address.value.select_address
         miners_dir = os.path.join(self.app.paths.data, 'miners')
         miner_path = os.path.join(miners_dir, selected_miner)
         if selected_miner == "MiniZ":
             miner_file = os.path.join(miner_path, 'miniZ.exe')
-            command = [f'{miner_file} --url {selected_address}.{worker_name}@{selected_server} --pass x --par 144,5 --pers BitcoinZ']
+            command = [f'{miner_file} --url {selected_address}.{worker_name}@{selected_server} --pass {worker_pass} --par 144,5 --pers BitcoinZ']
         elif selected_miner == "Gminer":
             miner_file = os.path.join(miner_path, 'miner.exe')
-            command = [f'{miner_file} --server {selected_server} --user {selected_address}.{worker_name} --algo 144_5 --pers BitcoinZ']
+            command = [f'{miner_file} --server {selected_server} --user {selected_address}.{worker_name} --pass {worker_pass} --algo 144_5 --pers BitcoinZ']
         elif selected_miner == "Lolminer":
             miner_file = os.path.join(miner_path, 'lolMiner.exe')
-            command = [f'{miner_file}  --pool {selected_server} --user {selected_address}.{worker_name} -a EQUI144_5 --pers BitcoinZ']
+            command = [f'{miner_file}  --pool {selected_server} --user {selected_address}.{worker_name} -a EQUI144_5 --pass {worker_pass} --pers BitcoinZ']
 
         await self.start_mining_command(command)
 

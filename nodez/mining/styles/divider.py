@@ -30,7 +30,7 @@ class DividerStyle():
     )
 
     divider_params = Pack(
-        height = 255,
+        height = 300,
         padding_top = 4,
         padding_left = 10
     )

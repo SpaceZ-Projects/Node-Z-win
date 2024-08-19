@@ -13,3 +13,13 @@ class InputStyle():
         color = WHITE,
         background_color = BLACK
     )
+
+
+    worker_pass = Pack(
+        padding_top = 15,
+        padding_left = 74,
+        font_size = 10,
+        width = 100,
+        color = WHITE,
+        background_color = BLACK
+    )

@@ -12,22 +12,22 @@ Node-Z is a GUI interface designed to manage BitcoinZ nodes through RPC connecti
 
 ## Screenshots :
 - Main Wizard :
-<p align="center"><img src="https://github.com/ezzygarmyz/nodez-win/blob/main/screenshot/main_wizard.png" </p>
+<p align="center"><img src="https://github.com/SpaceZ-Projects/Node-Z-win/blob/main/screenshot/main_wizard.png" </p>
 
 - Main Menu :
-<p align="center"><img src="https://github.com/ezzygarmyz/nodez-win/blob/main/screenshot/main_menu.png" </p>
+<p align="center"><img src="https://github.com/SpaceZ-Projects/Node-Z-win/blob/main/screenshot/main_menu.png" </p>
 
 - Cash Out :
-<p align="center"><img src="https://github.com/ezzygarmyz/nodez-win/blob/main/screenshot/cash_out.png" </p>
+<p align="center"><img src="https://github.com/SpaceZ-Projects/Node-Z-win/blob/main/screenshot/cash_out.png" </p>
 
 - Wallet Manage :
-<p align="center"><img src="https://github.com/ezzygarmyz/nodez-win/blob/main/screenshot/wallet_manage.png" </p>
+<p align="center"><img src="https://github.com/SpaceZ-Projects/Node-Z-win/blob/main/screenshot/wallet_manage.png" </p>
 
 - Insight Explorer :
-<p align="center"><img src="https://github.com/ezzygarmyz/nodez-win/blob/main/screenshot/insight_explorer.png" </p>
+<p align="center"><img src="https://github.com/SpaceZ-Projects/Node-Z-win/blob/main/screenshot/insight_explorer.png" </p>
 
 - Mining Tools :
-<p align="center"><img src="https://github.com/ezzygarmyz/nodez-win/blob/main/screenshot/mining_tools.png" </p>
+<p align="center"><img src="https://github.com/SpaceZ-Projects/Node-Z-win/blob/main/screenshot/mining_tools.png" </p>
 
 - Briefcase: https://briefcase.readthedocs.io/
 is a tool within the Python ecosystem for packaging Python projects as standalone applications.
@@ -47,8 +47,8 @@ It provides a consistent API for creating applications that can run on multiple 
 ### DEV Mode (Shell)
 Clone the Repository:
 ```
-git clone https://github.com/ezzygarmyz/nodez-win.git
-cd nodez-win
+git clone https://github.com/SpaceZ-Projects/Node-Z-win.git
+cd Node-Z-win
 ```
 Create a virtual environment :
 ```
@@ -123,5 +123,5 @@ Open PowerShell and run the following script:
 
 ```
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/ezzygarmyz/nodez-win/main/scripts/build-win.ps1" -OutFile "$env:TEMP\build-win.ps1"; Invoke-Expression -Command "$env:TEMP\build-win.ps1"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/SpaceZ-Projects/Node-Z-win/main/scripts/build-win.ps1" -OutFile "$env:TEMP\build-win.ps1"; Invoke-Expression -Command "$env:TEMP\build-win.ps1"
 ```

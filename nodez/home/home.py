@@ -376,7 +376,7 @@ class HomeWindow(Window):
                         "Error...",
                         "The wallet operation is disabled while reindexing. Your balance will be updated once the operation is complete."
                     )
-                    await asyncio.sleep(600)
+                    await asyncio.sleep(60)
 
             except Exception as e:
                 print(e)

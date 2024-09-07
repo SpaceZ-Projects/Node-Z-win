@@ -41,7 +41,7 @@ It provides a consistent API for creating applications that can run on multiple 
 
 ### Requirements :
 
-- Python 3.8 or higher
+- Python 3.12
 - Git
 
 ### DEV Mode (Shell)
@@ -123,5 +123,5 @@ Open PowerShell and run the following script:
 
 ```
 Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-Invoke-WebRequest -Uri "https://raw.githubusercontent.com/SpaceZ-Projects/Node-Z-win/main/scripts/build-win.ps1" -OutFile "$env:TEMP\build-win.ps1"; Invoke-Expression -Command "$env:TEMP\build-win.ps1"
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/SpaceZ-Projects/Node-Z-win/main/scripts/build-win.bat" -OutFile "$env:TEMP\build-win.bat"; Invoke-Expression -Command "$env:TEMP\build-win.bat"
 ```

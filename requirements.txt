@@ -1,4 +1,5 @@
-toga-winforms
+briefcase
+toga==0.4.5
 aiohttp
 qrcode
 psutil

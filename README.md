@@ -122,6 +122,5 @@ Script :
 Open PowerShell and run the following script:
 
 ```
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 Invoke-WebRequest -Uri "https://raw.githubusercontent.com/SpaceZ-Projects/Node-Z-win/main/scripts/build-win.bat" -OutFile "$env:TEMP\build-win.bat"; Invoke-Expression -Command "$env:TEMP\build-win.bat"
 ```

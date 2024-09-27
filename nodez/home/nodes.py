@@ -105,12 +105,12 @@ class NodesList(ScrollContainer):
             if addednode in addnode_lines:
                 if connected is True:
                     status_icon = ImageView(
-                        "icones/green_spot.gif",
+                        "icons/green_spot.gif",
                         style=ImageStyle.status_icon
                     )
                 else:
                     status_icon = ImageView(
-                        ("icones/red_spot.gif"),
+                        ("icons/red_spot.gif"),
                         style=ImageStyle.status_icon
                     )
 
@@ -218,7 +218,7 @@ class NodesList(ScrollContainer):
 
     
     async def copy_config_datadir(self):
-        settings_path = os.path.join(self.app.paths.config, 'settings.json')
+        settings_path = os.path.join(self.app.paths.config, 'paths.json')
         if os.path.exists(settings_path):
             with open(settings_path, 'r') as f:
                 settings_data = json.load(f)

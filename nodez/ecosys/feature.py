@@ -33,7 +33,7 @@ class EcosysWindow(Window):
         self.window_button = window_button
 
         self.under_dev = ImageView(
-            ("icones/under_dev.gif"),
+            ("icons/under_dev.gif"),
             style=ImageStyle.under_dev
         )
         self.under_dev_txt = Label(

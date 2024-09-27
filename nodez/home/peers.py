@@ -123,7 +123,7 @@ class PeersInfo(ScrollContainer):
             ]
 
             peer_image = ImageView(
-                ("icones/nodes.gif"),
+                ("icons/nodes.gif"),
                 style=ImageStyle.peer_image
             )    
             peer_id_txt = Label(
@@ -351,7 +351,7 @@ class PeersInfo(ScrollContainer):
 
 
     async def copy_config_datadir(self):
-        settings_path = os.path.join(self.app.paths.config, 'settings.json')
+        settings_path = os.path.join(self.app.paths.config, 'paths.json')
         if os.path.exists(settings_path):
             with open(settings_path, 'r') as f:
                 settings_data = json.load(f)

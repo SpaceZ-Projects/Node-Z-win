@@ -38,7 +38,7 @@ class StartNode(Window):
         self.bitcoinzd_file = os.path.join(self.app.paths.data, "bitcoinzd.exe")
         
         self.loading_image = ImageView(
-            "icones/loading_blocks.gif"
+            "icons/loading_blocks.gif"
         )
         self.starting_txt = Label(
             "Starting Node...",
@@ -77,7 +77,7 @@ class StartNode(Window):
     
     
     async def start_node(self):
-        settings_path = os.path.join(self.app.paths.config, 'settings.json')
+        settings_path = os.path.join(self.app.paths.config, 'paths.json')
         if os.path.exists(settings_path):
             with open(settings_path, 'r') as f:
                 settings_data = json.load(f)
@@ -188,9 +188,10 @@ class StartCMD(Window):
         self.custom_window = custom_window
         self.custom_params = custom_params
         self.bitcoinzd_file = os.path.join(self.app.paths.data, "bitcoinzd.exe")
+        self.bitcoinz_cli_file = os.path.join(self.app.paths.data, "bitcoinz-cli.exe")
         
         self.loading_image = ImageView(
-            "icones/loading_blocks.gif"
+            "icons/loading_blocks.gif"
         )
         self.starting_txt = Label(
             "Starting Node...",
@@ -264,15 +265,11 @@ class StartCMD(Window):
 
         
     async def getNodeStatus(self):
-        data_path = self.app.paths.data
-        bitcoinz_cli_file = os.path.join(data_path, "bitcoinz-cli.exe")
-
-        command = f'{bitcoinz_cli_file} getinfo'
+        command = f'{self.bitcoinz_cli_file} getinfo'
         return await self._start_command(command)
     
 
     
-
     async def _start_command(self, command):
         try:
             process = await asyncio.create_subprocess_shell(

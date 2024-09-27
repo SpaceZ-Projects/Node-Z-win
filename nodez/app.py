@@ -6,7 +6,8 @@ from toga import (
     App,
     MainWindow
 )
-from .main_window.wizard import MainWizard
+
+from .main.wizard import MainWizard
 from .system import SystemOp
 
 clr.AddReference("System.Drawing")
@@ -126,7 +127,7 @@ def main():
     app.app_id = "com.nodez"
     app.home_page = "https://www.getbtcz.com"
     app.author = "BTCZCommunity"
-    app.version = "1.0.6"
+    app.version = "1.0.7"
     return app
 
 if __name__ == "__main__":

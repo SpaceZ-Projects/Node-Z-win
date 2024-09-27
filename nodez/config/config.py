@@ -135,7 +135,7 @@ class EditConfig(Window):
     
 
     async def copy_config_datadir(self, button):
-        settings_path = os.path.join(self.app.paths.config, 'settings.json')
+        settings_path = os.path.join(self.app.paths.config, 'paths.json')
         if os.path.exists(settings_path):
             with open(settings_path, 'r') as f:
                 settings_data = json.load(f)

@@ -18,27 +18,27 @@ class Social(Box):
         self.app = app
         
         self.website_button = Button(
-            icon=Icon("icones/website"),
+            icon=Icon("icons/website"),
             on_press=self.open_website,
             style=ButtonStyle.social_button
         )
         self.github_button = Button(
-            icon=Icon("icones/github"),
+            icon=Icon("icons/github"),
             on_press=self.open_github,
             style=ButtonStyle.social_button
         )
         self.xcom_button = Button(
-            icon=Icon("icones/twitterx"),
+            icon=Icon("icons/twitterx"),
             on_press=self.open_xcom,
             style=ButtonStyle.social_button
         )
         self.facebook_button = Button(
-            icon=("icones/facebook"),
+            icon=("icons/facebook"),
             on_press=self.open_facebook,
             style=ButtonStyle.social_button
         )
         self.discord_button = Button(
-            icon=Icon("icones/discord"),
+            icon=Icon("icons/discord"),
             on_press=self.open_discord,
             style=ButtonStyle.social_button
         )

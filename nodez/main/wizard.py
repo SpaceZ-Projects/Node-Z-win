@@ -51,27 +51,27 @@ class MainWizard(Box):
             "resources/nodez_banner.png"
         )
         self.rpc_button = Button(
-            icon=Icon("icones/rpc_button"),
+            icon=Icon("icons/rpc_button"),
             style=ButtonStyle.rpc_button,
             on_press=self.open_rpc_window
         )
         self.local_button = Button(
-            icon=Icon("icones/start_button"),
+            icon=Icon("icons/start_button"),
             style=ButtonStyle.local_button,
             on_press=self.start_node
         )
         self.download_node_button = Button(
-            icon=Icon("icones/download"),
+            icon=Icon("icons/download"),
             style=ButtonStyle.download_button,
             on_press=self.download_node_files
         )
         self.download_params_button = Button(
-            icon=Icon("icones/download"),
+            icon=Icon("icons/download"),
             style=ButtonStyle.download_button,
             on_press=self.download_params_files
         )
         self.config_button = Button(
-            icon=Icon("icones/config"),
+            icon=Icon("icons/config"),
             style=ButtonStyle.download_button,
             on_press=self.display_config_window
         )
@@ -309,7 +309,7 @@ class MainWizard(Box):
                 blockchain_path = path
                 if isinstance(blockchain_path, os.PathLike):
                     blockchain_path = str(blockchain_path)
-                self.system.update_settings('blockchainpath', blockchain_path)
+                self.system.update_paths('blockchainpath', blockchain_path)
                 self.app.main_window.info_dialog(
                     "Done",
                     f"Blockchain dir has been set to {blockchain_path}"

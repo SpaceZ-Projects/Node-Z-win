@@ -4,6 +4,10 @@ import json
 import asyncio
 from datetime import datetime
 
+import clr
+clr.AddReference('System.Windows.Forms')
+from System.Windows.Forms import Clipboard
+
 from toga import (
     App,
     Window,
@@ -58,6 +62,9 @@ class WalletWindow(Window):
         self.window_button = window_button
         self.explorer_button = explorer_button
 
+        config_path = self.app.paths.config
+        self.db_path = os.path.join(config_path, 'config.db')
+
         self.bitcoinz_coin = ImageView(
             ("resources/btcz_coin1.gif"),
             style=ImageStyle.bitcoinz_coin
@@ -75,36 +82,36 @@ class WalletWindow(Window):
             on_press=self.switch_to_shielded
         )
         self.transparent_icon = ImageView(
-            "icones/transparent_txt.png",
+            "icons/transparent_txt.png",
             style=ImageStyle.transparent_icon
         )
         self.shielded_icon = ImageView(
-            "icones/shielded_txt.png",
+            "icons/shielded_txt.png",
             style=ImageStyle.shielded_icon
         )
         self.switch_button_box = Box(
             style=BoxStyle.switch_button_box
         )
         self.view_key_button = Button(
-            icon=Icon("icones/view_key"),
+            icon=Icon("icons/view_key"),
             style=ButtonStyle.wallet_manage_buttons,
             enabled=True,
             on_press=self.display_private_key
         )
         self.import_key_button = Button(
-            icon=Icon("icones/import_key"),
+            icon=Icon("icons/import_key"),
             style=ButtonStyle.wallet_manage_buttons,
             enabled=True,
             on_press=self.display_import_window
         )
         self.import_wallet_button = Button(
-            icon=Icon("icones/import_wallet"),
+            icon=Icon("icons/import_wallet"),
             style=ButtonStyle.wallet_manage_buttons,
             enabled=True,
             on_press=self.import_wallet_file
         )
         self.new_address_button = Button(
-            icon=Icon("icones/new_addr"),
+            icon=Icon("icons/new_addr"),
             enabled=True,
             style=ButtonStyle.wallet_manage_buttons,
             on_press=self.generate_new_address
@@ -185,7 +192,7 @@ class WalletWindow(Window):
             style=InputStyle.merge_fee_input
         )
         self.scan_button = Button(
-            icon=Icon("icones/scan_utxos"),
+            icon=Icon("icons/scan_utxos"),
             enabled= True,
             style=ButtonStyle.scan_button,
             on_press=self.scan_utxos
@@ -317,18 +324,15 @@ class WalletWindow(Window):
 
 
     async def scan_utxos(self, button):
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
         self.scan_button.enabled = False
-        if os.path.exists(db_path):
+        if os.path.exists(self.db_path):
             scan_addresses = self.client.listAddressgroupPings()
-            account_addresses = self.client.getAddressesByAccount()
+            account_addresses = self.client.ListAddresses()
         else:
-            account_addresses = await self.command.getAddressesByAccount()
-            account_addresses = json.loads(account_addresses)
-
             scan_addresses = await self.command.listAddressgroupPings()
             scan_addresses = json.loads(scan_addresses)
+            account_addresses = await self.command.ListAddresses()
+            account_addresses = json.loads(account_addresses)
 
         if scan_addresses:
             flattened_addresses = [address_info for address_info_list in scan_addresses for address_info in address_info_list]
@@ -387,9 +391,7 @@ class WalletWindow(Window):
     
 
     async def start_merge_operation(self, address, tx_fee):
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
-        if os.path.exists(db_path):
+        if os.path.exists(self.db_path):
             operation = self.client.z_mergeToaAdress(
                 self.json_addresses,
                 address,
@@ -434,10 +436,8 @@ class WalletWindow(Window):
         self.merging_utxos.text = f"mergingUTXOs : {mergingUTXOs}"
         self.merging_value.text = f"mergingValue : {self.system.format_balance(mergingTransparentValue)}"
         self.operation_id_output.value = f"OperationID : {operationID}"
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
         while True:
-            if os.path.exists(db_path):
+            if os.path.exists(self.db_path):
                 operation_status = self.client.z_getOperationStatus(operationID)
             else:
                 operation_status = await self.command.z_getOperationStatus(operationID)
@@ -518,15 +518,13 @@ class WalletWindow(Window):
         if not self.select_address.value:
             return
         address = self.select_address.value.select_address
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
         if self.transaction_mode == "transparent":
-            if os.path.exists(db_path):
+            if os.path.exists(self.db_path):
                 result = self.client.DumpPrivKey(address)
             else:
                 result = await self.command.DumpPrivKey(address)
         elif self.transaction_mode == "shielded":
-            if os.path.exists(db_path):
+            if os.path.exists(self.db_path):
                 result = self.client.z_ExportKey(address)
             else:
                 result = await self.command.z_ExportKey(address)
@@ -628,8 +626,6 @@ class WalletWindow(Window):
             )
             self.import_key_input.focus()
             return
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
         key = self.import_key_input.value
         
         self.transactions_list_option.enabled = False
@@ -654,12 +650,12 @@ class WalletWindow(Window):
             rescan = False
 
         if self.transaction_mode == 'transparent':
-            if os.path.exists(db_path):
+            if os.path.exists(self.db_path):
                 result = self.client.ImportPrivKey(key, rescan)
             else:
                 result = await self.command.ImportPrivKey(key, rescan)
         elif self.transaction_mode == "shielded":
-            if os.path.exists(db_path):
+            if os.path.exists(self.db_path):
                 result = self.client.z_ImportKey(key, rescan)
             else:
                 result = await self.command.z_ImportKey(key, rescan)
@@ -696,13 +692,11 @@ class WalletWindow(Window):
 
     
     async def import_wallet_file(self, button):
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
         async def on_confirm(window, path):
             if path:
                 selected_file = str(path)
                 backup_name = f"wallet{datetime.today().strftime('%d%m%Y%H%M%S')}"
-                if os.path.exists(db_path):
+                if os.path.exists(self.db_path):
                 #Exports all wallet keys, for taddr and zaddr, in a human-readable format.
                     backup = self.client.z_exportWallet(backup_name)
                 else:
@@ -713,7 +707,7 @@ class WalletWindow(Window):
                         "This operation may take minutes to complete, please wait..."
                     )
                     await asyncio.sleep(1)
-                    if os.path.exists(db_path):
+                    if os.path.exists(self.db_path):
                         #Imports taddr and zaddr keys from a wallet export file
                         self.client.z_importWallet(selected_file)
                     else:
@@ -736,13 +730,10 @@ class WalletWindow(Window):
             
 
     async def get_transparent_addresses(self):
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
-        
-        if os.path.exists(db_path):
-            addresses_data = self.client.getAddressesByAccount()
+        if os.path.exists(self.db_path):
+            addresses_data = self.client.ListAddresses()
         else:
-            addresses_data = await self.command.getAddressesByAccount()
+            addresses_data = await self.command.ListAddresses()
             addresses_data = json.loads(addresses_data)
         if addresses_data is not None:
             address_items = [(address_info, address_info) for address_info in addresses_data]
@@ -753,9 +744,7 @@ class WalletWindow(Window):
         
 
     async def get_shielded_addresses(self):
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
-        if os.path.exists(db_path):
+        if os.path.exists(self.db_path):
             addresses_data = self.client.z_listAddresses()
         else:
             addresses_data = await self.command.z_listAddresses()
@@ -770,17 +759,13 @@ class WalletWindow(Window):
     async def generate_new_address(self, button):
         self.new_address_button.enabled = False
         if self.transaction_mode == "transparent":
-            config_path = self.app.paths.config
-            db_path = os.path.join(config_path, 'config.db')
-            if os.path.exists(db_path):
+            if os.path.exists(self.db_path):
                 new_address = self.client.getNewAddress()
             else:
                 new_address = await self.command.getNewAddress()
         
         elif self.transaction_mode == "shielded":
-            config_path = self.app.paths.config
-            db_path = os.path.join(config_path, 'config.db')
-            if os.path.exists(db_path):
+            if os.path.exists(self.db_path):
                 new_address = self.client.z_getNewAddress()
             else:
                 new_address = await self.command.z_getNewAddress()
@@ -831,16 +816,11 @@ class WalletWindow(Window):
 
 
     async def copy_key_clipboard(self, button):
-        import clr
-        clr.AddReference('System.Windows.Forms')
-        from System.Windows.Forms import Clipboard
         Clipboard.SetText(self.view_key_input.value)
-
         self.copy_button.enabled = False
-
         await asyncio.sleep(1)
-
         self.copy_button.enabled = True
+
 
 
     def disable_closing_window(self, window):

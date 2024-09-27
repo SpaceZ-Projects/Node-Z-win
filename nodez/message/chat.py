@@ -52,7 +52,7 @@ class MessageWindow(Window):
         
 
         self.banner_image = ImageView(
-            ("icones/messenger_txt.png"),
+            ("icons/messenger_txt.png"),
             style=ImageStyle.banner_image
         )
         self.discussion_outputs = DetailedList(

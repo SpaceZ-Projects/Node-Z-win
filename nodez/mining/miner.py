@@ -57,6 +57,9 @@ class MiningWindow(Window):
         data_path = self.app.paths.data
         self.miners_dir = os.path.join(data_path, 'miners')
 
+        config_path = self.app.paths.config
+        self.db_path = os.path.join(config_path, 'config.db')
+
         
         self.select_miner_txt = Label(
             "Select Miner :",
@@ -530,13 +533,10 @@ class MiningWindow(Window):
 
 
     async def get_transparent_addresses(self):
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
-        
-        if os.path.exists(db_path):
-            addresses_data = self.client.getAddressesByAccount()
+        if os.path.exists(self.db_path):
+            addresses_data = self.client.ListAddresses()
         else:
-            addresses_data = await self.command.getAddressesByAccount()
+            addresses_data = await self.command.ListAddresses()
             addresses_data = json.loads(addresses_data)
         if addresses_data is not None:
             address_items = [(address_info, address_info) for address_info in addresses_data]

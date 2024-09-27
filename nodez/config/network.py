@@ -1,4 +1,3 @@
-import os
 
 from toga import (
     App,
@@ -12,6 +11,7 @@ from toga import (
     Button
 )
 from toga.constants import Direction
+from typing import Iterable
 from toga.widgets.base import Widget
 
 from .styles.box import BoxStyle
@@ -30,7 +30,7 @@ class NetConfig(Box):
         app:App,
         id: str | None = None,
         style=None,
-        children: list[Widget] | None = None
+        children: Iterable[Widget] | None = None
     ):
         style = BoxStyle.net_box
         super().__init__(id, style, children)

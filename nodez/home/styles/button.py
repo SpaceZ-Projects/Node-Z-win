@@ -12,6 +12,12 @@ class ButtonStyle():
         background_color = BLACK
     )
 
+    hide_button = Pack(
+        padding_top = 40,
+        padding_left = 12,
+        background_color = BLACK
+    )
+
 
     peerinfo_button = Pack(
         padding_top = 1,

@@ -6,6 +6,11 @@ import threading
 from datetime import datetime
 import operator
 import sys
+import clr
+clr.AddReference("System.Drawing")
+clr.AddReference("System.Windows.Forms")
+import System.Drawing as Drawing
+import System.Windows.Forms as Forms
 
 from toga import (
     App,
@@ -65,7 +70,7 @@ class CashWindow(Window):
         self.input_lines = None
         
         self.loading_icon = ImageView(
-            ("icones/loading_tx.gif"),
+            ("icons/loading_tx.gif"),
             style=ImageStyle.loading_icon
         )
         self.loading_box = Box(
@@ -84,11 +89,11 @@ class CashWindow(Window):
             on_press=self.switch_to_shielded
         )
         self.transparent_icon = ImageView(
-            "icones/transparent_txt.png",
+            "icons/transparent_txt.png",
             style=ImageStyle.transparent_icon
         )
         self.shielded_icon = ImageView(
-            "icones/shielded_txt.png",
+            "icons/shielded_txt.png",
             style=ImageStyle.shielded_icon
         )
         self.select_address_txt = Label(
@@ -119,11 +124,11 @@ class CashWindow(Window):
             on_change=self.verify_address
         )
         self.verified_icon = ImageView(
-            "icones/verified.png",
+            "icons/verified.png",
             style=ImageStyle.verified_icon
         )
         self.invalid_icon = ImageView(
-            "icones/invalid.png",
+            "icons/invalid.png",
             style=ImageStyle.invalid_icon
         )
         self.amount_txt = Label(
@@ -292,11 +297,9 @@ class CashWindow(Window):
         self.main_box.add(
             self.loading_box
         )
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
         transactions_count = 10
         transactions_from = 0
-        if os.path.exists(db_path):
+        if os.path.exists(self.db_path):
             transactions_data = self.client.listTransactions(
                 transactions_count,
                 transactions_from
@@ -323,12 +326,12 @@ class CashWindow(Window):
                 txid = data["txid"]
                 if category == "send":
                     cash_icone = ImageView(
-                        "icones/cashout.png",
+                        "icons/cashout.png",
                         style=ImageStyle.cash_icon
                     )
                 else:
                     cash_icone = ImageView(
-                        "icones/cashin.png",
+                        "icons/cashin.png",
                         style=ImageStyle.cash_icon
                     )
                 transaction_address = Label(
@@ -344,7 +347,7 @@ class CashWindow(Window):
                     style=LabelStyle.time_received
                 )
                 explorer_button = Button(
-                    icon=Icon("icones/explorer_txid"),
+                    icon=Icon("icons/explorer_txid"),
                     style=ButtonStyle.explorer_button,
                     enabled=True,
                     on_press=lambda widget, txid=txid: asyncio.create_task(self.transaction_window(txid))
@@ -831,14 +834,19 @@ class CashWindow(Window):
         
     async def get_transparent_addresses(self):
         if os.path.exists(self.db_path):
-            addresses_data = self.client.getAddressesByAccount()
+            addresses_data = self.client.ListAddresses()
         else:
-            addresses_data = await self.command.getAddressesByAccount()
-            addresses_data = json.loads(addresses_data)
-        if addresses_data is not None:
+            addresses_data = await self.command.ListAddresses()
+            if addresses_data:
+                addresses_data = json.loads(addresses_data)
+            else:
+                addresses_data = []
+        
+        if addresses_data:
             address_items = [("Main Account")] + [(address_info, address_info) for address_info in addresses_data]
         else:
             address_items = [("Main Account")]
+        
         return address_items
     
     
@@ -1200,14 +1208,9 @@ class CashWindow(Window):
             
             
     async def send_notification_system(self, amount, txid):
-        import clr
-        clr.AddReference("System.Drawing")
-        clr.AddReference("System.Windows.Forms")
-        from System.Drawing import Icon
-        from System.Windows.Forms import NotifyIcon
-        icon_path = os.path.join(self.app.paths.app, "resources/app_logo.ico")
-        icon = Icon(icon_path)
-        self.notify_icon = NotifyIcon()
+        icon_path = os.path.join(self.app.paths.app, "icons/cashout.ico")
+        icon = Drawing.Icon(icon_path)
+        self.notify_icon = Forms.NotifyIcon()
         self.notify_icon.Visible = True
         self.notify_icon.BalloonTipClicked += lambda sender, event: asyncio.create_task(self.on_notification_click(txid))
         self.notify_icon.Icon = icon

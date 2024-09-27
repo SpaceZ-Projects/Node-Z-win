@@ -44,7 +44,7 @@ from .manage import NodesManage
 class HomeWindow(Window):
     def __init__(self, app:App):
         super().__init__(
-            size=(925, 130),
+            size=(950, 130),
             position=(0, 5),
             resizable=False,
             on_close=self.close_window
@@ -57,39 +57,44 @@ class HomeWindow(Window):
         self.db_path = os.path.join(config_path, 'config.db')
         
         self.cash_button = Button(
-            icon=Icon("icones/cash"),
+            icon=Icon("icons/cash"),
             style=ButtonStyle.menu_button,
             on_press=self.open_cash_window
         )
         self.wallet_button = Button(
-            icon=Icon("icones/wallet"),
+            icon=Icon("icons/wallet"),
             style=ButtonStyle.menu_button,
             on_press=self.open_wallet_window
         )
         self.explorer_button = Button(
-            icon=Icon("icones/explorer"),
+            icon=Icon("icons/explorer"),
             style=ButtonStyle.menu_button,
             on_press=self.open_explorer_window
         )
         self.message_button = Button(
-            icon=Icon("icones/message"),
+            icon=Icon("icons/message"),
             style=ButtonStyle.menu_button,
             on_press=self.open_message_window
         )
         self.ecosys_button = Button(
-            icon=Icon("icones/ecosys"),
+            icon=Icon("icons/ecosys"),
             style=ButtonStyle.menu_button,
             on_press=self.open_ecosys_window
         )
         self.mining_button = Button(
-            icon=Icon("icones/mining"),
+            icon=Icon("icons/mining"),
             style=ButtonStyle.menu_button,
             on_press=self.open_mining_window
         )
         self.browser_button = Button(
-            icon=Icon("icones/browser"),
+            icon=Icon("icons/browser"),
             style=ButtonStyle.menu_button,
             on_press=self.open_browser_window
+        )
+        self.hide_button = Button(
+            icon=Icon("icons/hide"),
+            style=ButtonStyle.hide_button,
+            on_press=self.hide_main_menu
         )
         self.divider_menu = Divider(
             direction=Direction.HORIZONTAL,
@@ -285,7 +290,8 @@ class HomeWindow(Window):
             self.message_button,
             self.ecosys_button,
             self.mining_button,
-            self.browser_button
+            self.browser_button,
+            self.hide_button
         )
         self.blockchain_info_box.add(
             self.chain_txt,
@@ -327,7 +333,6 @@ class HomeWindow(Window):
         self.update_info_task = asyncio.create_task(self.update_blockchain_info())
         await asyncio.sleep(2)
         self.show()
-        await self.setup_notify_icon()
         await asyncio.gather(
             self.update_price_task,
             self.update_balance_task,
@@ -470,6 +475,21 @@ class HomeWindow(Window):
             self.explorer_button
         )
         self.system.update_settings('cash_window', True)
+
+
+
+    def menu_open_cash_wallet(self, sender, event):
+        active_windows = list(self.app.windows)
+        found_cash_out_window = False
+        for window in active_windows:
+            if window.title == "Cash Out":
+                self.app.current_window = self.cash_window
+                found_cash_out_window = True
+                break
+        if not found_cash_out_window:
+            self.open_cash_window(None)
+
+
         
     def open_wallet_window(self, button):
         self.wallet_button.style.visibility = HIDDEN
@@ -479,6 +499,18 @@ class HomeWindow(Window):
             self.explorer_button
         )
         self.system.update_settings('wallet_window', True)
+
+
+    def menu_open_wallet_window(self, sender, event):
+        active_windows = list(self.app.windows)
+        found_wallet_window = False
+        for window in active_windows:
+            if window.title == "Wallet Manage":
+                self.app.current_window = self.wallet_window
+                found_wallet_window = True
+                break
+        if not found_wallet_window:
+            self.open_wallet_window(None)
         
         
     def open_explorer_window(self, button):
@@ -491,6 +523,19 @@ class HomeWindow(Window):
         self.system.update_settings('explorer_window', True)
         self.explorer_window.show()
 
+
+    def menu_open_explorer_window(self, sender, event):
+        active_windows = list(self.app.windows)
+        found_explorer_window = False
+        for window in active_windows:
+            if window.title == "Insight Explorer":
+                self.app.current_window = self.explorer_window
+                found_explorer_window = True
+                break
+        if not found_explorer_window:
+            self.open_explorer_window(None)
+
+
         
     def open_message_window(self, button):
         self.message_button.style.visibility = HIDDEN
@@ -501,6 +546,16 @@ class HomeWindow(Window):
         self.system.update_settings('message_window', True)
         self.message_window.show()
 
+
+    def open_ecosys_window(self, button):
+        self.ecosys_button.style.visibility = HIDDEN
+        self.ecosys_window = EcosysWindow(
+            self.app,
+            self.ecosys_button
+        )
+        self.system.update_settings('ecosys_window', True)
+        self.ecosys_window.show()
+
         
     def open_mining_window(self, button):
         self.mining_button.style.visibility = HIDDEN
@@ -510,15 +565,17 @@ class HomeWindow(Window):
         )
         self.system.update_settings('mining_window', True)
 
-    
-    def open_ecosys_window(self, button):
-        self.ecosys_button.style.visibility = HIDDEN
-        self.ecosys_window = EcosysWindow(
-            self.app,
-            self.ecosys_button
-        )
-        self.system.update_settings('ecosys_window', True)
-        self.ecosys_window.show()
+
+    def menu_open_mining_window(self, sender, event):
+        active_windows = list(self.app.windows)
+        found_mining_window = False
+        for window in active_windows:
+            if window.title == "Mining Tools":
+                self.app.current_window = self.mining_window
+                found_mining_window = True
+                break
+        if not found_mining_window:
+            self.open_mining_window(None)
         
         
     def open_browser_window(self, button):
@@ -528,6 +585,18 @@ class HomeWindow(Window):
             self.browser_button
         )
         self.system.update_settings('browser_window', True)
+
+
+    def menu_open_browser_window(self, sender, event):
+        active_windows = list(self.app.windows)
+        found_browser_window = False
+        for window in active_windows:
+            if window.title == "Web Browser":
+                self.app.current_window = self.browser_window
+                found_browser_window = True
+                break
+        if not found_browser_window:
+            self.open_browser_window(None)
 
 
     async def open_nodes_manage(self, button):
@@ -548,16 +617,46 @@ class HomeWindow(Window):
         await self.create_menu_items()
         self.notify_icon.ContextMenuStrip = self.context_menu
 
+    def show_main_window(self, sender, event):
+        self.show()
+        self.remove_notify_icon()
+
+    async def hide_main_menu(self, button):
+        self.hide()
+        await self.setup_notify_icon()
+
 
     async def create_menu_items(self):
+        items = [
+            ("Main Menu", Drawing.Color.Yellow, Drawing.Color.Black, self.show_main_window, 'home.png'),
+            ("Cashout", Drawing.Color.Yellow, Drawing.Color.Black, self.menu_open_cash_wallet, 'cash_tray.png'),
+            ("Wallet", Drawing.Color.Yellow, Drawing.Color.Black, self.menu_open_wallet_window, 'wallet_tray.png'),
+            ("Insight Explorer", Drawing.Color.Yellow, Drawing.Color.Black, self.menu_open_explorer_window, 'explorer_tray.png'),
+            ("Message", Drawing.Color.Yellow, Drawing.Color.Black, None, 'message_tray.png'),
+            ("Ecosys", Drawing.Color.Yellow, Drawing.Color.Black, None, 'ecosys_tray.png'),
+            ("Mining", Drawing.Color.Yellow, Drawing.Color.Black, self.menu_open_mining_window, 'mining_tray.png'),
+            ("Browser", Drawing.Color.Yellow, Drawing.Color.Black, self.menu_open_browser_window, 'browser_tray.png'),
+            (None, None, None, None, None),
+            ("Stop Node", Drawing.Color.Black, Drawing.Color.White, lambda sender, event: asyncio.create_task(self.ask_stopping_node(window=None, event=event)), 'stop.png'),
+            ("Exit App", Drawing.Color.Black, Drawing.Color.White, self.exit_app, 'exit.png')
+        ]
 
-        stop_menu_item = Forms.ToolStripMenuItem("Stop Node")
-        stop_menu_item.Click += lambda sender, event: asyncio.create_task(self.ask_stopping_node(window=None, event=event))
-        self.context_menu.Items.Add(stop_menu_item)
+        for item in items:
+            text, back_color, fore_color, click_event, icon_file = item
 
-        exit_menu_item = Forms.ToolStripMenuItem("Exit App")
-        exit_menu_item.Click += self.exit_app
-        self.context_menu.Items.Add(exit_menu_item)
+            if text is None:
+                self.context_menu.Items.Add(Forms.ToolStripSeparator())
+                continue
+            else:
+                item = Forms.ToolStripMenuItem(f"|  {text}")
+                item.BackColor = back_color
+                item.ForeColor = fore_color
+                if icon_file:
+                    icon_path = os.path.join(self.app.paths.app, f'icons/{icon_file}')
+                    item.Image = Drawing.Bitmap(icon_path)
+                if click_event:
+                    item.Click += click_event
+                self.context_menu.Items.Add(item)
 
 
     async def ask_stopping_node(self, window, event):
@@ -601,7 +700,7 @@ class HomeWindow(Window):
     async def stopping_node(self):
         self.remove_notify_icon()
         self.stopping_image = ImageView(
-            "icones/stopping_node.gif"
+            "icons/stopping_node.gif"
         )
         self.stopping_txt = Label(
             "Stopping Node...",
@@ -661,7 +760,6 @@ class HomeWindow(Window):
             if result is False:
                 return
             if result is True:
-                self.remove_notify_icon()
                 await self.skip_node_and_close()
         self.question_dialog(
             "Exit GUI...",
@@ -673,6 +771,7 @@ class HomeWindow(Window):
     def exit_app(self, sender, event):
         def on_confirm(window, result):
             if result is True:
+                self.remove_notify_icon()
                 self.system.clean_config_path()
                 self.app.exit()
             if result is False:

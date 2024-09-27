@@ -43,6 +43,9 @@ class ExplorerWindow(Window):
         self.window_button = window_button
         self.txid = txid
 
+        config_path = self.app.paths.config
+        self.db_path = os.path.join(config_path, 'config.db')
+
         self.explorer_input = TextInput(
             placeholder="Enter an address, transaction hash, block hash or block number",
             style=InputStyle.explorer_input,
@@ -85,9 +88,7 @@ class ExplorerWindow(Window):
 
 
     async def get_block_height(self, blockheight):
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
-        if os.path.exists(db_path):
+        if os.path.exists(self.db_path):
             result = self.client.getBlock(blockheight)
         else:
             result = await self.command.getBlock(blockheight)
@@ -119,9 +120,7 @@ class ExplorerWindow(Window):
 
 
     async def get_address_txids(self, address):
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
-        if os.path.exists(db_path):
+        if os.path.exists(self.db_path):
             result = self.client.getAddressBalance(address)
         else:
             result = await self.command.getAddressBalance(address)
@@ -155,9 +154,7 @@ class ExplorerWindow(Window):
 
     
     async def get_txid_info(self, txid):
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
-        if os.path.exists(db_path):
+        if os.path.exists(self.db_path):
             result = self.client.getRawTransaction(txid)
         else:
             result = await self.command.getRawTransaction(txid)

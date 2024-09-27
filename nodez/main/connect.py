@@ -79,7 +79,7 @@ class WindowRPC(Window):
             style=DividerStyle.rpc_divider
         )
         self.connect_button = Button(
-            icon=Icon("icones/connect"),
+            icon=Icon("icons/connect"),
             style=ButtonStyle.connect_button,
             on_press=self.check_inputs
         )

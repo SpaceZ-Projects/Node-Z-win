@@ -44,7 +44,8 @@ class AddressInfo(Box):
         self.client = RPCRequest(self.app)
         self.command = ClientCommands(self.app)
 
-        self.config_path = self.app.paths.config
+        config_path = self.app.paths.config
+        self.db_path = os.path.join(config_path, 'config.db')
 
         self.qr_code = self.system.qr_generate(self.address)
 
@@ -60,13 +61,13 @@ class AddressInfo(Box):
             style=BoxStyle.address_balance_box
         )
         self.copy_button = Button(
-            icon=Icon("icones/copy"),
+            icon=Icon("icons/copy"),
             enabled=True,
             style=ButtonStyle.address_buttons,
             on_press=self.copy_address_clipboard
         )
         self.save_button = Button(
-            icon=Icon("icones/save"),
+            icon=Icon("icons/save"),
             enabled=True,
             style=ButtonStyle.address_buttons,
             on_press=self.save_qr_image
@@ -104,8 +105,7 @@ class AddressInfo(Box):
 
     
     async def get_address_balance(self):
-        db_path = os.path.join(self.config_path, 'config.db')
-        if os.path.exists(db_path):
+        if os.path.exists(self.db_path):
             result = self.client.z_getBalance(self.address)
         else:
             result = await self.command.z_getBalance(self.address)

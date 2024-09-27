@@ -47,6 +47,9 @@ class AddressIndex(Box):
         self.system = SystemOp(self.app)
         self.container = container
 
+        config_path = self.app.paths.config
+        self.db_path = os.path.join(config_path, 'config.db')
+
         self.address_title = Label(
             self.address,
             style=LabelStyle.address_title
@@ -160,9 +163,7 @@ class AddressIndex(Box):
 
 
     async def get_address_txids(self):
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
-        if os.path.exists(db_path):
+        if os.path.exists(self.db_path):
             result = self.client.getAddressDeltas(self.address)
         else:
             result = await self.command.getAddressDeltas(self.address)
@@ -219,7 +220,7 @@ class AddressIndex(Box):
                 transaction_box = Box(
                     style=BoxStyle.address_transaction_box
                 )
-                if os.path.exists(db_path):
+                if os.path.exists(self.db_path):
                     txid_details = self.client.getRawTransaction(txid)
                 else:
                     txid_details = await self.command.getRawTransaction(txid)
@@ -306,8 +307,6 @@ class AddressIndex(Box):
 
                 
     async def load_more_txids(self, button):
-        config_path = self.app.paths.config
-        db_path = os.path.join(config_path, 'config.db')
         self.remove(self.loadmore_button)
         self.container.vertical_position = self.container.max_vertical_position
         start_index = self.total_txids - 10
@@ -315,7 +314,7 @@ class AddressIndex(Box):
             start_index = 0
         for item in reversed(self.txids_result[start_index:self.total_txids]):
             txid = item["txid"]
-            if os.path.exists(db_path):
+            if os.path.exists(self.db_path):
                 txid_details = self.client.getRawTransaction(txid)
             else:
                 txid_details = await self.command.getRawTransaction(txid)

@@ -49,10 +49,11 @@ class AllTransactions(Box):
         self.transactions_count = 18
         self.transactions_from = 0
 
-        self.config_path = self.app.paths.config
+        config_path = self.app.paths.config
+        self.db_path = os.path.join(config_path, 'config.db')
 
         self.loading_icon = ImageView(
-            ("icones/loading_tx.gif"),
+            ("icons/loading_tx.gif"),
             style=ImageStyle.loading_icon
         )
         self.loading_box = Box(
@@ -78,8 +79,7 @@ class AllTransactions(Box):
 
     
     async def get_transactions_list(self, widget):
-        db_path = os.path.join(self.config_path, 'config.db')
-        if os.path.exists(db_path):
+        if os.path.exists(self.db_path):
             transactions_data = self.client.listTransactions(
                 self.transactions_count,
                 self.transactions_from
@@ -118,12 +118,12 @@ class AllTransactions(Box):
             txid = data["txid"]
             if category == "send":
                 cash_icone = ImageView(
-                    "icones/cashout.png",
+                    "icons/cashout.png",
                     style=ImageStyle.cash_icon
                 )
             else:
                 cash_icone = ImageView(
-                    "icones/cashin.png",
+                    "icons/cashin.png",
                     style=ImageStyle.cash_icon
                 )
             transaction_address = Label(
@@ -139,7 +139,7 @@ class AllTransactions(Box):
                 style=LabelStyle.time_received
             )
             explorer_button = Button(
-                icon=Icon("icones/explorer_txid"),
+                icon=Icon("icons/explorer_txid"),
                 style=ButtonStyle.explorer_button,
                 enabled=True,
                 on_press=lambda widget, txid=txid: asyncio.create_task(self.transaction_window(txid))

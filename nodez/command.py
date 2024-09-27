@@ -158,8 +158,8 @@ class ClientCommands():
         return await self._run_command(command)
     
 
-    async def getAddressesByAccount(self):
-        command = f'{self.bitcoinz_cli_file} getaddressesbyaccount ""'
+    async def ListAddresses(self):
+        command = f'{self.bitcoinz_cli_file} listaddresses'
         return await self._run_command(command)
     
     

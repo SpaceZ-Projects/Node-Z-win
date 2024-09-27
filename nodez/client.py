@@ -286,10 +286,10 @@ class RPCRequest():
             []
         )
     
-    def getAddressesByAccount(self):
+    def ListAddresses(self):
         return self.make_rpc_request(
-            "getaddressesbyaccount",
-            [""]
+            "listaddresses",
+            []
         )
 
         
